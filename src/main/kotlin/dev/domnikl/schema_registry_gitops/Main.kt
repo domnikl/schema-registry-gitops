@@ -4,12 +4,11 @@ import ch.qos.logback.classic.Logger
 import dev.domnikl.schema_registry_gitops.command.Apply
 import dev.domnikl.schema_registry_gitops.command.Dump
 import dev.domnikl.schema_registry_gitops.command.Validate
+import org.slf4j.LoggerFactory
 import picocli.CommandLine
+import picocli.CommandLine.ScopeType
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
-import org.slf4j.LoggerFactory
-import picocli.CommandLine.ScopeType
-
 
 @CommandLine.Command(
     name = "schema-registry-gitops",
@@ -22,7 +21,7 @@ import picocli.CommandLine.ScopeType
         Dump::class,
     ]
 )
-class SchemaRegistryGitops: Callable<Int> {
+class SchemaRegistryGitops : Callable<Int> {
     @CommandLine.Option(names = ["-r", "--registry"], description = ["schema registry HTTP endpoint"], scope = ScopeType.INHERIT)
     var baseUrl = "http://localhost:8081"
 

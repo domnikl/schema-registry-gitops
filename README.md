@@ -1,6 +1,12 @@
 # schema-registry-gitops
 
-This is a pretty raw schema registry Gitops tool to handle subjects, compatibility levels and Avro schema registration for Confluence Schema Registry.
+Manages subjects, compatibility levels and schema registration for Confluence Schema Registry through a desired state file.
+
+## Overview
+
+Schema Registry GitOps is an Infrastructure as Code tool that applies a desired state configured through simple YAML and
+Avro Schema files to a Confluent Schema Registry. This way you can keep a version control history of your schemas and 
+use all your favorite tools to review, merge and deploy schemas in your CI/CD pipeline.
 
 ## Usage
 
@@ -22,14 +28,14 @@ Commands:
 The desired state is managed using this YAML definition:
 
 ```yaml
-# sets default compatibility level, optional
+# sets default compatibility level (optional)
 compatibility: FULL_TRANSITIVE
 subjects:
   # a subject that references a file for the schema definition
   - name: my-new-subject-referencing-a-schema-file
-    # sets compatibility level for this subject, optional
+    # sets compatibility level for this subject (optional)
     compatibility: BACKWARD
-    # file references are always relative to this YAML file
+    # file references are always relative to the given (this) YAML file
     file: my-actual-schema.avsc
 
   # another example: instead of referencing a file, it is also possible
@@ -48,12 +54,23 @@ subjects:
   }'
 ```
 
-## TODOs
+## Development
 
-* UNIT & INTEGRATION TESTS!
-* build as Docker container
-* ktlint
-* extend logging: create schema version IDs
+Docker is used to build and test schema-registry-gitops for development.
+
+```shell
+# test & build
+docker build -t domnikl/schema-registry-gitops .
+
+# run it in Docker
+docker run -v ./examples:/data domnikl/schema-registry-gitops validate --registry http://localhost:8081 /data/schema-registry.yml
+```
+
+## Roadmap
+
+* more UNIT & INTEGRATION TESTS!
+* Github Actions to build & push image to Docker Hub
+* extend logging: created schema version IDs
 * handle multiple YAML files (what about duplicate subjects?)
 * support Protobuf & JSON Schema
 * delete mode for apply (should not be default) - deletes all unreferenced subjects

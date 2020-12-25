@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops.command
 
-import dev.domnikl.schema_registry_gitops.*
+import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
+import dev.domnikl.schema_registry_gitops.StatePersistence
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import picocli.CommandLine
@@ -11,7 +12,7 @@ import java.util.concurrent.Callable
     name = "apply",
     description = ["applies the state to the given schema registry"]
 )
-class Apply: Callable<Int> {
+class Apply : Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var schemaRegistryGitops: SchemaRegistryGitops
 

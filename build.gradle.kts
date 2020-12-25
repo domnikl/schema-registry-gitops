@@ -1,9 +1,13 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.gradle.ext.ProjectSettings
+import org.jetbrains.gradle.ext.TaskTriggersConfig
 
 plugins {
     java
     kotlin("jvm") version "1.4.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "0.9"
 }
 
 group = "dev.domnikl"
@@ -35,5 +39,23 @@ dependencies {
 val jar by tasks.getting(Jar::class) {
     manifest {
         attributes["Main-Class"] = "dev.domnikl.schema_registry_gitops.MainKt"
+    }
+}
+
+tasks {
+    withType<ShadowJar> {
+        archiveFileName.set("schema-registry-gitops.jar")
+    }
+}
+
+idea {
+    project {
+        this as ExtensionAware
+        configure<ProjectSettings> {
+            this as ExtensionAware
+            configure<TaskTriggersConfig> {
+                afterSync(tasks.findByName("ktlintApplyToIdea"))
+            }
+        }
     }
 }

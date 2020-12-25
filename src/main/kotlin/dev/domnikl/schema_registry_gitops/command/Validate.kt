@@ -1,19 +1,19 @@
 package dev.domnikl.schema_registry_gitops.command
 
+import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
+import dev.domnikl.schema_registry_gitops.StatePersistence
+import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
 
-import dev.domnikl.schema_registry_gitops.*
-
-
 @CommandLine.Command(
     name = "validate",
     description = ["validate schemas, should be used before applying changes"]
 )
-class Validate: Callable<Int> {
+class Validate : Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var schemaRegistryGitops: SchemaRegistryGitops
 

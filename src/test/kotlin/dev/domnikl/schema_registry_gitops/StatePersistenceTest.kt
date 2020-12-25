@@ -3,7 +3,9 @@ package dev.domnikl.schema_registry_gitops
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import org.apache.avro.Schema
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.File
 import java.io.FileNotFoundException
