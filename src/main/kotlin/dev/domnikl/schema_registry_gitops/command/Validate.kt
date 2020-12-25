@@ -21,7 +21,8 @@ class Validate: Callable<Int> {
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {
-        val state = YamlStateLoader().load(File("examples/schema-registry.yml"))
+        val file = File("examples/schema-registry.yml")
+        val state = YamlStateLoader(file.parentFile).load(file)
         val incompatibleSchemas = state.subjects.filterNot { isCompatible(it) }.map { it.name }
 
         if (incompatibleSchemas.isEmpty()) {

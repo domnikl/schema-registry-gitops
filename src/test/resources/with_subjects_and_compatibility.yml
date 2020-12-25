@@ -1,0 +1,5 @@
+compatibility: FULL
+subjects:
+  - name: foo
+    compatibility: FORWARD
+    file: with_subjects.avsc

@@ -21,7 +21,8 @@ class Apply: Callable<Int> {
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {
-        val state = YamlStateLoader().load(File("examples/schema-registry.yml"))
+        val file = File("examples/schema-registry.yml")
+        val state = YamlStateLoader(file.parentFile).load(file)
 
         if (state.compatibility != null) {
             restService.updateCompatibility(state.compatibility.toString(), "")

@@ -1,0 +1,3 @@
+subjects:
+  - name: foo
+    file: does_not_exist.avsc
