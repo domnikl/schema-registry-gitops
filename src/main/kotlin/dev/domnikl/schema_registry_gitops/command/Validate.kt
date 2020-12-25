@@ -17,11 +17,14 @@ class Validate: Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var schemaRegistryGitops: SchemaRegistryGitops
 
+    @CommandLine.Parameters(description = ["path to input YAML file"])
+    private lateinit var inputFile: String
+
     private val restService by lazy { RestService(schemaRegistryGitops.baseUrl) }
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {
-        val file = File("examples/schema-registry.yml")
+        val file = File(inputFile)
         val state = StatePersistence().load(file.parentFile, file)
         val incompatibleSchemas = state.subjects.filterNot { isCompatible(it) }.map { it.name }
 

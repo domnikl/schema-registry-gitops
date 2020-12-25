@@ -9,17 +9,23 @@ import java.util.concurrent.Callable
 
 @CommandLine.Command(
     name = "apply",
-    description = ["applies the config to the given schema registry"]
+    description = ["applies the state to the given schema registry"]
 )
 class Apply: Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var schemaRegistryGitops: SchemaRegistryGitops
 
+    @CommandLine.Parameters(description = ["path to input YAML file"])
+    private lateinit var inputFile: String
+
     private val restService by lazy { RestService(schemaRegistryGitops.baseUrl) }
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {
-        val file = File("examples/schema-registry.yml")
+
+        // TODO: print changes
+
+        val file = File(inputFile)
         val state = StatePersistence().load(file.parentFile, file)
 
         if (state.compatibility != null) {

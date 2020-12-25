@@ -12,8 +12,8 @@ Manages schema registries through Infrastructure as Code
   -V, --version              Print version information and exit.
 Commands:
   validate  validate schemas, should be used before applying changes
-  apply     applies the config to the given schema registry
-  dump      prints the current state
+  apply     applies the state to the given schema registry
+  dump      dumps the current state as YAML to a file
 ```
 
 ## State file
@@ -49,7 +49,6 @@ subjects:
 
 ## TODOs
 
-* CLI params where to find YAML file
 * configure logging
 * UNIT & INTEGRATION TESTS!
 * build as Docker container

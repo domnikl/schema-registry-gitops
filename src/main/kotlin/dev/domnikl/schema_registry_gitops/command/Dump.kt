@@ -15,6 +15,9 @@ class Dump: Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var schemaRegistryGitops: SchemaRegistryGitops
 
+    @CommandLine.Parameters(description = ["path to output YAML file"])
+    private lateinit var inputFile: String
+
     override fun call(): Int {
         val restService = RestService(schemaRegistryGitops.baseUrl)
         val statePersistence = StatePersistence()
@@ -30,7 +33,7 @@ class Dump: Callable<Int> {
             }
         )
 
-        statePersistence.save(state, File("schema-registry.yml")) // TODO: don't hardcode file names
+        statePersistence.save(state, File(inputFile))
 
         return 0
     }
