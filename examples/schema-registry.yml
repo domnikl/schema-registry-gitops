@@ -1,0 +1,7 @@
+global:
+  compatibility: FULL_TRANSITIVE
+
+subjects:
+  foo-value:
+    file: foo.avsc
+    compatibility: FULL_TRANSITIVE
