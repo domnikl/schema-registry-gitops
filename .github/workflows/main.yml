@@ -1,4 +1,4 @@
-name: build & test Docker image
+name: build
 on: push
 jobs:
   build:

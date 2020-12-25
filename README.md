@@ -1,5 +1,9 @@
 # schema-registry-gitops
 
+![build](https://github.com/domnikl/schema-registry-gitops/workflows/build/badge.svg)
+<a href="https://codeclimate.com/github/domnikl/schema-registry-gitops/maintainability"><img src="https://api.codeclimate.com/v1/badges/2e87990ad7212a273b49/maintainability" /></a>
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 Manages subjects, compatibility levels and schema registration for Confluence Schema Registry through a desired state file.
 
 ## Overview
@@ -69,7 +73,6 @@ docker run -v ./examples:/data domnikl/schema-registry-gitops validate --registr
 ## Roadmap
 
 * more UNIT & INTEGRATION TESTS!
-* Github Actions to build & push image to Docker Hub
 * extend logging: created schema version IDs
 * handle multiple YAML files (what about duplicate subjects?)
 * support Protobuf & JSON Schema
