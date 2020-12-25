@@ -1,12 +1,10 @@
 package dev.domnikl.schema_registry_gitops.command
 
-import dev.domnikl.schema_registry_gitops.Compatibility
-import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
-import dev.domnikl.schema_registry_gitops.State
-import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.*
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import picocli.CommandLine
+import java.io.File
 import java.util.concurrent.Callable
 
 @CommandLine.Command(
@@ -19,6 +17,7 @@ class Dump: Callable<Int> {
 
     override fun call(): Int {
         val restService = RestService(schemaRegistryGitops.baseUrl)
+        val statePersistence = StatePersistence()
 
         val state = State(
             Compatibility.valueOf(restService.getConfig("").compatibilityLevel),
@@ -31,7 +30,7 @@ class Dump: Callable<Int> {
             }
         )
 
-        println(state)
+        statePersistence.save(state, File("schema-registry.yml")) // TODO: don't hardcode file names
 
         return 0
     }

@@ -50,7 +50,7 @@ subjects:
 ## TODOs
 
 * CLI params where to find YAML file
-* use a logger to control output
+* configure logging
 * UNIT & INTEGRATION TESTS!
 * build as Docker container
 * ktlint

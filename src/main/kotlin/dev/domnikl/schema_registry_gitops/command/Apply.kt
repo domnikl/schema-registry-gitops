@@ -20,7 +20,7 @@ class Apply: Callable<Int> {
 
     override fun call(): Int {
         val file = File("examples/schema-registry.yml")
-        val state = StatePersistence(file.parentFile).load(file)
+        val state = StatePersistence().load(file.parentFile, file)
 
         if (state.compatibility != null) {
             restService.updateCompatibility(state.compatibility.toString(), "")

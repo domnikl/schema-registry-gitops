@@ -9,12 +9,12 @@ import org.apache.avro.Schema
 import java.io.File
 import java.nio.file.Files
 
-class StatePersistence(private val basePath: File) {
+class StatePersistence {
     private val mapper = ObjectMapper(YAMLFactory())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .registerKotlinModule()
 
-    fun load(file: File): State {
+    fun load(basePath: File, file: File): State {
         require(Files.exists(file.toPath()))
         require(file.length() > 0)
 
@@ -30,6 +30,24 @@ class StatePersistence(private val basePath: File) {
                 )
             } ?: emptyList()
         )
+    }
+
+    fun save(state: State, toFile: File) {
+        val yaml = Yaml(
+            state.compatibility?.toString(),
+            state.subjects.map {
+                val schema = it.schema.rawSchema() as Schema
+
+                YamlSubject(
+                    it.name,
+                    null,
+                    schema.toString(),
+                    it.compatibility?.toString()
+                )
+            }
+        )
+
+        mapper.writeValue(toFile, yaml)
     }
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
