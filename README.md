@@ -5,15 +5,16 @@ This is a pretty raw schema registry Gitops tool to handle subjects, compatibili
 ## Usage
 
 ```
-Usage: schema-registry-gitops [-hV] [-r=<baseUrl>] [COMMAND]
+Usage: schema-registry-gitops [-hvV] [-r=<baseUrl>] [COMMAND]
 Manages schema registries through Infrastructure as Code
   -h, --help                 Show this help message and exit.
-  -r, --registry=<baseUrl>
+  -r, --registry=<baseUrl>   schema registry HTTP endpoint
+  -v, --verbose              enable verbose logging
   -V, --version              Print version information and exit.
 Commands:
   validate  validate schemas, should be used before applying changes
   apply     applies the state to the given schema registry
-  dump      dumps the current state as YAML to a file
+  dump      prints the current state
 ```
 
 ## State file
@@ -49,12 +50,12 @@ subjects:
 
 ## TODOs
 
-* configure logging
 * UNIT & INTEGRATION TESTS!
 * build as Docker container
 * ktlint
-* inline schemas (strings in YAML)
-* dump subcommand should write to a (given) YAML file
+* extend logging: create schema version IDs
 * handle multiple YAML files (what about duplicate subjects?)
 * support Protobuf & JSON Schema
-* delete mode (should not be default) - deletes all unreferenced subjects
+* delete mode for apply (should not be default) - deletes all unreferenced subjects
+* purge subcommand to delete all subjects (-f)
+* handle multiple schema versions per subject

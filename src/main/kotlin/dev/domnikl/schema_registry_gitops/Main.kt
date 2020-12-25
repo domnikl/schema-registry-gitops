@@ -23,7 +23,7 @@ import picocli.CommandLine.ScopeType
     ]
 )
 class SchemaRegistryGitops: Callable<Int> {
-    @CommandLine.Option(names = ["-r", "--registry"], scope = ScopeType.INHERIT)
+    @CommandLine.Option(names = ["-r", "--registry"], description = ["schema registry HTTP endpoint"], scope = ScopeType.INHERIT)
     var baseUrl = "http://localhost:8081"
 
     @CommandLine.Option(names = ["-v", "--verbose"], description = ["enable verbose logging"], scope = ScopeType.INHERIT)
