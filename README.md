@@ -70,6 +70,10 @@ docker build -t domnikl/schema-registry-gitops .
 docker run -v ./examples:/data domnikl/schema-registry-gitops validate --registry http://localhost:8081 /data/schema-registry.yml
 ```
 
+## Acknowledgement
+
+Schema Registry GitOps was born late in 2020 while being heavily inspired by [Shawn Seymour](https://github.com/devshawn) and his excellent [kafka-gitops](https://github.com/devshawn/kafka-gitops)! Much ❤ to [Confluent](https://www.confluent.io/) for building Schema Registry and an amazing client lib, I am really just standing on the shoulders of giants here.
+
 ## Roadmap
 
 * more UNIT & INTEGRATION TESTS!
