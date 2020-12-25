@@ -1,9 +1,6 @@
 package dev.domnikl.schema_registry_gitops.command
 
-import dev.domnikl.schema_registry_gitops.Compatibility
-import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
-import dev.domnikl.schema_registry_gitops.State
-import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.*
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
@@ -24,15 +21,7 @@ class Apply: Callable<Int> {
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {
-        val state = State(
-            compatibility = Compatibility.FULL_TRANSITIVE,
-            listOf(
-                Subject("foo", Compatibility.FORWARD, AvroSchema(Schema.Parser().parse(File("examples/foo.avsc"))))
-            )
-        )
-
-        // TODO: get state from YAML
-
+        val state = YamlStateLoader().load(File("examples/schema-registry.yml"))
 
         if (state.compatibility != null) {
             restService.updateCompatibility(state.compatibility.toString(), "")
