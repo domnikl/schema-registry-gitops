@@ -1,0 +1,9 @@
+name: build & test Docker image
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build & Test
+        run: docker build -t domnikl/schema-registry-gitops .
