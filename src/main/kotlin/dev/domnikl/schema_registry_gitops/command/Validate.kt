@@ -22,7 +22,7 @@ class Validate: Callable<Int> {
 
     override fun call(): Int {
         val file = File("examples/schema-registry.yml")
-        val state = YamlStateLoader(file.parentFile).load(file)
+        val state = StatePersistence(file.parentFile).load(file)
         val incompatibleSchemas = state.subjects.filterNot { isCompatible(it) }.map { it.name }
 
         if (incompatibleSchemas.isEmpty()) {

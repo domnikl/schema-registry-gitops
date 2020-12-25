@@ -1,10 +1,8 @@
 package dev.domnikl.schema_registry_gitops.command
 
 import dev.domnikl.schema_registry_gitops.*
-import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
-import org.apache.avro.Schema
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
@@ -22,7 +20,7 @@ class Apply: Callable<Int> {
 
     override fun call(): Int {
         val file = File("examples/schema-registry.yml")
-        val state = YamlStateLoader(file.parentFile).load(file)
+        val state = StatePersistence(file.parentFile).load(file)
 
         if (state.compatibility != null) {
             restService.updateCompatibility(state.compatibility.toString(), "")

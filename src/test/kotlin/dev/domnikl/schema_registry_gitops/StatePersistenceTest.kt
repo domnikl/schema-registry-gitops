@@ -8,8 +8,8 @@ import org.junit.Test
 import java.io.File
 import java.io.FileNotFoundException
 
-class YamlStateLoaderTest {
-    private val loader = YamlStateLoader(fromResources("schemas"))
+class StatePersistenceTest {
+    private val loader = StatePersistence(fromResources("schemas"))
 
     @Test
     fun `throws exception when trying to load empty file`() {
@@ -44,23 +44,34 @@ class YamlStateLoaderTest {
     @Test
     fun `can load file with subjects`() {
         val schema = AvroSchema(Schema.Parser().parse(fromResources("schemas/with_subjects.avsc")))
-
         val state = loader.load(fromResources("with_subjects.yml"))
-        val subject = Subject("foo", null, schema)
 
         assertNull(state.compatibility)
-        assertEquals(listOf(subject), state.subjects)
+        assertEquals(listOf(Subject("foo", null, schema)), state.subjects)
+    }
+
+    @Test
+    fun `can load file with inline schema`() {
+        val schema = AvroSchema(Schema.Parser().parse(fromResources("schemas/with_subjects.avsc")))
+        val state = loader.load(fromResources("with_inline_schema.yml"))
+
+        assertEquals(listOf(Subject("foo", Compatibility.BACKWARD, schema)), state.subjects)
     }
 
     @Test
     fun `can load file with subjects and compatibility`() {
         val schema = AvroSchema(Schema.Parser().parse(fromResources("schemas/with_subjects.avsc")))
-
         val state = loader.load(fromResources("with_subjects_and_compatibility.yml"))
-        val subject = Subject("foo", Compatibility.FORWARD, schema)
 
         assertEquals(Compatibility.FULL, state.compatibility)
-        assertEquals(listOf(subject), state.subjects)
+        assertEquals(listOf(Subject("foo", Compatibility.FORWARD, schema)), state.subjects)
+    }
+
+    @Test
+    fun `throws exception when neither schema nor file was given`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            loader.load(fromResources("neither_schema_nor_file.yml"))
+        }
     }
 
     @Test

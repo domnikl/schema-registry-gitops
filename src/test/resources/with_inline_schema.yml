@@ -1,0 +1,14 @@
+subjects:
+  - name: foo
+    compatibility: BACKWARD
+    schema: '{
+       "type": "record",
+       "name": "HelloWorld",
+       "namespace": "dev.domnikl.schema_registry_gitops",
+       "fields": [
+         {
+           "name": "greeting",
+           "type": "string"
+         }
+       ]
+  }'
