@@ -3,34 +3,30 @@ package dev.domnikl.schema_registry_gitops
 import dev.domnikl.schema_registry_gitops.command.Apply
 import dev.domnikl.schema_registry_gitops.command.Dump
 import dev.domnikl.schema_registry_gitops.command.Validate
-import io.confluent.kafka.schemaregistry.avro.AvroSchema
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.RestService
-import org.apache.avro.Schema
-import java.io.File
-import java.lang.IllegalArgumentException
+import picocli.CommandLine
+import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
 
-fun main() {
-    val restService = RestService("http://localhost:8081")
-    val client = CachedSchemaRegistryClient(restService, 100)
+@CommandLine.Command(
+    name = "schema-registry-gitops",
+    mixinStandardHelpOptions = true,
+    version = ["schema-registry-gitops 0.1"],
+    description = ["Manages schema registries through Infrastructure as Code"],
+    subcommands = [
+        Validate::class,
+        Apply::class,
+        Dump::class,
+    ]
+)
+class SchemaRegistryGitops: Callable<Int> {
+    @CommandLine.Option(names = ["-r", "--registry"], scope = CommandLine.ScopeType.INHERIT)
+    var baseUrl = "http://localhost:8081"
 
-    val state = State(
-        compatibility = Compatibility.FULL_TRANSITIVE,
-        listOf(
-            Subject("foo", Compatibility.FORWARD, AvroSchema(Schema.Parser().parse(File("examples/foo.avsc"))))
-        )
-    )
-
-    val subCommand = "apply"
-
-    val command = when (subCommand) {
-        "validate" -> Validate(client, state)
-        "apply" -> Apply(restService, client, state)
-        "dump" -> Dump(restService)
-        else -> throw IllegalArgumentException("Unknown command: $subCommand")
+    override fun call(): Int {
+        CommandLine.usage(this, System.out)
+        exitProcess(0)
     }
-
-    exitProcess(command.execute())
 }
+
+fun main(args: Array<String>): Unit = exitProcess(CommandLine(SchemaRegistryGitops()).execute(*args))

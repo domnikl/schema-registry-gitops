@@ -2,6 +2,20 @@
 
 This is a pretty raw schema registry Gitops tool to handle subjects, compatibility levels and Avro schema registration for Confluence Schema Registry.
 
+## Usage
+
+```
+Usage: schema-registry-gitops [-hV] [-r=<baseUrl>] [COMMAND]
+Manages schema registries through Infrastructure as Code
+  -h, --help                 Show this help message and exit.
+  -r, --registry=<baseUrl>
+  -V, --version              Print version information and exit.
+Commands:
+  validate  validate schemas, should be used before applying changes
+  apply     applies the config to the given schema registry
+  dump      prints the current state
+```
+
 ## TODOs
 
 * use a logger to control output
