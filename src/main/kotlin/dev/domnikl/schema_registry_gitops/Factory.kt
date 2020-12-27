@@ -2,6 +2,7 @@ package dev.domnikl.schema_registry_gitops
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
+import org.slf4j.LoggerFactory
 
 class Factory {
     fun createStateValidator(baseUrl: String): StateValidator {
@@ -9,7 +10,11 @@ class Factory {
     }
 
     fun createStateApplier(baseUrl: String): StateApplier {
-        return StateApplier(createRestService(baseUrl), createClient(baseUrl))
+        return StateApplier(
+            createRestService(baseUrl),
+            createClient(baseUrl),
+            LoggerFactory.getLogger(StateApplier::class.java)
+        )
     }
 
     fun createStateDumper(baseUrl: String): StateDumper {

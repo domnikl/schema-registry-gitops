@@ -45,7 +45,7 @@ class CLITest {
     @Test
     fun `can enable verbose logging`() {
         val logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as LogbackClassicLogger
-        assertEquals(Level.WARN, logger.level)
+        assertEquals(Level.INFO, logger.level)
 
         CLI.commandLine(Factory()).execute("--verbose")
 
@@ -53,6 +53,6 @@ class CLITest {
 
         exit.expectSystemExitWithStatus(0)
 
-        logger.level = Level.WARN
+        logger.level = Level.INFO
     }
 }

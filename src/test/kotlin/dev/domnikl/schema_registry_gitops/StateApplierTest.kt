@@ -7,11 +7,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
+import org.slf4j.Logger
 
 class StateApplierTest {
     private val restService = mockk<RestService>()
     private val client = mockk<SchemaRegistryClient>()
-    private val stateApplier = StateApplier(restService, client)
+    private val logger = mockk<Logger>(relaxed = true)
+    private val stateApplier = StateApplier(restService, client, logger)
 
     @Test
     fun `can apply compatibility`() {
@@ -21,12 +23,14 @@ class StateApplierTest {
         every { state.subjects } returns emptyList()
 
         val request = mockk<ConfigUpdateRequest>()
+        every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
 
         every { restService.updateCompatibility("FULL_TRANSITIVE", "") } returns request
 
         stateApplier.apply(state)
 
         verify { restService.updateCompatibility("FULL_TRANSITIVE", "") }
+        verify { logger.info("Changed GLOBAL compatibility level to FULL_TRANSITIVE") }
     }
 
     @Test
@@ -45,6 +49,7 @@ class StateApplierTest {
 
         verify { client.register("foo", schema) }
         verify(exactly = 0) { restService.updateCompatibility(any(), any()) }
+        verify { logger.info("Evolved schema of 'foo' to version 1") }
     }
 
     @Test
@@ -65,5 +70,8 @@ class StateApplierTest {
         verify { client.register("foo", schema) }
         verify { client.updateCompatibility("foo", "BACKWARD") }
         verify(exactly = 0) { restService.updateCompatibility(any(), "") }
+
+        verify { logger.info("Evolved schema of 'foo' to version 2") }
+        verify { logger.info("Changed 'foo' compatibility to BACKWARD") }
     }
 }

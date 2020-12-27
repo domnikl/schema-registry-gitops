@@ -76,10 +76,9 @@ Schema Registry GitOps was born late in 2020 while being heavily inspired by [Sh
 
 ## Roadmap
 
-* more UNIT & INTEGRATION TESTS!
+* apply only changes necessary
 * log changes made and created schema version IDs
 * enable dump'ing to stdout with "-" as file name
-* apply only changes necessary
 * handle multiple YAML files (what about duplicate subjects?)
 * support Protobuf & JSON Schema
 * delete mode for apply (should not be default) - deletes all unreferenced subjects
