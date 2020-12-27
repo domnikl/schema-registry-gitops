@@ -1,12 +1,7 @@
 package dev.domnikl.schema_registry_gitops.command
 
 import dev.domnikl.schema_registry_gitops.CLI
-import dev.domnikl.schema_registry_gitops.Compatibility
-import dev.domnikl.schema_registry_gitops.State
-import dev.domnikl.schema_registry_gitops.StatePersistence
-import dev.domnikl.schema_registry_gitops.Subject
-import io.confluent.kafka.schemaregistry.avro.AvroSchema
-import io.confluent.kafka.schemaregistry.client.rest.RestService
+import dev.domnikl.schema_registry_gitops.Factory
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
@@ -15,29 +10,17 @@ import java.util.concurrent.Callable
     name = "dump",
     description = ["prints the current state"]
 )
-class Dump : Callable<Int> {
+class Dump(private val factory: Factory) : Callable<Int> {
     @CommandLine.ParentCommand
-    private lateinit var CLI: CLI
+    private lateinit var cli: CLI
 
     @CommandLine.Parameters(description = ["path to output YAML file"])
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        val restService = RestService(CLI.baseUrl)
-        val statePersistence = StatePersistence()
+        val state = factory.createStateDumper(cli.baseUrl).dump()
 
-        val state = State(
-            Compatibility.valueOf(restService.getConfig("").compatibilityLevel),
-            restService.allSubjects.map { subject ->
-                Subject(
-                    subject,
-                    Compatibility.valueOf(restService.getConfig(subject).compatibilityLevel),
-                    AvroSchema(restService.getLatestVersion(subject).schema)
-                )
-            }
-        )
-
-        statePersistence.save(state, File(inputFile))
+        factory.createStatePersistence().save(state, File(inputFile))
 
         return 0
     }

@@ -13,12 +13,7 @@ import kotlin.system.exitProcess
     name = "schema-registry-gitops",
     mixinStandardHelpOptions = true,
     version = ["schema-registry-gitops 0.1"],
-    description = ["Manages schema registries through Infrastructure as Code"],
-    subcommands = [
-        Validate::class,
-        Apply::class,
-        Dump::class,
-    ]
+    description = ["Manages schema registries through Infrastructure as Code"]
 )
 class CLI : Callable<Int> {
     @CommandLine.Option(
@@ -43,5 +38,14 @@ class CLI : Callable<Int> {
     override fun call(): Int {
         CommandLine.usage(this, System.out)
         exitProcess(0)
+    }
+
+    companion object {
+        fun commandLine(factory: Factory): CommandLine {
+            return CommandLine(CLI())
+                .addSubcommand(Validate(factory))
+                .addSubcommand(Apply(factory))
+                .addSubcommand(Dump(factory))
+        }
     }
 }

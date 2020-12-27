@@ -9,7 +9,6 @@ import org.junit.Test
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import picocli.CommandLine
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import ch.qos.logback.classic.Logger as LogbackClassicLogger
@@ -38,7 +37,7 @@ class CLITest {
 
     @Test
     fun `can print version information`() {
-        CommandLine(CLI()).execute("--version")
+        CLI.commandLine(Factory()).execute("--version")
 
         assert(out.toString().startsWith("schema-registry-gitops"))
     }
@@ -48,10 +47,12 @@ class CLITest {
         val logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as LogbackClassicLogger
         assertEquals(Level.WARN, logger.level)
 
-        CommandLine(CLI()).execute("--verbose")
+        CLI.commandLine(Factory()).execute("--verbose")
 
         assertEquals(Level.DEBUG, logger.level)
 
         exit.expectSystemExitWithStatus(0)
+
+        logger.level = Level.WARN
     }
 }

@@ -34,6 +34,7 @@ dependencies {
 
     implementation("io.confluent:kafka-schema-registry-client:6.0.1")
     testImplementation("junit", "junit", "4.12")
+    testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 

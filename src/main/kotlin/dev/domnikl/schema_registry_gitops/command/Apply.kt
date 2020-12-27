@@ -1,9 +1,7 @@
 package dev.domnikl.schema_registry_gitops.command
 
 import dev.domnikl.schema_registry_gitops.CLI
-import dev.domnikl.schema_registry_gitops.StatePersistence
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.RestService
+import dev.domnikl.schema_registry_gitops.Factory
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
@@ -12,34 +10,21 @@ import java.util.concurrent.Callable
     name = "apply",
     description = ["applies the state to the given schema registry"]
 )
-class Apply : Callable<Int> {
+class Apply(private val factory: Factory) : Callable<Int> {
     @CommandLine.ParentCommand
-    private lateinit var CLI: CLI
+    private lateinit var cli: CLI
 
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
-    private val restService by lazy { RestService(CLI.baseUrl) }
-    private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
-
     override fun call(): Int {
+        val file = File(inputFile)
+        val state = factory.createStatePersistence().load(file.parentFile, file)
+        val stateApplier = factory.createStateApplier(cli.baseUrl)
+
+        stateApplier.apply(state)
 
         // TODO: print changes
-
-        val file = File(inputFile)
-        val state = StatePersistence().load(file.parentFile, file)
-
-        if (state.compatibility != null) {
-            restService.updateCompatibility(state.compatibility.toString(), "")
-        }
-
-        state.subjects.forEach { subject ->
-            client.register(subject.name, subject.schema)
-
-            if (subject.compatibility != null) {
-                client.updateCompatibility(subject.name, subject.compatibility.toString())
-            }
-        }
 
         return 0
     }

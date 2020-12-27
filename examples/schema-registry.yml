@@ -4,3 +4,7 @@ subjects:
   - name: foo-value
     file: foo.avsc
     compatibility: FULL_TRANSITIVE
+
+  - name: without-compatiblity
+    file: without_compatibility.avsc
+
