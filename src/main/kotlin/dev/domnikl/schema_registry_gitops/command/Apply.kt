@@ -1,6 +1,6 @@
 package dev.domnikl.schema_registry_gitops.command
 
-import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
+import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.StatePersistence
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
@@ -14,12 +14,12 @@ import java.util.concurrent.Callable
 )
 class Apply : Callable<Int> {
     @CommandLine.ParentCommand
-    private lateinit var schemaRegistryGitops: SchemaRegistryGitops
+    private lateinit var CLI: CLI
 
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
-    private val restService by lazy { RestService(schemaRegistryGitops.baseUrl) }
+    private val restService by lazy { RestService(CLI.baseUrl) }
     private val client by lazy { CachedSchemaRegistryClient(restService, 100) }
 
     override fun call(): Int {

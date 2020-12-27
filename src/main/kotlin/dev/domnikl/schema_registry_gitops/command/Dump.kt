@@ -1,7 +1,7 @@
 package dev.domnikl.schema_registry_gitops.command
 
+import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Compatibility
-import dev.domnikl.schema_registry_gitops.SchemaRegistryGitops
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.StatePersistence
 import dev.domnikl.schema_registry_gitops.Subject
@@ -17,13 +17,13 @@ import java.util.concurrent.Callable
 )
 class Dump : Callable<Int> {
     @CommandLine.ParentCommand
-    private lateinit var schemaRegistryGitops: SchemaRegistryGitops
+    private lateinit var CLI: CLI
 
     @CommandLine.Parameters(description = ["path to output YAML file"])
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        val restService = RestService(schemaRegistryGitops.baseUrl)
+        val restService = RestService(CLI.baseUrl)
         val statePersistence = StatePersistence()
 
         val state = State(

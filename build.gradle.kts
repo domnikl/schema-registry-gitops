@@ -34,6 +34,7 @@ dependencies {
 
     implementation("io.confluent:kafka-schema-registry-client:6.0.1")
     testImplementation("junit", "junit", "4.12")
+    testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
 val jar by tasks.getting(Jar::class) {
