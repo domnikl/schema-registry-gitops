@@ -24,8 +24,6 @@ class Apply(private val factory: Factory) : Callable<Int> {
 
         stateApplier.apply(state)
 
-        // TODO: print changes
-
         return 0
     }
 }
