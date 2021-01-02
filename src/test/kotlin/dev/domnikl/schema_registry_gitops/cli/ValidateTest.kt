@@ -72,7 +72,7 @@ class ValidateTest {
             
             """.trimIndent()
 
-        assertEquals(expectedOutput, out.toString())
+        assertEquals(expectedOutput, out.toString().replace(System.lineSeparator(), "\n"))
         assertEquals("", err.toString())
         assertEquals(1, exitCode)
     }
