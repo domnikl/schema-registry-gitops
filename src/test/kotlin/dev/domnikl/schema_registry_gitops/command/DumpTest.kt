@@ -3,8 +3,8 @@ package dev.domnikl.schema_registry_gitops.command
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.State
-import dev.domnikl.schema_registry_gitops.StateDumper
-import dev.domnikl.schema_registry_gitops.StatePersistence
+import dev.domnikl.schema_registry_gitops.state.Dumper
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -13,8 +13,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DumpTest {
-    private val dumper = mockk<StateDumper>()
-    private val statePersistence = mockk<StatePersistence>()
+    private val dumper = mockk<Dumper>()
+    private val statePersistence = mockk<Persistence>()
     private val factory = mockk<Factory>()
 
     @Test

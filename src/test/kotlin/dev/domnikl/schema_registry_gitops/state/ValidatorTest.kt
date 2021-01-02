@@ -1,5 +1,8 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.mockk.every
@@ -7,9 +10,9 @@ import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StateValidatorTest {
+class ValidatorTest {
     private val client = mockk<SchemaRegistryClient>()
-    private val validator = StateValidator(client)
+    private val validator = Validator(client)
 
     @Test
     fun `returns empty list if all subjects are new`() {

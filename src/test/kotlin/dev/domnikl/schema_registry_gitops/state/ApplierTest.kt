@@ -1,5 +1,9 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.schemaFromResources
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.ConfigUpdateRequest
@@ -9,11 +13,11 @@ import io.mockk.verify
 import org.junit.Test
 import org.slf4j.Logger
 
-class StateApplierTest {
+class ApplierTest {
     private val restService = mockk<RestService>()
     private val client = mockk<SchemaRegistryClient>()
     private val logger = mockk<Logger>(relaxed = true)
-    private val stateApplier = StateApplier(restService, client, logger)
+    private val stateApplier = Applier(restService, client, logger)
 
     @Test
     fun `can apply compatibility`() {

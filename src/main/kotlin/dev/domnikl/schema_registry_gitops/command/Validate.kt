@@ -2,7 +2,7 @@ package dev.domnikl.schema_registry_gitops.command
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
-import dev.domnikl.schema_registry_gitops.StatePersistence
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
@@ -22,7 +22,7 @@ class Validate(factory: Factory) : Callable<Int> {
 
     override fun call(): Int {
         val file = File(inputFile)
-        val state = StatePersistence().load(file.parentFile, file)
+        val state = Persistence().load(file.parentFile, file)
         val incompatibleSchemas = validator.validate(state)
 
         if (incompatibleSchemas.isEmpty()) {

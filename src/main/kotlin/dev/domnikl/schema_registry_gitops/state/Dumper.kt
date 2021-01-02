@@ -1,10 +1,13 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 
-class StateDumper(private val restService: RestService) {
+class Dumper(private val restService: RestService) {
     fun dump() = State(
         Compatibility.valueOf(restService.getConfig("").compatibilityLevel),
         restService.allSubjects.map { subject ->

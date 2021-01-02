@@ -1,29 +1,33 @@
 package dev.domnikl.schema_registry_gitops
 
+import dev.domnikl.schema_registry_gitops.state.Applier
+import dev.domnikl.schema_registry_gitops.state.Dumper
+import dev.domnikl.schema_registry_gitops.state.Persistence
+import dev.domnikl.schema_registry_gitops.state.Validator
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import org.slf4j.LoggerFactory
 
 class Factory {
-    fun createStateValidator(baseUrl: String): StateValidator {
-        return StateValidator(createClient(baseUrl))
+    fun createStateValidator(baseUrl: String): Validator {
+        return Validator(createClient(baseUrl))
     }
 
-    fun createStateApplier(baseUrl: String): StateApplier {
-        return StateApplier(
+    fun createStateApplier(baseUrl: String): Applier {
+        return Applier(
             createRestService(baseUrl),
             createClient(baseUrl),
-            LoggerFactory.getLogger(StateApplier::class.java)
+            LoggerFactory.getLogger(Applier::class.java)
         )
     }
 
-    fun createStateDumper(baseUrl: String): StateDumper {
-        return StateDumper(
+    fun createStateDumper(baseUrl: String): Dumper {
+        return Dumper(
             createRestService(baseUrl)
         )
     }
 
-    fun createStatePersistence() = StatePersistence()
+    fun createStatePersistence() = Persistence()
 
     private fun createRestService(baseUrl: String) = RestService(baseUrl)
     private fun createClient(baseUrl: String) = CachedSchemaRegistryClient(createRestService(baseUrl), 100)

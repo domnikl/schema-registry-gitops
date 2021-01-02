@@ -2,7 +2,7 @@ package dev.domnikl.schema_registry_gitops.command
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
-import dev.domnikl.schema_registry_gitops.StateValidator
+import dev.domnikl.schema_registry_gitops.state.Validator
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.After
@@ -23,7 +23,7 @@ class ValidateTest {
     private val oldErr: PrintStream = System.err
     private val oldOut: PrintStream = System.out
 
-    private val validator = mockk<StateValidator>()
+    private val validator = mockk<Validator>()
     private val factory = mockk<Factory>()
 
     @Before

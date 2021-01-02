@@ -1,5 +1,8 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import io.mockk.every
@@ -7,9 +10,9 @@ import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StateDumperTest {
+class DumperTest {
     private val restService = mockk<RestService>()
-    private val stateDumper = StateDumper(restService)
+    private val stateDumper = Dumper(restService)
 
     @Test
     fun `can dump current state with subjects`() {

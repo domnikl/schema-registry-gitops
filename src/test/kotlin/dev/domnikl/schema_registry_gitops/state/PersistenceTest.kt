@@ -1,6 +1,11 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.fromResources
+import dev.domnikl.schema_registry_gitops.schemaFromResources
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
@@ -8,8 +13,8 @@ import org.junit.Test
 import java.io.File
 import java.io.FileNotFoundException
 
-class StatePersistenceTest {
-    private val loader = StatePersistence()
+class PersistenceTest {
+    private val loader = Persistence()
 
     @Test
     fun `throws exception when trying to load empty file`() {

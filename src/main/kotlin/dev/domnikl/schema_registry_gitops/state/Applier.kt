@@ -1,10 +1,11 @@
-package dev.domnikl.schema_registry_gitops
+package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.State
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
 import org.slf4j.Logger
 
-class StateApplier(
+class Applier(
     private val restService: RestService,
     private val client: SchemaRegistryClient,
     private val logger: Logger
