@@ -10,6 +10,7 @@ import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import org.apache.avro.Schema
 import java.io.File
+import java.io.OutputStream
 import java.nio.file.Files
 
 class Persistence {
@@ -35,7 +36,7 @@ class Persistence {
         )
     }
 
-    fun save(state: State, toFile: File) {
+    fun save(state: State, outputStream: OutputStream) {
         val yaml = Yaml(
             state.compatibility?.toString(),
             state.subjects.map {
@@ -50,7 +51,7 @@ class Persistence {
             }
         )
 
-        mapper.writeValue(toFile, yaml)
+        mapper.writeValue(outputStream, yaml)
     }
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)

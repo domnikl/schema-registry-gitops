@@ -10,8 +10,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 
 class PersistenceTest {
     private val loader = Persistence()
@@ -98,6 +100,8 @@ class PersistenceTest {
         val tempFile = File.createTempFile(javaClass.simpleName, "can-save-state-to-a-file")
         tempFile.deleteOnExit()
 
+        val outputStream = BufferedOutputStream(FileOutputStream(tempFile))
+
         val currentState = State(
             Compatibility.BACKWARD_TRANSITIVE,
             listOf(
@@ -106,7 +110,7 @@ class PersistenceTest {
             )
         )
 
-        loader.save(currentState, tempFile)
+        loader.save(currentState, outputStream)
 
         assertEquals(currentState, loader.load(fromResources("schemas"), tempFile))
     }
