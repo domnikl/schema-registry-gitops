@@ -78,7 +78,6 @@ Schema Registry GitOps was born late in 2020 while being heavily inspired by [Sh
 ## Roadmap
 
 * apply only changes necessary
-* log changes made and created schema version IDs
 * enable dump'ing to stdout with "-" as file name
 * handle multiple YAML files (what about duplicate subjects?)
 * support Protobuf & JSON Schema

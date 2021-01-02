@@ -108,8 +108,6 @@ class PersistenceTest {
 
         loader.save(currentState, tempFile)
 
-        println(tempFile.path)
-
         assertEquals(currentState, loader.load(fromResources("schemas"), tempFile))
     }
 }
