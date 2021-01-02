@@ -16,15 +16,25 @@ class Dump(private val factory: Factory) : Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var cli: CLI
 
-    @CommandLine.Parameters(description = ["path to output YAML file"])
+    @CommandLine.Parameters(description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"], defaultValue = STDOUT_FILE)
     private lateinit var outputFile: String
+
+    private val outputStream by lazy {
+        when (outputFile) {
+            STDOUT_FILE -> System.out
+            else -> BufferedOutputStream(FileOutputStream(File(outputFile)))
+        }
+    }
 
     override fun call(): Int {
         val state = factory.createStateDumper(cli.baseUrl).dump()
-        val outputStream = BufferedOutputStream(FileOutputStream(File(outputFile)))
 
         factory.createStatePersistence().save(state, outputStream)
 
         return 0
+    }
+
+    companion object {
+        private const val STDOUT_FILE = "-"
     }
 }
