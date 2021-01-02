@@ -1,9 +1,10 @@
-package dev.domnikl.schema_registry_gitops.command
+package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.State
-import dev.domnikl.schema_registry_gitops.state.Dumper
+import dev.domnikl.schema_registry_gitops.fromResources
+import dev.domnikl.schema_registry_gitops.state.Applier
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import io.mockk.every
 import io.mockk.just
@@ -12,21 +13,22 @@ import io.mockk.runs
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class DumpTest {
-    private val dumper = mockk<Dumper>()
+class ApplyTest {
+    private val applier = mockk<Applier>()
     private val statePersistence = mockk<Persistence>()
     private val factory = mockk<Factory>()
 
     @Test
-    fun `can dump state to file`() {
+    fun `can apply state to schema registry`() {
         val state = mockk<State>()
 
-        every { factory.createStateDumper(any()) } returns dumper
-        every { dumper.dump() } returns state
+        every { factory.createStateApplier(any()) } returns applier
         every { factory.createStatePersistence() } returns statePersistence
-        every { statePersistence.save(state, any()) } just runs
+        every { statePersistence.load(any(), any()) } returns state
+        every { applier.apply(state) } just runs
 
-        val exitCode = CLI.commandLine(factory).execute("dump", "--registry", "http://foo.bar", "foo.yml")
+        val input = fromResources("only_compatibility.yml")
+        val exitCode = CLI.commandLine(factory).execute("apply", "--registry", "http://foo.bar", input.path)
 
         assertEquals(0, exitCode)
     }

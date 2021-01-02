@@ -1,4 +1,4 @@
-package dev.domnikl.schema_registry_gitops.command
+package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
