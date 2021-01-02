@@ -15,20 +15,16 @@ class Factory {
 
     fun createStateApplier(baseUrl: String): Applier {
         return Applier(
-            createRestService(baseUrl),
             createClient(baseUrl),
             LoggerFactory.getLogger(Applier::class.java)
         )
     }
 
     fun createStateDumper(baseUrl: String): Dumper {
-        return Dumper(
-            createRestService(baseUrl)
-        )
+        return Dumper(createClient(baseUrl))
     }
 
     fun createStatePersistence() = Persistence()
 
-    private fun createRestService(baseUrl: String) = RestService(baseUrl)
-    private fun createClient(baseUrl: String) = CachedSchemaRegistryClient(createRestService(baseUrl), 100)
+    private fun createClient(baseUrl: String) = CachedSchemaRegistryClient(RestService(baseUrl), 100)
 }

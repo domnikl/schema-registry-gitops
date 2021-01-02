@@ -2,19 +2,17 @@ package dev.domnikl.schema_registry_gitops.state
 
 import dev.domnikl.schema_registry_gitops.State
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.RestService
 import org.slf4j.Logger
 
 class Applier(
-    private val restService: RestService,
     private val client: SchemaRegistryClient,
     private val logger: Logger
 ) {
     fun apply(state: State) {
         if (state.compatibility != null) {
-            val config = restService.updateCompatibility(state.compatibility.toString(), "")
+            val compatibility = client.updateCompatibility("", state.compatibility.toString())
 
-            logger.info("Changed GLOBAL compatibility level to ${config.compatibilityLevel}")
+            logger.info("Changed GLOBAL compatibility level to $compatibility")
         }
 
         state.subjects.forEach { subject ->

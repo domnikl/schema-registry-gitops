@@ -4,15 +4,15 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
-import io.confluent.kafka.schemaregistry.client.rest.RestService
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 
-class Dumper(private val restService: RestService) {
+class Dumper(private val client: SchemaRegistryClient) {
     fun dump() = State(
-        Compatibility.valueOf(restService.getConfig("").compatibilityLevel),
-        restService.allSubjects.map { subject ->
+        Compatibility.valueOf(client.getCompatibility("")),
+        client.allSubjects.map { subject ->
             val compatibility = try {
-                Compatibility.valueOf(restService.getConfig(subject).compatibilityLevel)
+                Compatibility.valueOf(client.getCompatibility(subject))
             } catch (e: RestClientException) {
                 Compatibility.NONE
             }
@@ -20,7 +20,7 @@ class Dumper(private val restService: RestService) {
             Subject(
                 subject,
                 compatibility,
-                AvroSchema(restService.getLatestVersion(subject).schema)
+                AvroSchema(client.getLatestSchemaMetadata(subject).schema)
             )
         }
     )

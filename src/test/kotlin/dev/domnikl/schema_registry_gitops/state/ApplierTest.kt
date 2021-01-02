@@ -5,7 +5,6 @@ import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.schemaFromResources
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.RestService
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.ConfigUpdateRequest
 import io.mockk.every
 import io.mockk.mockk
@@ -14,10 +13,9 @@ import org.junit.Test
 import org.slf4j.Logger
 
 class ApplierTest {
-    private val restService = mockk<RestService>()
     private val client = mockk<SchemaRegistryClient>()
     private val logger = mockk<Logger>(relaxed = true)
-    private val stateApplier = Applier(restService, client, logger)
+    private val stateApplier = Applier(client, logger)
 
     @Test
     fun `can apply compatibility`() {
@@ -29,11 +27,11 @@ class ApplierTest {
         val request = mockk<ConfigUpdateRequest>()
         every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
 
-        every { restService.updateCompatibility("FULL_TRANSITIVE", "") } returns request
+        every { client.updateCompatibility("", "FULL_TRANSITIVE") } returns "FULL_TRANSITIVE"
 
         stateApplier.apply(state)
 
-        verify { restService.updateCompatibility("FULL_TRANSITIVE", "") }
+        verify { client.updateCompatibility("", "FULL_TRANSITIVE") }
         verify { logger.info("Changed GLOBAL compatibility level to FULL_TRANSITIVE") }
     }
 
@@ -52,7 +50,7 @@ class ApplierTest {
         stateApplier.apply(state)
 
         verify { client.register("foo", schema) }
-        verify(exactly = 0) { restService.updateCompatibility(any(), any()) }
+        verify(exactly = 0) { client.updateCompatibility(any(), any()) }
         verify { logger.info("Evolved schema of 'foo' to version 1") }
     }
 
@@ -73,7 +71,7 @@ class ApplierTest {
 
         verify { client.register("foo", schema) }
         verify { client.updateCompatibility("foo", "BACKWARD") }
-        verify(exactly = 0) { restService.updateCompatibility(any(), "") }
+        verify(exactly = 0) { client.updateCompatibility("", any()) }
 
         verify { logger.info("Evolved schema of 'foo' to version 2") }
         verify { logger.info("Changed 'foo' compatibility to BACKWARD") }
