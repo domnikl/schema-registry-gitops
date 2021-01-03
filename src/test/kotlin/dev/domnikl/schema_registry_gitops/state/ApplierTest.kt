@@ -28,13 +28,36 @@ class ApplierTest {
         val request = mockk<ConfigUpdateRequest>()
         every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
 
+        every { client.getCompatibility("") } returns "FULL"
         every { client.allSubjects } returns emptyList()
         every { client.updateCompatibility("", "FULL_TRANSITIVE") } returns "FULL_TRANSITIVE"
 
         stateApplier.apply(state)
 
-        verify { client.updateCompatibility("", "FULL_TRANSITIVE") }
-        verify { logger.info("Changed default compatibility level to FULL_TRANSITIVE") }
+        verifyOrder {
+            client.updateCompatibility("", "FULL_TRANSITIVE")
+            logger.info("Changed default compatibility level from FULL to FULL_TRANSITIVE")
+        }
+    }
+
+    @Test
+    fun `will not change default compatibility if matches state`() {
+        val state = mockk<State>()
+
+        every { state.compatibility } returns Compatibility.FULL_TRANSITIVE
+        every { state.subjects } returns emptyList()
+
+        val request = mockk<ConfigUpdateRequest>()
+        every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
+
+        every { client.getCompatibility("") } returns "FULL_TRANSITIVE"
+        every { client.allSubjects } returns emptyList()
+        every { client.updateCompatibility("", "FULL_TRANSITIVE") } returns "FULL_TRANSITIVE"
+
+        stateApplier.apply(state)
+
+        verify(exactly = 0) { client.updateCompatibility("", "FULL_TRANSITIVE") }
+        verify { logger.debug("Did not change compatibility level as it matched desired level FULL_TRANSITIVE") }
     }
 
     @Test

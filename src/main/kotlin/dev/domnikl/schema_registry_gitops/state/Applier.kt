@@ -1,5 +1,6 @@
 package dev.domnikl.schema_registry_gitops.state
 
+import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
@@ -10,11 +11,7 @@ class Applier(
     private val logger: Logger
 ) {
     fun apply(state: State) {
-        if (state.compatibility != null) {
-            val compatibility = client.updateCompatibility("", state.compatibility.toString())
-
-            logger.info("Changed default compatibility level to $compatibility")
-        }
+        updateDefaultCompatibility(state)
 
         val registeredSubjects = client.allSubjects
 
@@ -48,5 +45,20 @@ class Applier(
 
             logger.info("Changed '${subject.name}' compatibility to $compatibility")
         }
+    }
+
+    private fun updateDefaultCompatibility(state: State) {
+        if (state.compatibility == null) return
+
+        val compatibilityBefore = Compatibility.valueOf(client.getCompatibility(""))
+
+        if (compatibilityBefore == state.compatibility) {
+            logger.debug("Did not change compatibility level as it matched desired level ${state.compatibility}")
+            return
+        }
+
+        val compatibilityAfter = client.updateCompatibility("", state.compatibility.toString())
+
+        logger.info("Changed default compatibility level from $compatibilityBefore to $compatibilityAfter")
     }
 }
