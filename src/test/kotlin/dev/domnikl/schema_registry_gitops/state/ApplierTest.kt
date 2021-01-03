@@ -6,6 +6,7 @@ import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.schemaFromResources
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.ConfigUpdateRequest
+import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -76,7 +77,7 @@ class ApplierTest {
         stateApplier.apply(state)
 
         verify { client.register("foo", schema) }
-        verify { logger.info("Registered new schema for 'foo' with version 1") }
+        verify { logger.info("Created subject 'foo' and registered new schema with version 1") }
         verify(exactly = 0) { client.updateCompatibility(any(), any()) }
     }
 
@@ -91,6 +92,7 @@ class ApplierTest {
         )
 
         every { client.allSubjects } returns emptyList()
+        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
         every { client.register("foo", schema) } returns 1
         every { client.updateCompatibility("foo", "BACKWARD") } returns "BACKWARD"
 
@@ -98,7 +100,7 @@ class ApplierTest {
 
         verifyOrder {
             client.register("foo", schema)
-            logger.info("Registered new schema for 'foo' with version 1")
+            logger.info("Created subject 'foo' and registered new schema with version 1")
             client.updateCompatibility("foo", "BACKWARD")
             logger.info("Changed 'foo' compatibility to BACKWARD")
         }
@@ -115,13 +117,36 @@ class ApplierTest {
         )
 
         every { client.allSubjects } returns listOf("foo")
+        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
         every { client.register("foo", schema) } returns 2
 
         stateApplier.apply(state)
 
         verifyOrder {
             client.register("foo", schema)
-            logger.info("Evolved existing schema for 'foo' to version 2")
+            logger.info("Evolved existing schema for subject 'foo' to version 2")
+        }
+        verify(exactly = 0) { client.updateCompatibility(any(), any()) }
+    }
+
+    @Test
+    fun `will not evolve schema if version already exists`() {
+        val schema = schemaFromResources("schemas/key.avsc")
+        val state = mockk<State>()
+
+        every { state.compatibility } returns null
+        every { state.subjects } returns listOf(
+            Subject("foo", null, schema)
+        )
+
+        every { client.allSubjects } returns listOf("foo")
+        every { client.getVersion("foo", schema) } returns 2
+
+        stateApplier.apply(state)
+
+        verifyOrder {
+            client.getVersion("foo", schema)
+            logger.debug("Did not evolve schema, version already exists as 2")
         }
         verify(exactly = 0) { client.updateCompatibility(any(), any()) }
     }
@@ -137,6 +162,7 @@ class ApplierTest {
         )
 
         every { client.allSubjects } returns listOf("foo")
+        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
         every { client.updateCompatibility("foo", "FORWARD_TRANSITIVE") } returns "FORWARD_TRANSITIVE"
         every { client.register("foo", schema) } returns 2
 
@@ -145,8 +171,9 @@ class ApplierTest {
         verifyOrder {
             client.updateCompatibility("foo", "FORWARD_TRANSITIVE")
             logger.info("Changed 'foo' compatibility to FORWARD_TRANSITIVE")
+            client.getVersion("foo", schema)
             client.register("foo", schema)
-            logger.info("Evolved existing schema for 'foo' to version 2")
+            logger.info("Evolved existing schema for subject 'foo' to version 2")
         }
     }
 }

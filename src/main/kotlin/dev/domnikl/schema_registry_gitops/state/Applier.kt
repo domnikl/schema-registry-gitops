@@ -4,6 +4,7 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import org.slf4j.Logger
 
 class Applier(
@@ -26,7 +27,7 @@ class Applier(
     private fun register(subject: Subject) {
         val versionId = client.register(subject.name, subject.schema)
 
-        logger.info("Registered new schema for '${subject.name}' with version $versionId")
+        logger.info("Created subject '${subject.name}' and registered new schema with version $versionId")
 
         updateCompatibility(subject)
     }
@@ -34,9 +35,22 @@ class Applier(
     private fun evolve(subject: Subject) {
         updateCompatibility(subject)
 
-        val versionId = client.register(subject.name, subject.schema)
+        val versionBefore = try {
+            client.getVersion(subject.name, subject.schema)
+        } catch (e: RestClientException) {
+            when (e.errorCode) {
+                40403 -> null
+                else -> throw e
+            }
+        }
 
-        logger.info("Evolved existing schema for '${subject.name}' to version $versionId")
+        if (versionBefore == null) {
+            val versionId = client.register(subject.name, subject.schema)
+
+            logger.info("Evolved existing schema for subject '${subject.name}' to version $versionId")
+        } else {
+            logger.debug("Did not evolve schema, version already exists as $versionBefore")
+        }
     }
 
     private fun updateCompatibility(subject: Subject) {
