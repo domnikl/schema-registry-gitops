@@ -28,6 +28,8 @@ Commands:
   dump      prints the current state
 ```
 
+In order to get help for a specific command, try `schema-registry-gitops <command> -h`.
+
 ## State file
 
 The desired state is managed using this YAML definition:
@@ -74,13 +76,3 @@ docker run -v ./examples:/data domnikl/schema-registry-gitops validate --registr
 ## Acknowledgement
 
 Schema Registry GitOps was born late in 2020 while being heavily inspired by [Shawn Seymour](https://github.com/devshawn) and his excellent [kafka-gitops](https://github.com/devshawn/kafka-gitops)! Much ❤ to [Confluent](https://www.confluent.io/) for building Schema Registry and an amazing client lib, I am really just standing on the shoulders of giants here.
-
-## Roadmap
-
-* apply only changes necessary
-* enable dump'ing to stdout with "-" as file name
-* handle multiple YAML files (what about duplicate subjects?)
-* support Protobuf & JSON Schema
-* delete mode for apply (should not be default) - deletes all unreferenced subjects
-* purge subcommand to delete all subjects (-f)
-* handle multiple schema versions per subject

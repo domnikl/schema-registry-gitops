@@ -3,6 +3,7 @@ package dev.domnikl.schema_registry_gitops.state
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.State
@@ -14,7 +15,12 @@ import java.io.OutputStream
 import java.nio.file.Files
 
 class Persistence {
-    private val mapper = ObjectMapper(YAMLFactory())
+    private val yamlFactory = YAMLFactory()
+        .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+        .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+        .enable(YAMLGenerator.Feature.LITERAL_BLOCK_STYLE)
+
+    private val mapper = ObjectMapper(yamlFactory)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .registerKotlinModule()
 
