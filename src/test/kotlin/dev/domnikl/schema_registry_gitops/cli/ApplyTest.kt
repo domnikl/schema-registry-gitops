@@ -22,8 +22,8 @@ class ApplyTest {
     fun `can apply state to schema registry`() {
         val state = mockk<State>()
 
-        every { factory.createStateApplier(any()) } returns applier
-        every { factory.createStatePersistence() } returns statePersistence
+        every { factory.createApplier(any()) } returns applier
+        every { factory.createPersistence() } returns statePersistence
         every { statePersistence.load(any(), any()) } returns state
         every { applier.apply(state) } just runs
 

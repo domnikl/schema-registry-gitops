@@ -18,7 +18,7 @@ class Validate(factory: Factory) : Callable<Int> {
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
-    private val validator by lazy { factory.createStateValidator(cli.baseUrl) }
+    private val validator by lazy { factory.createValidator(cli.baseUrl) }
 
     override fun call(): Int {
         val file = File(inputFile)

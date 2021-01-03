@@ -35,7 +35,7 @@ In order to get help for a specific command, try `schema-registry-gitops <comman
 The desired state is managed using this YAML definition:
 
 ```yaml
-# sets default compatibility level (optional)
+# sets global compatibility level (optional)
 compatibility: FULL_TRANSITIVE
 subjects:
   # a subject that references a file for the schema definition

@@ -1,9 +1,9 @@
-compatibility: FULL
+compatibility: FULL_TRANSITIVE
 
 subjects:
   - name: foo-value
     file: foo.avsc
-    compatibility: FULL_TRANSITIVE
+    compatibility: BACKWARD
 
   - name: without-compatiblity
     file: without_compatibility.avsc

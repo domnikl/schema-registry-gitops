@@ -19,8 +19,8 @@ class Apply(private val factory: Factory) : Callable<Int> {
 
     override fun call(): Int {
         val file = File(inputFile)
-        val state = factory.createStatePersistence().load(file.parentFile, file)
-        val stateApplier = factory.createStateApplier(cli.baseUrl)
+        val state = factory.createPersistence().load(file.parentFile, file)
+        val stateApplier = factory.createApplier(cli.baseUrl)
 
         stateApplier.apply(state)
 

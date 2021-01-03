@@ -42,7 +42,7 @@ class ValidateTest {
 
     @Test
     fun `can validate YAML state file`() {
-        every { factory.createStateValidator(any()) } returns validator
+        every { factory.createValidator(any()) } returns validator
         every { validator.validate(any()) } returns emptyList()
 
         val input = fromResources("with_inline_schema.yml")
@@ -55,7 +55,7 @@ class ValidateTest {
 
     @Test
     fun `can report validation fails`() {
-        every { factory.createStateValidator(any()) } returns validator
+        every { factory.createValidator(any()) } returns validator
         every { validator.validate(any()) } returns listOf("foo", "bar")
 
         val input = fromResources("with_inline_schema.yml")

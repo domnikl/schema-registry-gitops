@@ -25,9 +25,9 @@ class DumpTest {
 
         val state = mockk<State>()
 
-        every { factory.createStateDumper(any()) } returns dumper
+        every { factory.createDumper(any()) } returns dumper
         every { dumper.dump() } returns state
-        every { factory.createStatePersistence() } returns statePersistence
+        every { factory.createPersistence() } returns statePersistence
         every { statePersistence.save(state, any()) } just runs
 
         val exitCode = CLI.commandLine(factory).execute("dump", "--registry", "http://foo.bar", tempFile.path)
@@ -39,9 +39,9 @@ class DumpTest {
     fun `can dump state to stdout`() {
         val state = mockk<State>()
 
-        every { factory.createStateDumper(any()) } returns dumper
+        every { factory.createDumper(any()) } returns dumper
         every { dumper.dump() } returns state
-        every { factory.createStatePersistence() } returns statePersistence
+        every { factory.createPersistence() } returns statePersistence
         every { statePersistence.save(state, System.out) } just runs
 
         val exitCode = CLI.commandLine(factory).execute("dump", "--registry", "http://foo.bar")

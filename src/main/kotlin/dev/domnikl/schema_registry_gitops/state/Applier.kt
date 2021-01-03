@@ -1,10 +1,8 @@
 package dev.domnikl.schema_registry_gitops.state
 
-import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import org.slf4j.Logger
 
 class Applier(
@@ -12,9 +10,9 @@ class Applier(
     private val logger: Logger
 ) {
     fun apply(state: State) {
-        updateDefaultCompatibility(state)
+        updateGlobalCompatibility(state)
 
-        val registeredSubjects = client.allSubjects
+        val registeredSubjects = client.subjects()
 
         state.subjects.forEach { subject ->
             when (registeredSubjects.contains(subject.name)) {
@@ -25,7 +23,7 @@ class Applier(
     }
 
     private fun register(subject: Subject) {
-        val versionId = client.register(subject.name, subject.schema)
+        val versionId = client.create(subject)
 
         logger.info("Created subject '${subject.name}' and registered new schema with version $versionId")
 
@@ -35,17 +33,10 @@ class Applier(
     private fun evolve(subject: Subject) {
         updateCompatibility(subject)
 
-        val versionBefore = try {
-            client.getVersion(subject.name, subject.schema)
-        } catch (e: RestClientException) {
-            when (e.errorCode) {
-                40403 -> null
-                else -> throw e
-            }
-        }
+        val versionBefore = client.version(subject)
 
         if (versionBefore == null) {
-            val versionId = client.register(subject.name, subject.schema)
+            val versionId = client.evolve(subject)
 
             logger.info("Evolved existing schema for subject '${subject.name}' to version $versionId")
         } else {
@@ -55,24 +46,24 @@ class Applier(
 
     private fun updateCompatibility(subject: Subject) {
         if (subject.compatibility != null) {
-            val compatibility = client.updateCompatibility(subject.name, subject.compatibility.toString())
+            val compatibility = client.updateCompatibility(subject)
 
             logger.info("Changed '${subject.name}' compatibility to $compatibility")
         }
     }
 
-    private fun updateDefaultCompatibility(state: State) {
+    private fun updateGlobalCompatibility(state: State) {
         if (state.compatibility == null) return
 
-        val compatibilityBefore = Compatibility.valueOf(client.getCompatibility(""))
+        val compatibilityBefore = client.globalCompatibility()
 
         if (compatibilityBefore == state.compatibility) {
             logger.debug("Did not change compatibility level as it matched desired level ${state.compatibility}")
             return
         }
 
-        val compatibilityAfter = client.updateCompatibility("", state.compatibility.toString())
+        val compatibilityAfter = client.updateGlobalCompatibility(state.compatibility)
 
-        logger.info("Changed default compatibility level from $compatibilityBefore to $compatibilityAfter")
+        logger.info("Changed global compatibility level from $compatibilityBefore to $compatibilityAfter")
     }
 }

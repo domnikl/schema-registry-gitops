@@ -1,12 +1,10 @@
 package dev.domnikl.schema_registry_gitops.state
 
 import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.schemaFromResources
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.rest.entities.requests.ConfigUpdateRequest
-import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -20,88 +18,79 @@ class ApplierTest {
     private val stateApplier = Applier(client, logger)
 
     @Test
-    fun `can apply default compatibility`() {
+    fun `can apply global compatibility`() {
         val state = mockk<State>()
 
         every { state.compatibility } returns Compatibility.FULL_TRANSITIVE
         every { state.subjects } returns emptyList()
 
-        val request = mockk<ConfigUpdateRequest>()
-        every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
-
-        every { client.getCompatibility("") } returns "FULL"
-        every { client.allSubjects } returns emptyList()
-        every { client.updateCompatibility("", "FULL_TRANSITIVE") } returns "FULL_TRANSITIVE"
+        every { client.globalCompatibility() } returns Compatibility.FULL
+        every { client.subjects() } returns emptyList()
+        every { client.updateGlobalCompatibility(Compatibility.FULL_TRANSITIVE) } returns Compatibility.FULL_TRANSITIVE
 
         stateApplier.apply(state)
 
         verifyOrder {
-            client.updateCompatibility("", "FULL_TRANSITIVE")
-            logger.info("Changed default compatibility level from FULL to FULL_TRANSITIVE")
+            client.updateGlobalCompatibility(Compatibility.FULL_TRANSITIVE)
+            logger.info("Changed global compatibility level from FULL to FULL_TRANSITIVE")
         }
     }
 
     @Test
-    fun `will not change default compatibility if matches state`() {
+    fun `will not change global compatibility if matches state`() {
         val state = mockk<State>()
 
         every { state.compatibility } returns Compatibility.FULL_TRANSITIVE
         every { state.subjects } returns emptyList()
 
-        val request = mockk<ConfigUpdateRequest>()
-        every { request.compatibilityLevel } returns "FULL_TRANSITIVE"
-
-        every { client.getCompatibility("") } returns "FULL_TRANSITIVE"
-        every { client.allSubjects } returns emptyList()
-        every { client.updateCompatibility("", "FULL_TRANSITIVE") } returns "FULL_TRANSITIVE"
+        every { client.globalCompatibility() } returns Compatibility.FULL_TRANSITIVE
+        every { client.subjects() } returns emptyList()
 
         stateApplier.apply(state)
 
-        verify(exactly = 0) { client.updateCompatibility("", "FULL_TRANSITIVE") }
+        verify(exactly = 0) { client.updateGlobalCompatibility(Compatibility.FULL_TRANSITIVE) }
         verify { logger.debug("Did not change compatibility level as it matched desired level FULL_TRANSITIVE") }
     }
 
     @Test
-    fun `can register new subject`() {
+    fun `can create new subject`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val state = mockk<State>()
+        val subject = Subject("foo", null, schema)
 
         every { state.compatibility } returns null
-        every { state.subjects } returns listOf(
-            Subject("foo", null, schema)
-        )
+        every { state.subjects } returns listOf(subject)
 
-        every { client.allSubjects } returns emptyList()
-        every { client.register("foo", schema) } returns 1
+        every { client.subjects() } returns emptyList()
+        every { client.create(subject) } returns 1
 
         stateApplier.apply(state)
 
-        verify { client.register("foo", schema) }
+        verify { client.create(subject) }
         verify { logger.info("Created subject 'foo' and registered new schema with version 1") }
-        verify(exactly = 0) { client.updateCompatibility(any(), any()) }
+        verify(exactly = 0) { client.updateCompatibility(subject) }
     }
 
     @Test
     fun `can register new subject and set compatibility`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val state = mockk<State>()
+        val subject = Subject("foo", Compatibility.BACKWARD, schema)
 
         every { state.compatibility } returns null
-        every { state.subjects } returns listOf(
-            Subject("foo", Compatibility.BACKWARD, schema)
-        )
+        every { state.subjects } returns listOf(subject)
 
-        every { client.allSubjects } returns emptyList()
-        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
-        every { client.register("foo", schema) } returns 1
-        every { client.updateCompatibility("foo", "BACKWARD") } returns "BACKWARD"
+        every { client.subjects() } returns emptyList()
+        every { client.version(subject) } returns null
+        every { client.create(subject) } returns 1
+        every { client.updateCompatibility(subject) } returns Compatibility.BACKWARD
 
         stateApplier.apply(state)
 
         verifyOrder {
-            client.register("foo", schema)
+            client.create(subject)
             logger.info("Created subject 'foo' and registered new schema with version 1")
-            client.updateCompatibility("foo", "BACKWARD")
+            client.updateCompatibility(subject)
             logger.info("Changed 'foo' compatibility to BACKWARD")
         }
     }
@@ -110,69 +99,66 @@ class ApplierTest {
     fun `can evolve schema`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val state = mockk<State>()
+        val subject = Subject("foo", null, schema)
 
         every { state.compatibility } returns null
-        every { state.subjects } returns listOf(
-            Subject("foo", null, schema)
-        )
+        every { state.subjects } returns listOf(subject)
 
-        every { client.allSubjects } returns listOf("foo")
-        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
-        every { client.register("foo", schema) } returns 2
+        every { client.subjects() } returns listOf("foo")
+        every { client.version(subject) } returns null
+        every { client.evolve(subject) } returns 5
 
         stateApplier.apply(state)
 
         verifyOrder {
-            client.register("foo", schema)
-            logger.info("Evolved existing schema for subject 'foo' to version 2")
+            client.evolve(subject)
+            logger.info("Evolved existing schema for subject 'foo' to version 5")
         }
-        verify(exactly = 0) { client.updateCompatibility(any(), any()) }
+        verify(exactly = 0) { client.updateCompatibility(subject) }
     }
 
     @Test
     fun `will not evolve schema if version already exists`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val state = mockk<State>()
+        val subject = Subject("foo", null, schema)
 
         every { state.compatibility } returns null
-        every { state.subjects } returns listOf(
-            Subject("foo", null, schema)
-        )
+        every { state.subjects } returns listOf(subject)
 
-        every { client.allSubjects } returns listOf("foo")
-        every { client.getVersion("foo", schema) } returns 2
+        every { client.subjects() } returns listOf("foo")
+        every { client.version(subject) } returns 2
 
         stateApplier.apply(state)
 
         verifyOrder {
-            client.getVersion("foo", schema)
+            client.version(subject)
             logger.debug("Did not evolve schema, version already exists as 2")
         }
-        verify(exactly = 0) { client.updateCompatibility(any(), any()) }
+        verify(exactly = 0) { client.updateCompatibility(subject) }
     }
 
     @Test
     fun `can update compatibility and evolve schema`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val state = mockk<State>()
+        val subject = Subject("foo", Compatibility.FORWARD_TRANSITIVE, schema)
 
         every { state.compatibility } returns null
-        every { state.subjects } returns listOf(
-            Subject("foo", Compatibility.FORWARD_TRANSITIVE, schema)
-        )
+        every { state.subjects } returns listOf(subject)
 
-        every { client.allSubjects } returns listOf("foo")
-        every { client.getVersion("foo", schema) } throws RestClientException("", 404, 40403)
-        every { client.updateCompatibility("foo", "FORWARD_TRANSITIVE") } returns "FORWARD_TRANSITIVE"
-        every { client.register("foo", schema) } returns 2
+        every { client.subjects() } returns listOf("foo")
+        every { client.version(subject) } returns null
+        every { client.updateCompatibility(subject) } returns Compatibility.FORWARD_TRANSITIVE
+        every { client.evolve(subject) } returns 2
 
         stateApplier.apply(state)
 
         verifyOrder {
-            client.updateCompatibility("foo", "FORWARD_TRANSITIVE")
+            client.updateCompatibility(subject)
             logger.info("Changed 'foo' compatibility to FORWARD_TRANSITIVE")
-            client.getVersion("foo", schema)
-            client.register("foo", schema)
+            client.version(subject)
+            client.evolve(subject)
             logger.info("Evolved existing schema for subject 'foo' to version 2")
         }
     }
