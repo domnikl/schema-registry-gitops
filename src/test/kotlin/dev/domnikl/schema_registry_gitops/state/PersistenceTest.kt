@@ -33,7 +33,7 @@ class PersistenceTest {
     }
 
     @Test
-    fun `can load file with only compatiblity`() {
+    fun `can load file with only compatibility`() {
         val state = loader.load(fromResources("schemas"), fromResources("only_compatibility.yml"))
 
         assertEquals(Compatibility.FORWARD, state.compatibility)
