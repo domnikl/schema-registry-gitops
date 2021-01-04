@@ -41,9 +41,9 @@ class CLI : Callable<Int> {
     }
 
     companion object {
-        fun commandLine(factory: Factory): CommandLine {
+        fun commandLine(factory: Factory, logger: Logger = LoggerFactory.getLogger(Validate::class.java) as Logger): CommandLine {
             return CommandLine(CLI())
-                .addSubcommand(Validate(factory))
+                .addSubcommand(Validate(factory, logger))
                 .addSubcommand(Apply(factory))
                 .addSubcommand(Dump(factory))
         }

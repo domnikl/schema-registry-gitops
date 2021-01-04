@@ -1,5 +1,6 @@
 package dev.domnikl.schema_registry_gitops.cli
 
+import ch.qos.logback.classic.Logger
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.state.Persistence
@@ -11,7 +12,7 @@ import java.util.concurrent.Callable
     name = "validate",
     description = ["validate schemas, should be used before applying changes"]
 )
-class Validate(factory: Factory) : Callable<Int> {
+class Validate(private val factory: Factory, private val logger: Logger) : Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var cli: CLI
 
@@ -21,24 +22,26 @@ class Validate(factory: Factory) : Callable<Int> {
     private val validator by lazy { factory.createValidator(cli.baseUrl) }
 
     override fun call(): Int {
-        val file = File(inputFile)
-        val state = Persistence().load(file.parentFile, file)
-        val incompatibleSchemas = validator.validate(state)
+        try {
+            val file = File(inputFile)
+            val state = Persistence().load(file.parentFile, file)
+            val incompatibleSchemas = validator.validate(state)
 
-        if (incompatibleSchemas.isEmpty()) {
-            return 0
+            if (incompatibleSchemas.isEmpty()) {
+                logger.debug("VALIDATION PASSED: all schemas are ready to be evolved")
+                return 0
+            }
+
+            logger.error(
+                "VALIDATION FAILED: The following schemas are incompatible with an earlier version: " +
+                    "'${incompatibleSchemas.joinToString("', '")}'"
+            )
+
+            return 1
+        } catch (e: Exception) {
+            logger.error(e.toString())
+
+            return 2
         }
-
-        println("The following schemas are incompatible with an earlier version:")
-        println("")
-
-        incompatibleSchemas.forEach {
-            println("  - $it")
-        }
-
-        println("")
-        println("VALIDATION FAILED")
-
-        return 1
     }
 }
