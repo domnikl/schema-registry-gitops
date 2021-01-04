@@ -26,6 +26,8 @@ class Persistence(private val logger: Logger) {
         .registerKotlinModule()
 
     fun load(basePath: File, file: File): State {
+        logger.debug("Loading state file ${file.absolutePath}, referenced schemas from ${basePath.absolutePath}")
+
         require(Files.exists(file.toPath()))
         require(file.length() > 0)
 

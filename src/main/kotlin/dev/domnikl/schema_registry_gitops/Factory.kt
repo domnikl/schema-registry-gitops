@@ -23,7 +23,9 @@ class Factory {
         return Dumper(createClient(baseUrl))
     }
 
-    fun createPersistence() = Persistence()
+    fun createPersistence() = Persistence(
+        LoggerFactory.getLogger(Persistence::class.java)
+    )
 
     private fun createClient(baseUrl: String) = SchemaRegistryClient(
         CachedSchemaRegistryClient(baseUrl, 100)

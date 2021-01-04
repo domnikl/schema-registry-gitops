@@ -2,7 +2,6 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
-import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
@@ -24,7 +23,7 @@ class Validate(private val factory: Factory, private val logger: Logger) : Calla
     override fun call(): Int {
         try {
             val file = File(inputFile)
-            val state = Persistence().load(file.parentFile, file)
+            val state = factory.createPersistence().load(file.parentFile, file)
             val incompatibleSchemas = validator.validate(state)
 
             if (incompatibleSchemas.isEmpty()) {

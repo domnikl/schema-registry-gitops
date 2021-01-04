@@ -6,17 +6,21 @@ import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.fromResources
 import dev.domnikl.schema_registry_gitops.schemaFromResources
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.slf4j.Logger
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 
 class PersistenceTest {
-    private val loader = Persistence()
+    private val logger = mockk<Logger>(relaxed = true)
+    private val loader = Persistence(logger)
 
     @Test
     fun `throws exception when trying to load empty file`() {
@@ -38,6 +42,16 @@ class PersistenceTest {
 
         assertEquals(Compatibility.FORWARD, state.compatibility)
         assertEquals(emptyList<Subject>(), state.subjects)
+    }
+
+    @Test
+    fun `debug logs which file it loads`() {
+        val basePath = fromResources("schemas")
+        val file = fromResources("no_compatibility.yml")
+
+        loader.load(basePath, file)
+
+        verify { logger.debug("Loading state file ${file.absolutePath}, referenced schemas from ${basePath.absolutePath}") }
     }
 
     @Test
