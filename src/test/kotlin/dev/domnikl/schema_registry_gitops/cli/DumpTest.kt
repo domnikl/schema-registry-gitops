@@ -16,7 +16,7 @@ import java.io.File
 class DumpTest {
     private val dumper = mockk<Dumper>()
     private val statePersistence = mockk<Persistence>()
-    private val factory = mockk<Factory>()
+    private val factory = mockk<Factory>(relaxed = true)
 
     @Test
     fun `can dump state to file`() {
@@ -25,9 +25,9 @@ class DumpTest {
 
         val state = mockk<State>()
 
-        every { factory.createDumper(any()) } returns dumper
+        every { factory.dumper } returns dumper
         every { dumper.dump() } returns state
-        every { factory.createPersistence() } returns statePersistence
+        every { factory.persistence } returns statePersistence
         every { statePersistence.save(state, any()) } just runs
 
         val exitCode = CLI.commandLine(factory).execute("dump", "--registry", "http://foo.bar", tempFile.path)
@@ -39,9 +39,9 @@ class DumpTest {
     fun `can dump state to stdout`() {
         val state = mockk<State>()
 
-        every { factory.createDumper(any()) } returns dumper
+        every { factory.dumper } returns dumper
         every { dumper.dump() } returns state
-        every { factory.createPersistence() } returns statePersistence
+        every { factory.persistence } returns statePersistence
         every { statePersistence.save(state, System.out) } just runs
 
         val exitCode = CLI.commandLine(factory).execute("dump", "--registry", "http://foo.bar")

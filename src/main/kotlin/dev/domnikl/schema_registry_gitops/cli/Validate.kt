@@ -18,13 +18,13 @@ class Validate(private val factory: Factory, private val logger: Logger) : Calla
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
-    private val validator by lazy { factory.createValidator(cli.baseUrl) }
-
     override fun call(): Int {
+        factory.baseUrl = cli.baseUrl
+
         try {
             val file = File(inputFile)
-            val state = factory.createPersistence().load(file.parentFile, file)
-            val incompatibleSchemas = validator.validate(state)
+            val state = factory.persistence.load(file.parentFile, file)
+            val incompatibleSchemas = factory.validator.validate(state)
 
             if (incompatibleSchemas.isEmpty()) {
                 logger.debug("VALIDATION PASSED: all schemas are ready to be evolved")

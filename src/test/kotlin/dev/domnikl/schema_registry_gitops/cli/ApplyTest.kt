@@ -18,15 +18,15 @@ import org.slf4j.Logger
 class ApplyTest {
     private val applier = mockk<Applier>()
     private val statePersistence = mockk<Persistence>()
-    private val factory = mockk<Factory>()
+    private val factory = mockk<Factory>(relaxed = true)
     private val logger = mockk<Logger>()
 
     @Test
     fun `can apply state to schema registry`() {
         val state = mockk<State>()
 
-        every { factory.createApplier(any()) } returns applier
-        every { factory.createPersistence() } returns statePersistence
+        every { factory.applier } returns applier
+        every { factory.persistence } returns statePersistence
         every { statePersistence.load(any(), any()) } returns state
         every { applier.apply(state) } just runs
         every { logger.info(any()) } just runs
@@ -43,8 +43,8 @@ class ApplyTest {
     fun `logs errors it encounters`() {
         val state = mockk<State>()
 
-        every { factory.createApplier(any()) } returns applier
-        every { factory.createPersistence() } returns statePersistence
+        every { factory.applier } returns applier
+        every { factory.persistence } returns statePersistence
         every { statePersistence.load(any(), any()) } throws IllegalArgumentException("foobar")
         every { applier.apply(state) } just runs
         every { logger.error(any()) } just runs

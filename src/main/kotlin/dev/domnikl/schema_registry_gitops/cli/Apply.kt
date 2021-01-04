@@ -19,12 +19,13 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     private lateinit var inputFile: String
 
     override fun call(): Int {
+        factory.baseUrl = cli.baseUrl
+
         return try {
             val file = File(inputFile)
-            val state = factory.createPersistence().load(file.parentFile, file)
-            val stateApplier = factory.createApplier(cli.baseUrl)
+            val state = factory.persistence.load(file.parentFile, file)
 
-            stateApplier.apply(state)
+            factory.applier.apply(state)
 
             logger.info("Successfully applied state from $file to ${cli.baseUrl}")
 

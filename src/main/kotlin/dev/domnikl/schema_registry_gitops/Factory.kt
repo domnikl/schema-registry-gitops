@@ -8,26 +8,13 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import org.slf4j.LoggerFactory
 
 class Factory {
-    fun createValidator(baseUrl: String): Validator {
-        return Validator(createClient(baseUrl))
-    }
+    lateinit var baseUrl: String
 
-    fun createApplier(baseUrl: String): Applier {
-        return Applier(
-            createClient(baseUrl),
-            LoggerFactory.getLogger(Applier::class.java)
-        )
-    }
+    val validator by lazy { Validator(client) }
+    val applier by lazy { Applier(client, LoggerFactory.getLogger(Applier::class.java)) }
+    val dumper by lazy { Dumper(client) }
 
-    fun createDumper(baseUrl: String): Dumper {
-        return Dumper(createClient(baseUrl))
-    }
+    val persistence by lazy { Persistence(LoggerFactory.getLogger(Persistence::class.java)) }
 
-    fun createPersistence() = Persistence(
-        LoggerFactory.getLogger(Persistence::class.java)
-    )
-
-    private fun createClient(baseUrl: String) = SchemaRegistryClient(
-        CachedSchemaRegistryClient(baseUrl, 100)
-    )
+    private val client by lazy { SchemaRegistryClient(CachedSchemaRegistryClient(baseUrl, 100)) }
 }

@@ -2,7 +2,6 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
-import dev.domnikl.schema_registry_gitops.state.Persistence
 import dev.domnikl.schema_registry_gitops.state.Validator
 import io.mockk.every
 import io.mockk.mockk
@@ -19,12 +18,11 @@ class ValidateTest {
 
     private val validator = mockk<Validator>()
     private val factory = mockk<Factory>(relaxed = true)
-    private val persistence = mockk<Persistence>()
     private val logger = mockk<Logger>(relaxed = true)
 
     @Test
     fun `can validate YAML state file`() {
-        every { factory.createValidator(any()) } returns validator
+        every { factory.validator } returns validator
         every { validator.validate(any()) } returns emptyList()
 
         val input = fromResources("with_inline_schema.yml")
@@ -38,7 +36,7 @@ class ValidateTest {
 
     @Test
     fun `can report validation fails`() {
-        every { factory.createValidator(any()) } returns validator
+        every { factory.validator } returns validator
         every { validator.validate(any()) } returns listOf("foo", "bar")
 
         val input = fromResources("with_inline_schema.yml")
@@ -53,7 +51,7 @@ class ValidateTest {
 
     @Test
     fun `can report other errors`() {
-        every { factory.createValidator(any()) } returns validator
+        every { factory.validator } returns validator
         every { validator.validate(any()) } throws IllegalArgumentException("foobar")
 
         val input = fromResources("with_inline_schema.yml")

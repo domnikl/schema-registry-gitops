@@ -27,9 +27,11 @@ class Dump(private val factory: Factory) : Callable<Int> {
     }
 
     override fun call(): Int {
-        val state = factory.createDumper(cli.baseUrl).dump()
+        factory.baseUrl = cli.baseUrl
 
-        factory.createPersistence().save(state, outputStream)
+        val state = factory.dumper.dump()
+
+        factory.persistence.save(state, outputStream)
 
         return 0
     }
