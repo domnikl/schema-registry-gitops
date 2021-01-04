@@ -30,6 +30,16 @@ Commands:
 
 In order to get help for a specific command, try `schema-registry-gitops <command> -h`.
 
+## Using Docker
+
+`schema-registry-gitops` is available through [docker hub](https://hub.docker.com/repository/docker/domnikl/schema-registry-gitops), so running it in a container is as easy as:
+
+```sh
+docker run -v "$(pwd)/examples":/data domnikl/schema-registry-gitops validate --registry http://localhost:8081 /data/schema-registry.yml
+```
+
+Please keep in mind that using a tagged release may be a good idea.
+
 ## State file
 
 The desired state is managed using this YAML definition:
