@@ -1,14 +1,14 @@
 {
       "type": "record",
-      "name": "TestRecord",
+      "name": "User",
       "namespace": "dev.domnikl.schema_registry_gitops",
       "fields": [
             {
-                  "name": "hello",
+                  "name": "name",
                   "type": "string"
             },
             {
-                  "name": "world",
+                  "name": "role",
                   "type": "string"
             }
       ]

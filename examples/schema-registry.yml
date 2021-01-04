@@ -1,10 +1,17 @@
 compatibility: FULL_TRANSITIVE
 
 subjects:
-  - name: foo-value
-    file: foo.avsc
+  - name: User-value
+    file: User.avsc
     compatibility: BACKWARD
 
   - name: without-compatiblity
     file: without_compatibility.avsc
 
+  - name: foo-proto-value
+    file: foo.proto
+    type: PROTOBUF
+
+  - name: json-schema-value
+    file: foo.json
+    type: JSON
