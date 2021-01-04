@@ -2,6 +2,7 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
+import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
@@ -10,7 +11,7 @@ import java.util.concurrent.Callable
     name = "apply",
     description = ["applies the state to the given schema registry"]
 )
-class Apply(private val factory: Factory) : Callable<Int> {
+class Apply(private val factory: Factory, private val logger: Logger) : Callable<Int> {
     @CommandLine.ParentCommand
     private lateinit var cli: CLI
 
@@ -18,12 +19,20 @@ class Apply(private val factory: Factory) : Callable<Int> {
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        val file = File(inputFile)
-        val state = factory.createPersistence().load(file.parentFile, file)
-        val stateApplier = factory.createApplier(cli.baseUrl)
+        return try {
+            val file = File(inputFile)
+            val state = factory.createPersistence().load(file.parentFile, file)
+            val stateApplier = factory.createApplier(cli.baseUrl)
 
-        stateApplier.apply(state)
+            stateApplier.apply(state)
 
-        return 0
+            logger.info("Successfully applied state from $file to ${cli.baseUrl}")
+
+            0
+        } catch (e: Exception) {
+            logger.error(e.toString())
+
+            1
+        }
     }
 }

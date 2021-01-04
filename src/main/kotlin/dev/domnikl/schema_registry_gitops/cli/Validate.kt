@@ -1,9 +1,9 @@
 package dev.domnikl.schema_registry_gitops.cli
 
-import ch.qos.logback.classic.Logger
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.state.Persistence
+import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable

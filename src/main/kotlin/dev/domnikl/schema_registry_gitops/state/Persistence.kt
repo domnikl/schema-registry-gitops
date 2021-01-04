@@ -10,11 +10,12 @@ import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import org.apache.avro.Schema
+import org.slf4j.Logger
 import java.io.File
 import java.io.OutputStream
 import java.nio.file.Files
 
-class Persistence {
+class Persistence(private val logger: Logger) {
     private val yamlFactory = YAMLFactory()
         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)

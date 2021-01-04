@@ -1,6 +1,5 @@
 package dev.domnikl.schema_registry_gitops.cli
 
-import ch.qos.logback.classic.Logger
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.state.Validator
@@ -13,6 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
+import org.slf4j.Logger
 import java.io.File
 
 class ValidateTest {
