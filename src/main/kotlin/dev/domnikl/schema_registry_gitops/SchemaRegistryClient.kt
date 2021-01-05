@@ -1,51 +1,53 @@
 package dev.domnikl.schema_registry_gitops
 
-import io.confluent.kafka.schemaregistry.avro.AvroSchema
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.schemaregistry.ParsedSchema
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 
-class SchemaRegistryClient(private val schemaRegistryClient: SchemaRegistryClient) {
+class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
     fun subjects(): List<String> {
-        return schemaRegistryClient.allSubjects.toList()
+        return client.allSubjects.toList()
     }
 
     fun globalCompatibility(): Compatibility {
-        return Compatibility.valueOf(schemaRegistryClient.getCompatibility(""))
+        return Compatibility.valueOf(client.getCompatibility(""))
     }
 
     fun updateGlobalCompatibility(compatibility: Compatibility): Compatibility {
-        return Compatibility.valueOf(schemaRegistryClient.updateCompatibility("", compatibility.toString()))
+        return Compatibility.valueOf(client.updateCompatibility("", compatibility.toString()))
     }
 
     fun compatibility(subject: String): Compatibility {
         return handleNotExisting {
-            Compatibility.valueOf(schemaRegistryClient.getCompatibility(subject))
+            Compatibility.valueOf(client.getCompatibility(subject))
         } ?: Compatibility.NONE
     }
 
     fun updateCompatibility(subject: Subject): Compatibility {
-        return Compatibility.valueOf(schemaRegistryClient.updateCompatibility(subject.name, subject.compatibility.toString()))
+        return Compatibility.valueOf(client.updateCompatibility(subject.name, subject.compatibility.toString()))
     }
 
     fun testCompatibility(subject: Subject): Boolean {
-        return schemaRegistryClient.testCompatibility(subject.name, subject.schema)
+        return client.testCompatibility(subject.name, subject.schema)
     }
 
-    fun getLatestSchema(subject: String): AvroSchema {
-        return AvroSchema(schemaRegistryClient.getLatestSchemaMetadata(subject).schema)
+    fun getLatestSchema(subject: String): ParsedSchema {
+        val metadata = client.getLatestSchemaMetadata(subject)
+
+        return client.parseSchema(metadata.schemaType, metadata.schema, metadata.references).get()
     }
 
     fun create(subject: Subject): Int {
-        return schemaRegistryClient.register(subject.name, subject.schema)
+        return client.register(subject.name, subject.schema)
     }
 
     fun evolve(subject: Subject): Int {
-        return schemaRegistryClient.register(subject.name, subject.schema)
+        return client.register(subject.name, subject.schema)
     }
 
     fun version(subject: Subject): Int? {
         return handleNotExisting {
-            schemaRegistryClient.getVersion(subject.name, subject.schema)
+            client.getVersion(subject.name, subject.schema)
         }
     }
 

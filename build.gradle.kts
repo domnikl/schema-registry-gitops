@@ -18,6 +18,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url = uri("https://packages.confluent.io/maven/") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -34,6 +35,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
 
     implementation("io.confluent:kafka-schema-registry-client:6.0.1")
+    implementation("io.confluent:kafka-protobuf-serializer:6.0.1")
+    implementation("io.confluent:kafka-json-schema-serializer:6.0.1")
+    implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.12.1")
+
     testImplementation("junit", "junit", "4.12")
     testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
