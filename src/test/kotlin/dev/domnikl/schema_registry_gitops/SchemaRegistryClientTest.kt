@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops
 
 import io.confluent.kafka.schemaregistry.ParsedSchema
+import io.confluent.kafka.schemaregistry.client.SchemaMetadata
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import io.mockk.every
 import io.mockk.mockk
@@ -8,7 +9,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient as WrappedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient as WrappedSchemaRegistryClient
 
 class SchemaRegistryClientTest {
     private val client = mockk<WrappedSchemaRegistryClient>()
@@ -92,8 +93,10 @@ class SchemaRegistryClientTest {
     @Test
     fun `can get latest schema`() {
         val schema = schemaFromResources("schemas/key.avsc")
+        val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
 
-        every { client.getLatestSchemaMetadata("foo").schema } returns schema.toString()
+        every { client.parseSchema("AVRO", schema.toString(), emptyList()).get() } returns schema
+        every { client.getLatestSchemaMetadata("foo") } returns schemaMetadata
 
         assertEquals(schema, wrapper.getLatestSchema("foo"))
     }

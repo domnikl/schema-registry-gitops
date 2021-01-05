@@ -47,14 +47,14 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
 
     fun save(state: State, outputStream: OutputStream) {
         val yaml = Yaml(
-            state.compatibility?.toString(),
+            (state.compatibility ?: Compatibility.NONE).toString(),
             state.subjects.map {
                 YamlSubject(
                     it.name,
                     null,
+                    it.schema.schemaType(),
                     it.schema.canonicalString(),
-                    it.compatibility?.toString(),
-                    it.schema.schemaType()
+                    it.compatibility?.toString()
                 )
             }
         )
@@ -63,21 +63,23 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
     }
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
-    data class YamlSubject(val name: String, val file: String?, val schema: String?, val compatibility: String?, val type: String?) {
+    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?) {
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 
             if (schema != null) {
-                return schemaRegistryClient.parseSchema(t, schema, emptyList()).get()
+                return doParseSchema(schemaRegistryClient, t, schema)
             }
 
             if (file != null) {
-                val ymlFile = File("$basePath/$file")
-
-                return schemaRegistryClient.parseSchema(t, ymlFile.reader().readText(), emptyList()).get()
+                return doParseSchema(schemaRegistryClient, t, File("$basePath/$file").readText())
             }
 
             throw IllegalArgumentException("Either schema or file must be set")
+        }
+
+        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String): ParsedSchema {
+            return client.parseSchema(t, schemaString, emptyList()).get()
         }
     }
 }
