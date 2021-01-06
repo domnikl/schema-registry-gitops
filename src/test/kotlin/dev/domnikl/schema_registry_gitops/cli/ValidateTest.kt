@@ -2,10 +2,14 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
+import dev.domnikl.schema_registry_gitops.State
+import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import dev.domnikl.schema_registry_gitops.state.Validator
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyOrder
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -17,34 +21,59 @@ class ValidateTest {
     @Rule @JvmField val exit: ExpectedSystemExit = ExpectedSystemExit.none()
 
     private val validator = mockk<Validator>()
+    private val persistence = mockk<Persistence>()
     private val factory = mockk<Factory>(relaxed = true)
     private val logger = mockk<Logger>(relaxed = true)
 
     @Test
     fun `can validate YAML state file`() {
-        every { factory.validator } returns validator
-        every { validator.validate(any()) } returns emptyList()
+        val state = State(
+            null,
+            listOf(Subject("foo", null, mockk()))
+        )
 
         val input = fromResources("with_inline_schema.yml")
+
+        every { factory.validator } returns validator
+        every { factory.persistence } returns persistence
+        every { persistence.load(any(), input) } returns state
+        every { validator.validate(any()) } returns emptyList()
+
         val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "http://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
-        verify { logger.debug("VALIDATION PASSED: all schemas are ready to be evolved") }
+        verify {
+            logger.info("Subject 'foo': ok")
+            logger.info("VALIDATION PASSED: all schemas are ready to be evolved")
+        }
         verify(exactly = 0) { logger.error(any()) }
     }
 
     @Test
     fun `can report validation fails`() {
-        every { factory.validator } returns validator
-        every { validator.validate(any()) } returns listOf("foo", "bar")
+        val state = State(
+            null,
+            listOf(
+                Subject("foo", null, mockk()),
+                Subject("bar", null, mockk())
+            )
+        )
 
         val input = fromResources("with_inline_schema.yml")
+
+        every { factory.validator } returns validator
+        every { factory.persistence } returns persistence
+        every { persistence.load(any(), input) } returns state
+        every { validator.validate(any()) } returns listOf("foo", "bar")
+
         val exitCode = CLI.commandLine(factory, logger).execute("validate", input.path)
 
         assertEquals(1, exitCode)
 
-        verify {
+        verifyOrder {
+            logger.error("Subject 'foo': FAIL")
+            logger.error("Subject 'bar': FAIL")
             logger.error("VALIDATION FAILED: The following schemas are incompatible with an earlier version: 'foo', 'bar'")
         }
     }

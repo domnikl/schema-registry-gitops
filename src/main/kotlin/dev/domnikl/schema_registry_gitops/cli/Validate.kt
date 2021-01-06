@@ -24,16 +24,24 @@ class Validate(private val factory: Factory, private val logger: Logger) : Calla
         try {
             val file = File(inputFile)
             val state = factory.persistence.load(file.parentFile, file)
-            val incompatibleSchemas = factory.validator.validate(state)
+            val incompatibleSubjects = factory.validator.validate(state)
 
-            if (incompatibleSchemas.isEmpty()) {
-                logger.debug("VALIDATION PASSED: all schemas are ready to be evolved")
+            state.subjects.forEach { subject ->
+                if (incompatibleSubjects.contains(subject.name)) {
+                    logger.error("Subject '${subject.name}': FAIL")
+                } else {
+                    logger.info("Subject '${subject.name}': ok")
+                }
+            }
+
+            if (incompatibleSubjects.isEmpty()) {
+                logger.info("VALIDATION PASSED: all schemas are ready to be evolved")
                 return 0
             }
 
             logger.error(
                 "VALIDATION FAILED: The following schemas are incompatible with an earlier version: " +
-                    "'${incompatibleSchemas.joinToString("', '")}'"
+                    "'${incompatibleSubjects.joinToString("', '")}'"
             )
 
             return 1
