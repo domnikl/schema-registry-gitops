@@ -55,4 +55,9 @@ class CLITest {
 
         logger.level = Level.INFO
     }
+
+    @Test
+    fun `can get version`() {
+        assertEquals("schema-registry-gitops test", CLI.version.joinToString(""))
+    }
 }

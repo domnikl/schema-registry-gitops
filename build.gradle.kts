@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.domnikl"
-version = "1.0-SNAPSHOT"
+version = "0.2.1"
 
 repositories {
     mavenCentral()
@@ -44,15 +44,26 @@ dependencies {
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
-val jar by tasks.getting(Jar::class) {
-    manifest {
-        attributes["Main-Class"] = "dev.domnikl.schema_registry_gitops.MainKt"
-    }
-}
-
 tasks {
+    val versionTxt = register("versionTxt") {
+        doLast {
+            val outputDir = File("${sourceSets.main.get().output.resourcesDir}/version.txt")
+
+            if (outputDir.exists()) outputDir.writeText("${project.version}")
+        }
+    }
+
     withType<ShadowJar> {
+        dependsOn(versionTxt)
         archiveFileName.set("schema-registry-gitops.jar")
+    }
+
+    withType<Jar> {
+        dependsOn(versionTxt)
+
+        manifest {
+            attributes["Main-Class"] = "dev.domnikl.schema_registry_gitops.MainKt"
+        }
     }
 }
 

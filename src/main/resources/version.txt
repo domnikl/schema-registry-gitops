@@ -1,0 +1,2 @@
+# this file is being replaced by Gradle build
+0.0.0
