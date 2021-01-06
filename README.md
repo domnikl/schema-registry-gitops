@@ -1,7 +1,7 @@
 # schema-registry-gitops
 
-![build](https://github.com/domnikl/schema-registry-gitops/workflows/build/badge.svg)
-![Docker Pulls](https://img.shields.io/docker/pulls/domnikl/schema-registry-gitops)
+[![build](https://github.com/domnikl/schema-registry-gitops/workflows/build/badge.svg)](https://github.com/domnikl/schema-registry-gitops/actions)
+[![Docker Pulls](https://img.shields.io/docker/pulls/domnikl/schema-registry-gitops)](https://hub.docker.com/repository/docker/domnikl/schema-registry-gitops)
 <a href="https://codeclimate.com/github/domnikl/schema-registry-gitops/maintainability"><img src="https://api.codeclimate.com/v1/badges/2e87990ad7212a273b49/maintainability" /></a>
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
