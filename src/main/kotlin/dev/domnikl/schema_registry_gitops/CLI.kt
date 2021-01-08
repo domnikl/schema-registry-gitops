@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import picocli.CommandLine
 import java.io.InputStreamReader
 import java.util.concurrent.Callable
-import kotlin.system.exitProcess
 import ch.qos.logback.classic.Logger as LogbackClassicLogger
 
 @CommandLine.Command(
@@ -18,6 +17,9 @@ import ch.qos.logback.classic.Logger as LogbackClassicLogger
     description = ["Manages schema registries through Infrastructure as Code"]
 )
 class CLI : Callable<Int> {
+    @CommandLine.Spec
+    lateinit var spec: CommandLine.Model.CommandSpec
+
     @CommandLine.Option(
         names = ["-r", "--registry"],
         description = ["schema registry HTTP endpoint"],
@@ -38,13 +40,15 @@ class CLI : Callable<Int> {
     }
 
     override fun call(): Int {
-        CommandLine.usage(this, System.out)
-        exitProcess(0)
+        spec.commandLine().usage(System.out)
+
+        return 0
     }
 
     companion object : CommandLine.IVersionProvider {
         fun commandLine(factory: Factory, logger: Logger = LoggerFactory.getLogger(CLI::class.java)): CommandLine {
             return CommandLine(CLI())
+                .addSubcommand(CommandLine.HelpCommand::class.java)
                 .addSubcommand(Validate(factory, logger))
                 .addSubcommand(Apply(factory, logger))
                 .addSubcommand(Dump(factory))
