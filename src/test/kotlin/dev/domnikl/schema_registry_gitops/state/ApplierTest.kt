@@ -83,6 +83,7 @@ class ApplierTest {
         every { client.subjects() } returns emptyList()
         every { client.version(subject) } returns null
         every { client.create(subject) } returns 1
+        every { client.compatibility("foo") } returns Compatibility.NONE
         every { client.updateCompatibility(subject) } returns Compatibility.BACKWARD
 
         stateApplier.apply(state)
@@ -149,6 +150,7 @@ class ApplierTest {
 
         every { client.subjects() } returns listOf("foo")
         every { client.version(subject) } returns null
+        every { client.compatibility(subject.name) } returns Compatibility.FULL
         every { client.updateCompatibility(subject) } returns Compatibility.FORWARD_TRANSITIVE
         every { client.evolve(subject) } returns 2
 
@@ -160,6 +162,33 @@ class ApplierTest {
             client.version(subject)
             client.evolve(subject)
             logger.info("Evolved existing schema for subject 'foo' to version 2")
+        }
+    }
+
+    @Test
+    fun `will not change subject compatibility if matches state`() {
+        val schema = schemaFromResources("schemas/key.avsc")
+        val state = mockk<State>()
+        val subject = Subject("foo", Compatibility.FULL, schema)
+
+        every { state.compatibility } returns null
+        every { state.subjects } returns listOf(subject)
+
+        every { client.subjects() } returns listOf("foo")
+        every { client.version(subject) } returns 1
+        every { client.compatibility("foo") } returns Compatibility.FULL
+
+        stateApplier.apply(state)
+
+        verifyOrder {
+            client.subjects()
+            client.compatibility("foo")
+            logger.debug("Did not change compatibility level for 'foo' as it matched desired level FULL")
+            client.version(subject)
+            logger.debug("Did not evolve schema, version already exists as 1")
+        }
+        verify(exactly = 0) {
+            client.updateCompatibility(subject)
         }
     }
 }
