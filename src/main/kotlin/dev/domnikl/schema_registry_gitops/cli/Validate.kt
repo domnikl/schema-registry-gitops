@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.Factory
 import org.slf4j.Logger
 import picocli.CommandLine
@@ -9,7 +10,8 @@ import java.util.concurrent.Callable
 
 @CommandLine.Command(
     name = "validate",
-    description = ["validate schemas, should be used before applying changes"]
+    description = ["validate schemas, should be used before applying changes"],
+    mixinStandardHelpOptions = true
 )
 class Validate(private val factory: Factory, private val logger: Logger) : Callable<Int> {
     @CommandLine.ParentCommand
@@ -19,7 +21,7 @@ class Validate(private val factory: Factory, private val logger: Logger) : Calla
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        factory.baseUrl = cli.baseUrl
+        factory.inject(Configuration.from(cli))
 
         try {
             val file = File(inputFile)

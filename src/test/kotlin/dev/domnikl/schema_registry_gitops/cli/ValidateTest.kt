@@ -67,7 +67,7 @@ class ValidateTest {
         every { persistence.load(any(), input) } returns state
         every { validator.validate(any()) } returns listOf("foo", "bar")
 
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "foo", input.path)
 
         assertEquals(1, exitCode)
 
@@ -84,7 +84,7 @@ class ValidateTest {
         every { validator.validate(any()) } throws IllegalArgumentException("foobar")
 
         val input = fromResources("with_inline_schema.yml")
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "foo", input.path)
 
         assertEquals(2, exitCode)
 

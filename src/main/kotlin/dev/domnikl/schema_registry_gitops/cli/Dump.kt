@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.Factory
 import picocli.CommandLine
 import java.io.BufferedOutputStream
@@ -27,7 +28,7 @@ class Dump(private val factory: Factory) : Callable<Int> {
     }
 
     override fun call(): Int {
-        factory.baseUrl = cli.baseUrl
+        factory.inject(Configuration.from(cli))
 
         val state = factory.dumper.dump()
 
