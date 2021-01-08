@@ -21,11 +21,18 @@ class CLI : Callable<Int> {
     lateinit var spec: CommandLine.Model.CommandSpec
 
     @CommandLine.Option(
-        names = ["-r", "--registry"],
-        description = ["schema registry HTTP endpoint"],
+        names = ["--properties"],
+        description = ["a Java Properties file for client configuration (optional)"],
         scope = CommandLine.ScopeType.INHERIT
     )
-    var baseUrl = "http://localhost:8081"
+    var propertiesFilePath: String? = null
+
+    @CommandLine.Option(
+        names = ["-r", "--registry"],
+        description = ["schema registry endpoint, overwrites 'schema.registry.url' from properties"],
+        scope = CommandLine.ScopeType.INHERIT
+    )
+    var baseUrl: String? = null
 
     @CommandLine.Option(
         names = ["-v", "--verbose"],

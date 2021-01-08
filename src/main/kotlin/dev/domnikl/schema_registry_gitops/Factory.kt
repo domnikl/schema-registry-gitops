@@ -11,7 +11,7 @@ import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import org.slf4j.LoggerFactory
 
 class Factory {
-    lateinit var baseUrl: String
+    private lateinit var config: Configuration
 
     val validator by lazy { Validator(client) }
     val applier by lazy { Applier(client, LoggerFactory.getLogger(Applier::class.java)) }
@@ -26,12 +26,16 @@ class Factory {
 
     private val cachedClient by lazy {
         CachedSchemaRegistryClient(
-            listOf(baseUrl),
+            listOf(config.baseUrl),
             100,
             listOf(AvroSchemaProvider(), ProtobufSchemaProvider(), JsonSchemaProvider()),
-            null,
+            config.toMap(),
             null
         )
     }
     private val client by lazy { SchemaRegistryClient(cachedClient) }
+
+    fun inject(configuration: Configuration) {
+        config = configuration
+    }
 }

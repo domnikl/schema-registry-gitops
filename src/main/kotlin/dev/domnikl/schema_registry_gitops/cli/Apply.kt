@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.Factory
 import org.slf4j.Logger
 import picocli.CommandLine
@@ -19,7 +20,7 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        factory.baseUrl = cli.baseUrl
+        factory.inject(Configuration.from(cli))
 
         return try {
             val file = File(inputFile)
