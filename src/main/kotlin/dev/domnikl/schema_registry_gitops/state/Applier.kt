@@ -45,11 +45,18 @@ class Applier(
     }
 
     private fun updateCompatibility(subject: Subject) {
-        if (subject.compatibility != null) {
-            val compatibility = client.updateCompatibility(subject)
+        if (subject.compatibility == null) return
 
-            logger.info("Changed '${subject.name}' compatibility to $compatibility")
+        val compatibilityBefore = client.compatibility(subject.name)
+
+        if (compatibilityBefore == subject.compatibility) {
+            logger.debug("Did not change compatibility level for '${subject.name}' as it matched desired level ${subject.compatibility}")
+            return
         }
+
+        val compatibility = client.updateCompatibility(subject)
+
+        logger.info("Changed '${subject.name}' compatibility to $compatibility")
     }
 
     private fun updateGlobalCompatibility(state: State) {

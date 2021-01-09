@@ -20,7 +20,9 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     private lateinit var inputFile: String
 
     override fun call(): Int {
-        factory.inject(Configuration.from(cli))
+        val configuration = Configuration.from(cli)
+
+        factory.inject(configuration)
 
         return try {
             val file = File(inputFile)
@@ -28,7 +30,7 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
 
             factory.applier.apply(state)
 
-            logger.info("Successfully applied state from $file to ${cli.baseUrl}")
+            logger.info("Successfully applied state from $file to ${configuration.baseUrl}")
 
             0
         } catch (e: Exception) {
