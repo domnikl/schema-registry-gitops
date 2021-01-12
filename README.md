@@ -13,6 +13,8 @@ Schema Registry GitOps is an Infrastructure as Code tool that applies a desired 
 Avro/Protobuf/JSON Schema files to a schema registry. That way you can keep a version control history of your
 schemas and use all your favorite tools to validate, review, merge and evolve schemas in your CI/CD pipeline.
 
+![Yaml (+Avro, Protobuf, JSON) -> CI/CD -> Schema Registry](schema-registry-gitops.svg)
+
 ## Usage
 
 ```
