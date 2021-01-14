@@ -15,8 +15,8 @@ class ValidatorTest {
     private val validator = Validator(client)
 
     @Test
-    fun `returns empty list if all subjects are new`() {
-        every { client.subjects() } returns emptyList()
+    fun `returns empty list if all subjects are compatible`() {
+        every { client.testCompatibility(any()) } returns true
 
         val state = State(
             Compatibility.FULL,
@@ -38,7 +38,6 @@ class ValidatorTest {
         val subjectFoo = Subject("foo", null, schema)
         val subjectBar = Subject("bar", null, schema)
 
-        every { client.subjects() } returns listOf("foo", "bar")
         every { client.testCompatibility(subjectFoo) } returns true
         every { client.testCompatibility(subjectBar) } returns true
 
