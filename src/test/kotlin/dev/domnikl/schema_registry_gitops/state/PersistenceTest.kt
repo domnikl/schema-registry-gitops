@@ -2,6 +2,7 @@ package dev.domnikl.schema_registry_gitops.state
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.fromResources
@@ -28,6 +29,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.util.Optional
 
 class PersistenceTest {
     private val logger = mockk<Logger>(relaxed = true)
@@ -79,7 +81,7 @@ class PersistenceTest {
         val schemaString = stringFromResources("schemas/with_subjects.avsc")
         val schema = mockk<ParsedSchema>()
 
-        every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()).get() } returns schema
+        every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()) } returns Optional.of(schema)
 
         val state = loader.load(fromResources("schemas"), fromResources("with_subjects.yml"))
 
@@ -110,8 +112,8 @@ class PersistenceTest {
                 "AVRO",
                 match { it.replace("\\s".toRegex(), "") == schemaString.replace("\\s".toRegex(), "") },
                 emptyList()
-            ).get()
-        } returns schema
+            )
+        } returns Optional.of(schema)
 
         val state = loader.load(fromResources("schemas"), fromResources("with_inline_schema.yml"))
 
@@ -123,7 +125,7 @@ class PersistenceTest {
         val schemaString = stringFromResources("schemas/with_subjects.avsc")
         val schema = mockk<ParsedSchema>()
 
-        every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()).get() } returns schema
+        every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()) } returns Optional.of(schema)
 
         val state = loader.load(fromResources("schemas"), fromResources("with_subjects_and_compatibility.yml"))
 
@@ -157,8 +159,8 @@ class PersistenceTest {
         val schema1 = schemaFromResources("schemas/with_subjects.avsc")
         val schema2 = schemaFromResources("schemas/key.avsc")
 
-        every { schemaRegistryClient.parseSchema("AVRO", schema1.toString(), emptyList()).get() } returns schema1
-        every { schemaRegistryClient.parseSchema("AVRO", schema2.toString(), emptyList()).get() } returns schema2
+        every { schemaRegistryClient.parseSchema("AVRO", schema1.toString(), emptyList()) } returns Optional.of(schema1)
+        every { schemaRegistryClient.parseSchema("AVRO", schema2.toString(), emptyList()) } returns Optional.of(schema2)
 
         val tempFile = File.createTempFile(javaClass.simpleName, "can-save-state-to-a-file")
         tempFile.deleteOnExit()
@@ -207,6 +209,28 @@ class PersistenceTest {
             null,
             null
         )
+
+        @Test
+        fun `file takes precedence over inline schema`() {
+            val subject = Persistence.YamlSubject(
+                "foo",
+                "key.avsc",
+                "AVRO",
+                """
+                    syntax = "proto3";
+                    package com.acme;
+
+                    message OtherRecord {
+                      int32 an_id = 1;
+                    }
+                """.trimIndent(),
+                null
+            )
+
+            val schema = subject.parseSchema(fromResources("schemas"), schemaRegistryClient)
+
+            assert(schema is AvroSchema)
+        }
 
         @Test
         fun `can parse Protobuf schema`() {
@@ -269,6 +293,36 @@ class PersistenceTest {
             val schema = subject.parseSchema(File("."), schemaRegistryClient)
 
             assert(schema is JsonSchema)
+        }
+
+        @Test
+        fun `throws exception when neither file nor schema is set`() {
+            val subject = Persistence.YamlSubject(
+                "foo",
+                null,
+                "JSON",
+                null,
+                null
+            )
+
+            assertThrows(IllegalArgumentException::class.java) {
+                subject.parseSchema(File("."), schemaRegistryClient)
+            }
+        }
+
+        @Test
+        fun `throws exception when schema could not be parsed`() {
+            val subject = Persistence.YamlSubject(
+                "foo",
+                null,
+                "JSON",
+                "foobar",
+                null
+            )
+
+            assertThrows(SchemaParseException::class.java) {
+                subject.parseSchema(File("."), schemaRegistryClient)
+            }
         }
     }
 }

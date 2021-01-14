@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.ParsedSchema
@@ -14,6 +15,7 @@ import org.slf4j.Logger
 import java.io.File
 import java.io.OutputStream
 import java.nio.file.Files
+import java.util.Optional
 
 class Persistence(private val logger: Logger, private val schemaRegistryClient: CachedSchemaRegistryClient) {
     private val yamlFactory = YAMLFactory()
@@ -67,19 +69,21 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 
-            if (schema != null) {
-                return doParseSchema(schemaRegistryClient, t, schema)
+            val optional = when {
+                file != null -> doParseSchema(schemaRegistryClient, t, File("$basePath/$file").readText())
+                schema != null -> doParseSchema(schemaRegistryClient, t, schema)
+                else -> throw IllegalArgumentException("Either schema or file must be set")
             }
 
-            if (file != null) {
-                return doParseSchema(schemaRegistryClient, t, File("$basePath/$file").readText())
+            if (optional == null || optional.isEmpty) {
+                throw SchemaParseException("Could not parse $t schema for subject '$name'")
             }
 
-            throw IllegalArgumentException("Either schema or file must be set")
+            return optional.get()
         }
 
-        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String): ParsedSchema {
-            return client.parseSchema(t, schemaString, emptyList()).get()
+        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String): Optional<ParsedSchema>? {
+            return client.parseSchema(t, schemaString, emptyList())
         }
     }
 }
