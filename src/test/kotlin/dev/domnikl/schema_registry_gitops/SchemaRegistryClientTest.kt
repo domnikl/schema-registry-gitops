@@ -6,6 +6,7 @@ import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientExcept
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -91,6 +92,58 @@ class SchemaRegistryClientTest {
     }
 
     @Test
+    fun `test compatibility returns true if subject is new`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40401)
+
+        assert(wrapper.testCompatibility(subject))
+    }
+
+    @Test
+    fun `test compatibility returns true if version is new`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40402)
+
+        assert(wrapper.testCompatibility(subject))
+    }
+
+    @Test
+    fun `test compatibility returns true if schema is new`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40403)
+
+        assert(wrapper.testCompatibility(subject))
+    }
+
+    @Test
+    fun `test compatibility returns false if client returns false`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        every { client.testCompatibility("foo", schema) } returns false
+
+        assertFalse(wrapper.testCompatibility(subject))
+    }
+
+    @Test
+    fun `test compatibility throws exception if schema type is not supported`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        every { client.testCompatibility("foo", schema) } throws RestClientException("", 422, 422)
+
+        assertThrows(ServerVersionMismatchException::class.java) {
+            wrapper.testCompatibility(subject)
+        }
+    }
+
+    @Test
     fun `can get latest schema`() {
         val schema = schemaFromResources("schemas/key.avsc")
         val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
@@ -109,6 +162,18 @@ class SchemaRegistryClientTest {
         every { client.register("foo", schema) } returns 42
 
         assertEquals(42, wrapper.create(subject))
+    }
+
+    @Test
+    fun `create will throw exception when schemaType is used prior to server version 55`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", Compatibility.FORWARD, schema)
+
+        every { client.register("foo", schema) } throws RestClientException("", 422, 422)
+
+        assertThrows(ServerVersionMismatchException::class.java) {
+            wrapper.create(subject)
+        }
     }
 
     @Test

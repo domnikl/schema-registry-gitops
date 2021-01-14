@@ -60,7 +60,7 @@ subjects:
     compatibility: BACKWARD
     # file references are always relative to the given (this) YAML file
     file: my-actual-schema.avsc
-    # AVRO is the default type and can safely be omitted
+    # AVRO is the default type and can safely be omitted (only available for Schema Registry >= 5.5)
     type: AVRO
 
   # another example: instead of referencing a file, it is also possible
@@ -93,7 +93,13 @@ to a string containing the schema.
 
 ### type
 
-Supported `type` values are: `AVRO`, `PROTOBUF` and `JSON`.
+Supported `type` values are:
+
+* `AVRO`
+* `PROTOBUF`
+* `JSON`
+
+_Please note that `PROTOBUF` and `JSON` are only supported for Schema Registry >= 5.5, versions prior to that only support `AVRO`._
 
 ## Configuration .properties
 

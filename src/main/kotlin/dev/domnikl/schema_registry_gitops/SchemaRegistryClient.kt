@@ -28,7 +28,11 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
     }
 
     fun testCompatibility(subject: Subject): Boolean {
-        return client.testCompatibility(subject.name, subject.schema)
+        return handleNotExisting {
+            handleUnsupportedSchemaType {
+                client.testCompatibility(subject.name, subject.schema)
+            }
+        } ?: true
     }
 
     fun getLatestSchema(subject: String): ParsedSchema {
@@ -38,16 +42,36 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
     }
 
     fun create(subject: Subject): Int {
-        return client.register(subject.name, subject.schema)
+        return register(subject)
     }
 
     fun evolve(subject: Subject): Int {
-        return client.register(subject.name, subject.schema)
+        return register(subject)
+    }
+
+    private fun register(subject: Subject): Int {
+        return handleUnsupportedSchemaType {
+            client.register(subject.name, subject.schema)
+        }!!
     }
 
     fun version(subject: Subject): Int? {
         return handleNotExisting {
             client.getVersion(subject.name, subject.schema)
+        }
+    }
+
+    private fun <V> handleUnsupportedSchemaType(f: () -> V?): V? {
+        return try {
+            f()
+        } catch (e: RestClientException) {
+            throw when (e.errorCode) {
+                ERROR_CODE_UNPROCESSABLE_ENTITY -> ServerVersionMismatchException(
+                    "Possible server version mismatch. Note that types other than 'AVRO' are not supported for server versions prior to 5.5",
+                    e
+                )
+                else -> e
+            }
         }
     }
 
@@ -68,5 +92,6 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         private const val ERROR_CODE_SUBJECT_NOT_FOUND = 40401
         private const val ERROR_CODE_VERSION_NOT_FOUND = 40402
         private const val ERROR_CODE_SCHEMA_NOT_FOUND = 40403
+        private const val ERROR_CODE_UNPROCESSABLE_ENTITY = 422
     }
 }
