@@ -25,7 +25,7 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
         factory.inject(configuration)
 
         return try {
-            val file = File(inputFile)
+            val file = File(inputFile).absoluteFile
             val state = factory.persistence.load(file.parentFile, file)
 
             factory.applier.apply(state)
