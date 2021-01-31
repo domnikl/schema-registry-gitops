@@ -24,7 +24,7 @@ class Validate(private val factory: Factory, private val logger: Logger) : Calla
         factory.inject(Configuration.from(cli))
 
         try {
-            val file = File(inputFile)
+            val file = File(inputFile).absoluteFile
             val state = factory.persistence.load(file.parentFile, file)
             val incompatibleSubjects = factory.validator.validate(state)
 

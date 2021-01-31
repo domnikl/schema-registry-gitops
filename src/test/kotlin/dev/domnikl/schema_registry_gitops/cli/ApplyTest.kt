@@ -40,6 +40,24 @@ class ApplyTest {
     }
 
     @Test
+    fun `can handle relative inputFile paths`() {
+        val state = mockk<State>()
+
+        every { factory.applier } returns applier
+        every { factory.persistence } returns statePersistence
+        every { statePersistence.load(any(), any()) } throws IllegalArgumentException("foobar")
+        every { applier.apply(state) } just runs
+        every { logger.error(any()) } just runs
+
+        val input = "only_compatibility.yml"
+        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "http://foo.bar", input)
+
+        assertEquals(1, exitCode)
+
+        verify { logger.error("java.lang.IllegalArgumentException: foobar") }
+    }
+
+    @Test
     fun `logs errors it encounters`() {
         val state = mockk<State>()
 

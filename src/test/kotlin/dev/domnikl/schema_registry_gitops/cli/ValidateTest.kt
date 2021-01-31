@@ -51,6 +51,25 @@ class ValidateTest {
     }
 
     @Test
+    fun `can handle relative inputFile paths`() {
+        val state = State(
+            null,
+            listOf(Subject("foo", null, mockk()))
+        )
+
+        val input = "with_inline_schema.yml"
+
+        every { factory.validator } returns validator
+        every { factory.persistence } returns persistence
+        every { persistence.load(any(), any()) } returns state
+        every { validator.validate(any()) } returns emptyList()
+
+        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "http://foo.bar", input)
+
+        assertEquals(0, exitCode)
+    }
+
+    @Test
     fun `can report validation fails`() {
         val state = State(
             null,
