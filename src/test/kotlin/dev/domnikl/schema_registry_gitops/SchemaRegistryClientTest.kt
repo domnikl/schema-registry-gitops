@@ -10,6 +10,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import java.util.Optional
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient as WrappedSchemaRegistryClient
 
 class SchemaRegistryClientTest {
@@ -148,7 +149,11 @@ class SchemaRegistryClientTest {
         val schema = schemaFromResources("schemas/key.avsc")
         val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
 
-        every { client.parseSchema("AVRO", schema.toString(), emptyList()).get() } returns schema
+        val optionalSchema = mockk<Optional<ParsedSchema>>()
+
+        every { optionalSchema.get() } returns schema
+
+        every { client.parseSchema("AVRO", schema.toString(), emptyList()) } returns optionalSchema
         every { client.getLatestSchemaMetadata("foo") } returns schemaMetadata
 
         assertEquals(schema, wrapper.getLatestSchema("foo"))
