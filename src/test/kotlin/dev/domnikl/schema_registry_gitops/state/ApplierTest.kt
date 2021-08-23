@@ -3,7 +3,7 @@ package dev.domnikl.schema_registry_gitops.state
 import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.Subject
-import dev.domnikl.schema_registry_gitops.schemaFromResources
+import dev.domnikl.schema_registry_gitops.avroFromResources
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.mockk.every
 import io.mockk.just
@@ -59,7 +59,7 @@ class ApplierTest {
 
     @Test
     fun `can create new subject`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", null, schema)
 
         every { client.subjects() } returns emptyList()
@@ -81,7 +81,7 @@ class ApplierTest {
 
     @Test
     fun `can register new subject and set compatibility`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", Compatibility.BACKWARD, schema)
 
         every { client.version(subject) } returns null
@@ -104,7 +104,7 @@ class ApplierTest {
 
     @Test
     fun `can evolve schema`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", null, schema)
 
         every { client.version(subject) } returns null
@@ -145,7 +145,7 @@ class ApplierTest {
 
     @Test
     fun `will not evolve schema if version already exists`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", null, schema)
 
         every { client.version(subject) } returns 2
@@ -166,7 +166,7 @@ class ApplierTest {
 
     @Test
     fun `can update compatibility and evolve schema`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", Compatibility.FORWARD_TRANSITIVE, schema)
 
         every { client.version(subject) } returns null
@@ -198,7 +198,7 @@ class ApplierTest {
 
     @Test
     fun `will not change subject compatibility if matches state`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", Compatibility.FULL, schema)
 
         every { client.version(subject) } returns 1

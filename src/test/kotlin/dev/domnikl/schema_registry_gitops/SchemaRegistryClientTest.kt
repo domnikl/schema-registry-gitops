@@ -147,7 +147,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can get latest schema`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
 
         val optionalSchema = mockk<Optional<ParsedSchema>>()
