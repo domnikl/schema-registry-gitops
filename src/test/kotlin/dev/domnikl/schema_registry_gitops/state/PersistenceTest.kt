@@ -5,8 +5,8 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
-import dev.domnikl.schema_registry_gitops.fromResources
 import dev.domnikl.schema_registry_gitops.avroFromResources
+import dev.domnikl.schema_registry_gitops.fromResources
 import dev.domnikl.schema_registry_gitops.stringFromResources
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.avro.AvroSchema

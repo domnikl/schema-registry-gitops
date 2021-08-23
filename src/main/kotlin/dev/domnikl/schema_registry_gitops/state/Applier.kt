@@ -3,6 +3,8 @@ package dev.domnikl.schema_registry_gitops.state
 import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.diff
+import io.confluent.kafka.schemaregistry.ParsedSchema
 import org.slf4j.Logger
 
 class Applier(
@@ -37,7 +39,7 @@ class Applier(
             }
 
             change.remoteSchema?.let {
-                evolve(change.subject)
+                evolve(change.subject, it)
             }
         }
     }
@@ -64,17 +66,11 @@ class Applier(
         logger.info("")
     }
 
-    private fun evolve(subject: Subject) {
-        val versionBefore = client.version(subject)
+    private fun evolve(subject: Subject, change: Diffing.Change<ParsedSchema>) {
+        val versionId = client.evolve(subject)
 
-        if (versionBefore == null) {
-            val versionId = client.evolve(subject)
-
-            logger.info("   ~ evolved (version $versionId)")
-        } else {
-            logger.info("   ~ exists (version $versionBefore)")
-        }
-
+        logger.info("   ~ evolved (version $versionId)")
+        logger.info("   ~ schema ${change.before.diff(change.after)}")
         logger.info("")
     }
 

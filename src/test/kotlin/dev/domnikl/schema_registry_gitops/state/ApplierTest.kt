@@ -118,9 +118,9 @@ class ApplierTest {
 
         verifyOrder {
             logger.info("[SUBJECT] foo")
-            client.version(subject)
             client.evolve(subject)
             logger.info("   ~ evolved (version 5)")
+            logger.info("   ~ schema   \"string\"")
             logger.info("")
         }
         verify(exactly = 0) { client.updateCompatibility(subject) }
@@ -141,27 +141,6 @@ class ApplierTest {
             logger.info("   - deleted")
             logger.info("")
         }
-    }
-
-    @Test
-    fun `will not evolve schema if version already exists`() {
-        val schema = avroFromResources("schemas/key.avsc")
-        val subject = Subject("foo", null, schema)
-
-        every { client.version(subject) } returns 2
-
-        val diff = Diffing.Result(
-            modified = listOf(Diffing.Changes(subject, null, Diffing.Change(schema, schema)))
-        )
-
-        stateApplier.apply(diff)
-
-        verifyOrder {
-            logger.info("[SUBJECT] foo")
-            client.version(subject)
-            logger.info("   ~ exists (version 2)")
-        }
-        verify(exactly = 0) { client.updateCompatibility(subject) }
     }
 
     @Test
@@ -189,9 +168,9 @@ class ApplierTest {
             logger.info("[SUBJECT] foo")
             client.updateCompatibility(subject)
             logger.info("   ~ compatibility FORWARD_TRANSITIVE -> FULL")
-            client.version(subject)
             client.evolve(subject)
             logger.info("   ~ evolved (version 2)")
+            logger.info("   ~ schema   \"string\"")
             logger.info("")
         }
     }

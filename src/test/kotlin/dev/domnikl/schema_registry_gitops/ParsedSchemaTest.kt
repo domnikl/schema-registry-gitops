@@ -9,7 +9,7 @@ class ParsedSchemaTest {
         val a = avroFromResources("schemas/deltaA.avsc")
         val b = avroFromResources("schemas/deltaB.avsc")
 
-        val diff = a.stringDiff(b)
+        val diff = a.diff(b)
 
         assertEquals(stringFromResources("schemas/avsc.diff"), diff)
     }
@@ -19,7 +19,7 @@ class ParsedSchemaTest {
         val a = protoFromResources("schemas/deltaA.proto")
         val b = protoFromResources("schemas/deltaB.proto")
 
-        val diff = a.stringDiff(b)
+        val diff = a.diff(b)
 
         assertEquals(stringFromResources("schemas/proto.diff"), diff)
     }
@@ -29,7 +29,7 @@ class ParsedSchemaTest {
         val a = jsonFromResources("schemas/deltaA.json")
         val b = jsonFromResources("schemas/deltaB.json")
 
-        val diff = a.stringDiff(b)
+        val diff = a.diff(b)
 
         assertEquals(stringFromResources("schemas/json.diff"), diff)
     }

@@ -3,7 +3,7 @@ package dev.domnikl.schema_registry_gitops.cli
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.Factory
-import dev.domnikl.schema_registry_gitops.stringDiff
+import dev.domnikl.schema_registry_gitops.diff
 import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
@@ -74,7 +74,7 @@ class Plan(private val factory: Factory, private val logger: Logger) : Callable<
                 }
 
                 it.remoteSchema?.let { s ->
-                    logger.info("   ~ schema " + s.before.stringDiff(s.after))
+                    logger.info("   ~ schema ${s.before.diff(s.after)}")
                 }
 
                 logger.info("")

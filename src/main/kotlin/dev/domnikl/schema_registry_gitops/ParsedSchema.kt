@@ -1,7 +1,5 @@
 package dev.domnikl.schema_registry_gitops
 
-import com.github.difflib.DiffUtils
-import com.github.difflib.patch.AbstractDelta
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.squareup.wire.schema.internal.parser.ProtoFileElement
@@ -18,7 +16,7 @@ private fun ParsedSchema.lines() = when (this) {
     else -> canonicalString()
 }.lines()
 
-fun ParsedSchema.stringDiff(other: ParsedSchema): String {
+fun ParsedSchema.diff(other: ParsedSchema): String {
     val generator = DiffRowGenerator.create()
         .showInlineDiffs(false)
         .inlineDiffByWord(false)
@@ -29,7 +27,7 @@ fun ParsedSchema.stringDiff(other: ParsedSchema): String {
             DiffRow.Tag.INSERT -> "+ ${it.newLine}"
             DiffRow.Tag.DELETE -> "- ${it.oldLine}"
             DiffRow.Tag.CHANGE -> "- ${it.oldLine}\n+ ${it.newLine}"
-            else               -> "  ${it.oldLine}"
+            else -> "  ${it.oldLine}"
         }
     }.joinToString("\n")
 }

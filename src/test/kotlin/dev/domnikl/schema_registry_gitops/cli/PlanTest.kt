@@ -143,11 +143,8 @@ class PlanTest {
             listOf(Subject("foo", null, mockk()))
         )
 
-        val schemaBefore = mockk<ParsedSchema>()
-        val schemaAfter = mockk<ParsedSchema>()
-
-        every { schemaBefore.toString() } returns "<SCHEMA-BEFORE>"
-        every { schemaAfter.toString() } returns "<SCHEMA-AFTER>"
+        val schemaBefore = mockk<ParsedSchema>(relaxed = true)
+        val schemaAfter = mockk<ParsedSchema>(relaxed = true)
 
         val input = fromResources("with_inline_schema.yml")
 
@@ -166,18 +163,19 @@ class PlanTest {
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
-        assertEquals(0, exitCode)
-
         verify {
             logger.info("The following changes would be applied:")
             logger.info("")
             logger.info("[SUBJECT] foo")
             logger.info("   ~ compatibility NONE -> BACKWARD")
-            logger.info("   ~ schema <SCHEMA-BEFORE> -> <SCHEMA-AFTER>")
+            logger.info("   ~ schema   ")
             logger.info("")
             logger.info("[SUCCESS] All changes are compatible and can be applied.")
         }
+
         verify(exactly = 0) { logger.error(any()) }
+
+        assertEquals(0, exitCode)
     }
 
     @Test
