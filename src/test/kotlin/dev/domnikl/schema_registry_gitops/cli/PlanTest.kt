@@ -90,15 +90,17 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(deleted = listOf("foobar"))
+        every { diff.diff(any(), true) } returns Diffing.Result(deleted = listOf("foobar"))
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--enable-deletes", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
         verify {
+            logger.info("The following changes would be applied:")
+            logger.info("")
             logger.info("[SUBJECT] foobar")
-            logger.info("   ~ deleted")
+            logger.info("   - delete")
             logger.info("")
             logger.info("[SUCCESS] All changes are compatible and can be applied.")
         }
@@ -124,8 +126,10 @@ class PlanTest {
         assertEquals(0, exitCode)
 
         verify {
+            logger.info("The following changes would be applied:")
+            logger.info("")
             logger.info("[SUBJECT] foo")
-            logger.info("   ~ registered")
+            logger.info("   + register")
             logger.info("")
             logger.info("[SUCCESS] All changes are compatible and can be applied.")
         }
@@ -165,6 +169,8 @@ class PlanTest {
         assertEquals(0, exitCode)
 
         verify {
+            logger.info("The following changes would be applied:")
+            logger.info("")
             logger.info("[SUBJECT] foo")
             logger.info("   ~ compatibility NONE -> BACKWARD")
             logger.info("   ~ schema <SCHEMA-BEFORE> -> <SCHEMA-AFTER>")
@@ -188,7 +194,7 @@ class PlanTest {
         every { persistence.load(any(), any()) } returns state
         every { diff.diff(any()) } returns Diffing.Result()
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "http://foo.bar", input)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input)
 
         assertEquals(0, exitCode)
     }

@@ -55,6 +55,12 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         }!!
     }
 
+    fun delete(subject: String) {
+        handleNotExisting {
+            client.deleteSubject(subject)
+        }
+    }
+
     fun version(subject: Subject): Int? {
         return handleNotExisting {
             client.getVersion(subject.name, subject.schema)

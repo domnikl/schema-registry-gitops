@@ -11,7 +11,10 @@ class Applier(
 ) {
     fun apply(diff: Diffing.Result) {
         if (diff.incompatible.isNotEmpty()) {
-            // TODO: throw exception!
+            throw IllegalStateException(
+                "[ERROR] Refusing to apply: the following schemas are incompatible with an earlier version: " +
+                    "'${diff.incompatible.joinToString("', '") { it.name }}'"
+            )
         }
 
         updateGlobalCompatibility(diff.compatibility)
@@ -31,7 +34,9 @@ class Applier(
     }
 
     private fun delete(subject: String) {
-        // TODO: delete it
+        client.delete(subject)
+
+        logger.info("Deleted subject '$subject'")
     }
 
     private fun register(subject: Subject) {

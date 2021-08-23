@@ -68,12 +68,26 @@ class DiffingTest {
 
         every { client.subjects() } returns listOf("foobar")
 
-        val result = diff.diff(state)
+        val result = diff.diff(state, true)
 
         assertEquals(emptyList<Subject>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
         assertEquals(listOf("foobar"), result.deleted)
+    }
+
+    @Test
+    fun `will hide deletes if not enabled`() {
+        val state = State(Compatibility.BACKWARD, emptyList())
+
+        every { client.subjects() } returns listOf("foobar")
+
+        val result = diff.diff(state, false)
+
+        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Subject>(), result.added)
+        assertEquals(emptyList<Diffing.Changes>(), result.modified)
+        assertEquals(emptyList<String>(), result.deleted)
     }
 
     @Test

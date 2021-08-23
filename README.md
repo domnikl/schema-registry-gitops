@@ -118,6 +118,10 @@ schema.registry.ssl.keystore.password=<secret>
 schema.registry.ssl.key.password=<secret>
 ```
 
+## Deleting subjects ⚠️
+
+Subjects no longer referenced in the State file but present in the registry will not be deleted by default. To enable full sync between the two, use either `-d` or `--enable-deletes` in `plan` and `apply` modes.
+
 ## Development
 
 Docker is used to build and test `schema-registry-gitops` for development.

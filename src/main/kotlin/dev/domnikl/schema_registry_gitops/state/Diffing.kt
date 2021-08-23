@@ -7,7 +7,7 @@ import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.ParsedSchema
 
 class Diffing(private val client: SchemaRegistryClient) {
-    fun diff(state: State): Result {
+    fun diff(state: State, enableDeletes: Boolean = false): Result {
         val globalCompatibility = client.globalCompatibility()
 
         val compatibilityChange = if (globalCompatibility != state.compatibility && state.compatibility != null) {
@@ -20,8 +20,13 @@ class Diffing(private val client: SchemaRegistryClient) {
 
         val (compatible, incompatible) = state.subjects.partition { client.testCompatibility(it) }
 
+        val deleted = if (enableDeletes) {
+            remoteSubjects.filterNot { state.subjects.map { x -> x.name }.contains(it) }
+        } else {
+            emptyList()
+        }
+
         val added = compatible.filterNot { remoteSubjects.contains(it.name) }
-        val deleted = remoteSubjects.filterNot { state.subjects.map { x -> x.name }.contains(it) }
         val modified = compatible.filter { !deleted.contains(it.name) && !added.contains(it) }
 
         val changes = modified.mapNotNull {

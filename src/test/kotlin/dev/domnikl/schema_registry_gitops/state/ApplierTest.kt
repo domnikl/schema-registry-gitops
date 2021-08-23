@@ -4,10 +4,14 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.schemaFromResources
+import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.slf4j.Logger
 
@@ -15,6 +19,18 @@ class ApplierTest {
     private val client = mockk<SchemaRegistryClient>()
     private val logger = mockk<Logger>(relaxed = true)
     private val stateApplier = Applier(client, logger)
+
+    @Test
+    fun `throws exception when trying to apply with incompatibilities`() {
+        val schema = mockk<ParsedSchema>()
+        val subject = Subject("foo", null, schema)
+
+        val diff = Diffing.Result(incompatible = listOf(subject))
+
+        assertThrows(IllegalStateException::class.java) {
+            stateApplier.apply(diff)
+        }
+    }
 
     @Test
     fun `can apply global compatibility`() {
@@ -96,6 +112,20 @@ class ApplierTest {
             logger.info("Evolved existing schema for subject 'foo' to version 5")
         }
         verify(exactly = 0) { client.updateCompatibility(subject) }
+    }
+
+    @Test
+    fun `can delete subject`() {
+        val diff = Diffing.Result(deleted = listOf("foo"))
+
+        every { client.delete("foo") } just runs
+
+        stateApplier.apply(diff)
+
+        verifyOrder {
+            client.delete("foo")
+            logger.info("Deleted subject 'foo'")
+        }
     }
 
     @Test
