@@ -4,8 +4,8 @@ import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
-import dev.domnikl.schema_registry_gitops.state.Validator
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -17,10 +17,10 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.slf4j.Logger
 import java.io.File
 
-class ValidateTest {
+class PlanTest {
     @Rule @JvmField val exit: ExpectedSystemExit = ExpectedSystemExit.none()
 
-    private val validator = mockk<Validator>()
+    private val diff = mockk<Diffing>()
     private val persistence = mockk<Persistence>()
     private val factory = mockk<Factory>(relaxed = true)
     private val logger = mockk<Logger>(relaxed = true)
@@ -34,18 +34,17 @@ class ValidateTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.validator } returns validator
+        every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { validator.validate(any()) } returns emptyList()
+        every { diff.diff(any()) } returns Diffing.Result(null, emptyList(), emptyList(), emptyList(), emptyList())
 
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "http://foo.bar", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
         verify {
-            logger.info("Subject 'foo': ok")
-            logger.info("VALIDATION PASSED: all schemas are ready to be evolved")
+            logger.info("[SUCCESS] There are no necessary changes; the actual state matches the desired state.")
         }
         verify(exactly = 0) { logger.error(any()) }
     }
@@ -59,12 +58,12 @@ class ValidateTest {
 
         val input = "with_inline_schema.yml"
 
-        every { factory.validator } returns validator
+        every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), any()) } returns state
-        every { validator.validate(any()) } returns emptyList()
+        every { diff.diff(any()) } returns Diffing.Result(null, emptyList(), emptyList(), emptyList(), emptyList())
 
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "http://foo.bar", input)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "http://foo.bar", input)
 
         assertEquals(0, exitCode)
     }
@@ -81,29 +80,27 @@ class ValidateTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.validator } returns validator
+        every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { validator.validate(any()) } returns listOf("foo", "bar")
+        every { diff.diff(any()) } returns Diffing.Result(null, state.subjects, emptyList(), emptyList(), emptyList())
 
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "foo", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "foo", input.path)
 
         assertEquals(1, exitCode)
 
         verifyOrder {
-            logger.error("Subject 'foo': FAIL")
-            logger.error("Subject 'bar': FAIL")
-            logger.error("VALIDATION FAILED: The following schemas are incompatible with an earlier version: 'foo', 'bar'")
+            logger.error("[ERROR] The following schemas are incompatible with an earlier version: 'foo', 'bar'")
         }
     }
 
     @Test
     fun `can report other errors`() {
-        every { factory.validator } returns validator
-        every { validator.validate(any()) } throws IllegalArgumentException("foobar")
+        every { factory.diffing } returns diff
+        every { diff.diff(any()) } throws IllegalArgumentException("foobar")
 
         val input = fromResources("with_inline_schema.yml")
-        val exitCode = CLI.commandLine(factory, logger).execute("validate", "--registry", "foo", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "foo", input.path)
 
         assertEquals(2, exitCode)
 

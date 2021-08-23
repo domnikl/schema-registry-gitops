@@ -2,7 +2,7 @@ package dev.domnikl.schema_registry_gitops
 
 import dev.domnikl.schema_registry_gitops.cli.Apply
 import dev.domnikl.schema_registry_gitops.cli.Dump
-import dev.domnikl.schema_registry_gitops.cli.Validate
+import dev.domnikl.schema_registry_gitops.cli.Plan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
@@ -56,7 +56,7 @@ class CLI : Callable<Int> {
         fun commandLine(factory: Factory, logger: Logger = LoggerFactory.getLogger(CLI::class.java)): CommandLine {
             return CommandLine(CLI())
                 .addSubcommand(CommandLine.HelpCommand::class.java)
-                .addSubcommand(Validate(factory, logger))
+                .addSubcommand(Plan(factory, logger))
                 .addSubcommand(Apply(factory, logger))
                 .addSubcommand(Dump(factory))
         }
