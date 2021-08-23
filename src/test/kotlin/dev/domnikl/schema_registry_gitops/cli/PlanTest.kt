@@ -7,6 +7,7 @@ import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
+import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -104,6 +105,85 @@ class PlanTest {
         verify {
             logger.info("[SUBJECT] foobar")
             logger.info("   ~ deleted")
+            logger.info("")
+            logger.info("[SUCCESS] All changes are compatible and can be applied.")
+        }
+        verify(exactly = 0) { logger.error(any()) }
+    }
+
+    @Test
+    fun `will log adds`() {
+        val state = State(
+            null,
+            listOf(Subject("foo", null, mockk()))
+        )
+
+        val input = fromResources("with_inline_schema.yml")
+
+        every { factory.diffing } returns diff
+        every { factory.persistence } returns persistence
+        every { persistence.load(any(), input) } returns state
+        every { diff.diff(any()) } returns Diffing.Result(
+            null,
+            emptyList(),
+            state.subjects,
+            emptyList(),
+            emptyList()
+        )
+
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+
+        assertEquals(0, exitCode)
+
+        verify {
+            logger.info("[SUBJECT] foo")
+            logger.info("   ~ registered")
+            logger.info("")
+            logger.info("[SUCCESS] All changes are compatible and can be applied.")
+        }
+        verify(exactly = 0) { logger.error(any()) }
+    }
+
+    @Test
+    fun `will log changes`() {
+        val state = State(
+            null,
+            listOf(Subject("foo", null, mockk()))
+        )
+
+        val schemaBefore = mockk<ParsedSchema>()
+        val schemaAfter = mockk<ParsedSchema>()
+
+        every { schemaBefore.toString() } returns "<SCHEMA-BEFORE>"
+        every { schemaAfter.toString() } returns "<SCHEMA-AFTER>"
+
+        val input = fromResources("with_inline_schema.yml")
+
+        every { factory.diffing } returns diff
+        every { factory.persistence } returns persistence
+        every { persistence.load(any(), input) } returns state
+        every { diff.diff(any()) } returns Diffing.Result(
+            null,
+            emptyList(),
+            emptyList(),
+            listOf(
+                Diffing.Changes(
+                    state.subjects.first(),
+                    Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD),
+                    Diffing.Change(schemaBefore, schemaAfter)
+                )
+            ),
+            emptyList()
+        )
+
+        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+
+        assertEquals(0, exitCode)
+
+        verify {
+            logger.info("[SUBJECT] foo")
+            logger.info("   ~ compatibility NONE -> BACKWARD")
+            logger.info("   ~ schema <SCHEMA-BEFORE> -> <SCHEMA-AFTER>")
             logger.info("")
             logger.info("[SUCCESS] All changes are compatible and can be applied.")
         }
