@@ -17,14 +17,23 @@ class Applier(
             )
         }
 
-        updateGlobalCompatibility(diff.compatibility)
+        diff.compatibility?.let {
+            updateGlobalCompatibility(diff.compatibility)
+
+            logger.info("[GLOBAL]")
+            logger.info("   ~ compatibility ${diff.compatibility.before} -> ${diff.compatibility.after}")
+            logger.info("")
+        }
 
         diff.deleted.forEach { delete(it) }
         diff.added.forEach { register(it) }
 
         diff.modified.forEach { change ->
+            logger.info("[SUBJECT] ${change.subject.name}")
+
             change.remoteCompatibility?.let {
-                updateCompatibility(change.subject, it)
+                updateCompatibility(change.subject)
+                logger.info("   ~ compatibility ${change.remoteCompatibility.before} -> ${change.remoteCompatibility.after}")
             }
 
             change.remoteSchema?.let {
@@ -36,17 +45,23 @@ class Applier(
     private fun delete(subject: String) {
         client.delete(subject)
 
-        logger.info("Deleted subject '$subject'")
+        logger.info("[SUBJECT] $subject")
+        logger.info("   - deleted")
+        logger.info("")
     }
 
     private fun register(subject: Subject) {
         val versionId = client.create(subject)
 
-        logger.info("Created subject '${subject.name}' and registered new schema with version $versionId")
+        logger.info("[SUBJECT] ${subject.name}")
+        logger.info("   + registered (version $versionId)")
 
         subject.compatibility?.let {
-            updateCompatibility(subject, Diffing.Change(Compatibility.NONE, subject.compatibility))
+            updateCompatibility(subject)
+            logger.info("   + compatibility ${subject.compatibility}")
         }
+
+        logger.info("")
     }
 
     private fun evolve(subject: Subject) {
@@ -55,28 +70,19 @@ class Applier(
         if (versionBefore == null) {
             val versionId = client.evolve(subject)
 
-            logger.info("Evolved existing schema for subject '${subject.name}' to version $versionId")
+            logger.info("   ~ evolved (version $versionId)")
         } else {
-            logger.debug("Did not evolve schema, version already exists as $versionBefore")
-        }
-    }
-
-    private fun updateCompatibility(subject: Subject, change: Diffing.Change<Compatibility>?) {
-        if (change == null) {
-            logger.debug("Did not change compatibility level for '${subject.name}' as it matched desired level ${subject.compatibility}")
-            return
+            logger.info("   ~ exists (version $versionBefore)")
         }
 
-        val compatibility = client.updateCompatibility(subject)
-
-        logger.info("Changed '${subject.name}' compatibility from ${change.before} to $compatibility")
+        logger.info("")
     }
 
-    private fun updateGlobalCompatibility(change: Diffing.Change<Compatibility>?) {
-        if (change == null) return
+    private fun updateCompatibility(subject: Subject) {
+        client.updateCompatibility(subject)
+    }
 
-        val compatibilityAfter = client.updateGlobalCompatibility(change.after)
-
-        logger.info("Changed global compatibility level from ${change.before} to $compatibilityAfter")
+    private fun updateGlobalCompatibility(change: Diffing.Change<Compatibility>) {
+        client.updateGlobalCompatibility(change.after)
     }
 }

@@ -42,7 +42,9 @@ class ApplierTest {
 
         verifyOrder {
             client.updateGlobalCompatibility(Compatibility.FULL_TRANSITIVE)
-            logger.info("Changed global compatibility level from FULL to FULL_TRANSITIVE")
+            logger.info("[GLOBAL]")
+            logger.info("   ~ compatibility FULL -> FULL_TRANSITIVE")
+            logger.info("")
         }
     }
 
@@ -67,8 +69,13 @@ class ApplierTest {
 
         stateApplier.apply(diff)
 
-        verify { client.create(subject) }
-        verify { logger.info("Created subject 'foo' and registered new schema with version 1") }
+        verifyOrder {
+            client.create(subject)
+            logger.info("[SUBJECT] foo")
+            logger.info("   + registered (version 1)")
+            logger.info("")
+        }
+
         verify(exactly = 0) { client.updateCompatibility(subject) }
     }
 
@@ -87,9 +94,11 @@ class ApplierTest {
 
         verifyOrder {
             client.create(subject)
-            logger.info("Created subject 'foo' and registered new schema with version 1")
+            logger.info("[SUBJECT] foo")
+            logger.info("   + registered (version 1)")
             client.updateCompatibility(subject)
-            logger.info("Changed 'foo' compatibility from NONE to BACKWARD")
+            logger.info("   + compatibility BACKWARD")
+            logger.info("")
         }
     }
 
@@ -108,8 +117,11 @@ class ApplierTest {
         stateApplier.apply(diff)
 
         verifyOrder {
+            logger.info("[SUBJECT] foo")
+            client.version(subject)
             client.evolve(subject)
-            logger.info("Evolved existing schema for subject 'foo' to version 5")
+            logger.info("   ~ evolved (version 5)")
+            logger.info("")
         }
         verify(exactly = 0) { client.updateCompatibility(subject) }
     }
@@ -124,7 +136,10 @@ class ApplierTest {
 
         verifyOrder {
             client.delete("foo")
-            logger.info("Deleted subject 'foo'")
+
+            logger.info("[SUBJECT] foo")
+            logger.info("   - deleted")
+            logger.info("")
         }
     }
 
@@ -142,8 +157,9 @@ class ApplierTest {
         stateApplier.apply(diff)
 
         verifyOrder {
+            logger.info("[SUBJECT] foo")
             client.version(subject)
-            logger.debug("Did not evolve schema, version already exists as 2")
+            logger.info("   ~ exists (version 2)")
         }
         verify(exactly = 0) { client.updateCompatibility(subject) }
     }
@@ -170,11 +186,13 @@ class ApplierTest {
         stateApplier.apply(diff)
 
         verifyOrder {
+            logger.info("[SUBJECT] foo")
             client.updateCompatibility(subject)
-            logger.info("Changed 'foo' compatibility from FORWARD_TRANSITIVE to FULL")
+            logger.info("   ~ compatibility FORWARD_TRANSITIVE -> FULL")
             client.version(subject)
             client.evolve(subject)
-            logger.info("Evolved existing schema for subject 'foo' to version 2")
+            logger.info("   ~ evolved (version 2)")
+            logger.info("")
         }
     }
 
