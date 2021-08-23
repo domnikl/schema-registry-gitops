@@ -56,7 +56,11 @@ class Plan(private val factory: Factory, private val logger: Logger) : Callable<
             result.added.forEach {
                 logger.info("[SUBJECT] ${it.name}")
                 logger.info("   + register")
-                logger.info("   + compatibility ${it.compatibility}")
+
+                it.compatibility?.let { c ->
+                    logger.info("   + compatibility $c")
+                }
+
                 logger.info("   + schema ${it.schema}")
                 logger.info("")
             }
