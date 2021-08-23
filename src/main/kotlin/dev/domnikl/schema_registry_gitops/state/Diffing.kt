@@ -39,7 +39,7 @@ class Diffing(private val client: SchemaRegistryClient) {
                 null
             }
 
-            val changedSchema = if (!remoteSchema.deepEquals(it.schema)) {
+            val changedSchema = if (!remoteSchema.deepEquals(it.schema) && client.version(it) == null) {
                 Change(remoteSchema, it.schema)
             } else {
                 null

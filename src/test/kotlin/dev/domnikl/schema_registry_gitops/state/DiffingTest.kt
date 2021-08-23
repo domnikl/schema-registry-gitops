@@ -118,13 +118,14 @@ class DiffingTest {
     }
 
     @Test
-    fun `can detect if schema has been modified for subjects`() {
+    fun `can detect that schema has been modified for subject`() {
         val state = State(Compatibility.BACKWARD, listOf(subject))
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
         every { remoteSchema.deepEquals(any()) } returns false
         every { client.getLatestSchema("foobar") } returns remoteSchema
+        every { client.version(subject) } returns null
         every { client.testCompatibility(any()) } returns true
         every { client.compatibility("foobar") } returns subject.compatibility!!
 
@@ -138,6 +139,26 @@ class DiffingTest {
             Diffing.Changes(subject, null, Diffing.Change(remoteSchema, subject.schema)),
             result.modified.first()
         )
+    }
+
+    @Test
+    fun `can detect that schema already exists in an older version`() {
+        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val remoteSchema = mockk<ParsedSchema>()
+
+        every { client.subjects() } returns listOf("foobar")
+        every { remoteSchema.deepEquals(any()) } returns false
+        every { client.getLatestSchema("foobar") } returns remoteSchema
+        every { client.version(subject) } returns 5
+        every { client.testCompatibility(any()) } returns true
+        every { client.compatibility("foobar") } returns subject.compatibility!!
+
+        val result = diff.diff(state)
+
+        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Subject>(), result.added)
+        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<Diffing.Changes>(), result.modified)
     }
 
     @Test
