@@ -28,29 +28,27 @@ class ApplyTest {
         every { factory.applier } returns applier
         every { factory.persistence } returns statePersistence
         every { statePersistence.load(any(), any()) } returns state
-        every { applier.apply(state) } just runs
+        every { applier.apply(any()) } just runs
         every { logger.info(any()) } just runs
 
         val input = fromResources("only_compatibility.yml")
-        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "http://foo.bar", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
-        verify { logger.info("Successfully applied state from ${input.path} to http://foo.bar") }
+        verify { logger.info("[SUCCESS] Applied state from ${input.path} to https://foo.bar") }
     }
 
     @Test
     fun `can handle relative inputFile paths`() {
-        val state = mockk<State>()
-
         every { factory.applier } returns applier
         every { factory.persistence } returns statePersistence
         every { statePersistence.load(any(), any()) } throws IllegalArgumentException("foobar")
-        every { applier.apply(state) } just runs
+        every { applier.apply(any()) } just runs
         every { logger.error(any()) } just runs
 
         val input = "only_compatibility.yml"
-        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "http://foo.bar", input)
+        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "https://foo.bar", input)
 
         assertEquals(1, exitCode)
 
@@ -59,16 +57,14 @@ class ApplyTest {
 
     @Test
     fun `logs errors it encounters`() {
-        val state = mockk<State>()
-
         every { factory.applier } returns applier
         every { factory.persistence } returns statePersistence
         every { statePersistence.load(any(), any()) } throws IllegalArgumentException("foobar")
-        every { applier.apply(state) } just runs
+        every { applier.apply(any()) } just runs
         every { logger.error(any()) } just runs
 
         val input = fromResources("only_compatibility.yml")
-        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "http://foo.bar", input.path)
+        val exitCode = CLI.commandLine(factory, logger).execute("apply", "--registry", "https://foo.bar", input.path)
 
         assertEquals(1, exitCode)
 

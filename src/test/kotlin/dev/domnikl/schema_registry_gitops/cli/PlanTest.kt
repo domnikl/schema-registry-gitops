@@ -39,7 +39,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD), emptyList(), emptyList(), emptyList(), emptyList())
+        every { diff.diff(any()) } returns Diffing.Result(compatibility = Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD))
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
@@ -66,7 +66,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(null, emptyList(), emptyList(), emptyList(), emptyList())
+        every { diff.diff(any()) } returns Diffing.Result()
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
@@ -90,13 +90,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(
-            null,
-            emptyList(),
-            emptyList(),
-            emptyList(),
-            listOf("foobar")
-        )
+        every { diff.diff(any()) } returns Diffing.Result(deleted = listOf("foobar"))
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
@@ -123,13 +117,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(
-            null,
-            emptyList(),
-            state.subjects,
-            emptyList(),
-            emptyList()
-        )
+        every { diff.diff(any()) } returns Diffing.Result(added = state.subjects)
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
 
@@ -163,17 +151,13 @@ class PlanTest {
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
         every { diff.diff(any()) } returns Diffing.Result(
-            null,
-            emptyList(),
-            emptyList(),
-            listOf(
+            modified = listOf(
                 Diffing.Changes(
                     state.subjects.first(),
                     Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD),
                     Diffing.Change(schemaBefore, schemaAfter)
                 )
-            ),
-            emptyList()
+            )
         )
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
@@ -202,7 +186,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), any()) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(null, emptyList(), emptyList(), emptyList(), emptyList())
+        every { diff.diff(any()) } returns Diffing.Result()
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "http://foo.bar", input)
 
@@ -224,7 +208,7 @@ class PlanTest {
         every { factory.diffing } returns diff
         every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(null, state.subjects, emptyList(), emptyList(), emptyList())
+        every { diff.diff(any()) } returns Diffing.Result(incompatible = state.subjects)
 
         val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "foo", input.path)
 

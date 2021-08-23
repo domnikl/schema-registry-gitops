@@ -57,11 +57,11 @@ class Diffing(private val client: SchemaRegistryClient) {
     }
 
     data class Result(
-        val compatibility: Change<Compatibility>?,
-        val incompatible: List<Subject>,
-        val added: List<Subject>,
-        val modified: List<Changes>,
-        val deleted: List<String>
+        val compatibility: Change<Compatibility>? = null,
+        val incompatible: List<Subject> = emptyList(),
+        val added: List<Subject> = emptyList(),
+        val modified: List<Changes> = emptyList(),
+        val deleted: List<String> = emptyList()
     ) {
         fun isEmpty() = compatibility == null &&
             incompatible.isEmpty() &&

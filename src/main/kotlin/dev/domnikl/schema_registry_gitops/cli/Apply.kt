@@ -27,10 +27,11 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
         return try {
             val file = File(inputFile).absoluteFile
             val state = factory.persistence.load(file.parentFile, file)
+            val diff = factory.diffing.diff(state)
 
-            factory.applier.apply(state)
+            factory.applier.apply(diff)
 
-            logger.info("Successfully applied state from $file to ${configuration.baseUrl}")
+            logger.info("[SUCCESS] Applied state from $file to ${configuration.baseUrl}")
 
             0
         } catch (e: Exception) {
