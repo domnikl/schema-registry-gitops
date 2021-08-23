@@ -94,9 +94,13 @@ class DiffingTest {
         assertEquals(emptyList<Subject>(), result.deleted)
         assertEquals(1, result.modified.size)
         assertEquals(
-            Diffing.Changes(subject, Diffing.Change(Compatibility.BACKWARD_TRANSITIVE, Compatibility.FORWARD), null),
-                result.modified.first()
-            )
+            Diffing.Changes(
+                subject,
+                Diffing.Change(Compatibility.BACKWARD_TRANSITIVE, Compatibility.FORWARD),
+                null
+            ),
+            result.modified.first()
+        )
     }
 
     @Test

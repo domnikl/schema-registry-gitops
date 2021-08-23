@@ -63,13 +63,18 @@ class Plan(private val factory: Factory, private val logger: Logger) : Callable<
             }
 
             if (result.incompatible.isNotEmpty()) {
-                logger.error("[ERROR] The following schemas are incompatible with an earlier version: " +
-                    "'${result.incompatible.joinToString("', '") { it.name }}'")
+                logger.error(
+                    "[ERROR] The following schemas are incompatible with an earlier version: " +
+                        "'${result.incompatible.joinToString("', '") { it.name }}'"
+                )
+
                 return 1
             }
 
             if (result.isEmpty()) {
                 logger.info("[SUCCESS] There are no necessary changes; the actual state matches the desired state.")
+            } else {
+                logger.info("[SUCCESS] All changes are compatible and can be applied.")
             }
 
             return 0
