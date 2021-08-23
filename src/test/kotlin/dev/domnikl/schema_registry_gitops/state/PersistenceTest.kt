@@ -5,8 +5,8 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.avroFromResources
 import dev.domnikl.schema_registry_gitops.fromResources
-import dev.domnikl.schema_registry_gitops.schemaFromResources
 import dev.domnikl.schema_registry_gitops.stringFromResources
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
@@ -156,8 +156,8 @@ class PersistenceTest {
 
     @Test
     fun `can save state to a file`() {
-        val schema1 = schemaFromResources("schemas/with_subjects.avsc")
-        val schema2 = schemaFromResources("schemas/key.avsc")
+        val schema1 = avroFromResources("schemas/with_subjects.avsc")
+        val schema2 = avroFromResources("schemas/key.avsc")
 
         every { schemaRegistryClient.parseSchema("AVRO", schema1.toString(), emptyList()) } returns Optional.of(schema1)
         every { schemaRegistryClient.parseSchema("AVRO", schema2.toString(), emptyList()) } returns Optional.of(schema2)

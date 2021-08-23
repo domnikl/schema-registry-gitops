@@ -19,6 +19,12 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
+    @CommandLine.Option(
+        names = ["-d", "--enable-deletes"],
+        description = ["allow deleting subjects not listed in input YAML"]
+    )
+    private var enableDeletes: Boolean = false
+
     override fun call(): Int {
         val configuration = Configuration.from(cli)
 
@@ -27,10 +33,11 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
         return try {
             val file = File(inputFile).absoluteFile
             val state = factory.persistence.load(file.parentFile, file)
+            val diff = factory.diffing.diff(state, enableDeletes)
 
-            factory.applier.apply(state)
+            factory.applier.apply(diff)
 
-            logger.info("Successfully applied state from $file to ${configuration.baseUrl}")
+            logger.info("[SUCCESS] Applied state from $file to ${configuration.baseUrl}")
 
             0
         } catch (e: Exception) {

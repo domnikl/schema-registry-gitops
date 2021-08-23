@@ -23,15 +23,17 @@ Usage: schema-registry-gitops [-hvV] [--properties=<propertiesFilePath>]
 Manages schema registries through Infrastructure as Code
   -h, --help                 Show this help message and exit.
       --properties=<propertiesFilePath>
-                             a Java Properties file for client configuration (optional)
-  -r, --registry=<baseUrl>   schema registry endpoint, overwrites 'schema.registry.url' from properties
+                             a Java Properties file for client configuration
+                               (optional)
+  -r, --registry=<baseUrl>   schema registry endpoint, overwrites 'schema.
+                               registry.url' from properties
   -v, --verbose              enable verbose logging
   -V, --version              Print version information and exit.
 Commands:
-  help      Displays help information about the specified command
-  validate  validate schemas, should be used before applying changes
-  apply     applies the state to the given schema registry
-  dump      prints the current state
+  help   Displays help information about the specified command
+  plan   validate and plan schema changes, can be used to see all pending changes
+  apply  applies the state to the given schema registry
+  dump   prints the current state
 ```
 
 In order to get help for a specific command, try `schema-registry-gitops <command> -h`.
@@ -41,7 +43,7 @@ In order to get help for a specific command, try `schema-registry-gitops <comman
 `schema-registry-gitops` is available through [Docker Hub](https://hub.docker.com/repository/docker/domnikl/schema-registry-gitops), so running it in a container is as easy as:
 
 ```sh
-docker run -v "$(pwd)/examples":/data domnikl/schema-registry-gitops validate --properties /data/client.properties /data/schema-registry.yml
+docker run -v "$(pwd)/examples":/data domnikl/schema-registry-gitops plan --properties /data/client.properties /data/schema-registry.yml
 ```
 
 Please keep in mind that using a tagged release may be a good idea.
@@ -116,6 +118,10 @@ schema.registry.ssl.keystore.password=<secret>
 schema.registry.ssl.key.password=<secret>
 ```
 
+## Deleting subjects ⚠️
+
+Subjects no longer referenced in the State file but present in the registry will not be deleted by default. To enable full sync between the two, use either `-d` or `--enable-deletes` in `plan` and `apply` modes.
+
 ## Development
 
 Docker is used to build and test `schema-registry-gitops` for development.
@@ -125,7 +131,7 @@ Docker is used to build and test `schema-registry-gitops` for development.
 docker build -t domnikl/schema-registry-gitops .
 
 # run it in Docker
-docker run -v ./examples:/data domnikl/schema-registry-gitops validate --registry http://localhost:8081 /data/schema-registry.yml
+docker run -v ./examples:/data domnikl/schema-registry-gitops plan --registry http://localhost:8081 /data/schema-registry.yml
 ```
 
 ## Acknowledgement

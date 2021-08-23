@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "ByeWorld",
+  "namespace": "dev.domnikl.schema_registry_gitops",
+  "fields": [
+    {
+      "name": "words",
+      "type": "string"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import io.confluent.kafka.schemaregistry.client.SchemaMetadata
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -146,7 +147,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can get latest schema`() {
-        val schema = schemaFromResources("schemas/key.avsc")
+        val schema = avroFromResources("schemas/key.avsc")
         val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
 
         val optionalSchema = mockk<Optional<ParsedSchema>>()
@@ -167,6 +168,17 @@ class SchemaRegistryClientTest {
         every { client.register("foo", schema) } returns 42
 
         assertEquals(42, wrapper.create(subject))
+    }
+
+    @Test
+    fun `can delete subject`() {
+        every { client.deleteSubject("foo") } returns listOf(1, 2)
+
+        wrapper.delete("foo")
+
+        verify {
+            client.deleteSubject("foo")
+        }
     }
 
     @Test
