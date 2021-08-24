@@ -8,6 +8,7 @@ import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class DiffingTest {
@@ -16,6 +17,7 @@ class DiffingTest {
     private val schema = mockk<ParsedSchema>()
 
     private val subject = Subject("foobar", Compatibility.FORWARD, schema)
+    private val subject2 = Subject("bar", Compatibility.BACKWARD, schema)
 
     @Test
     fun `can detect global compatibility change`() {
@@ -119,25 +121,30 @@ class DiffingTest {
 
     @Test
     fun `can detect that schema has been modified for subject`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, listOf(subject, subject2))
         val remoteSchema = mockk<ParsedSchema>()
 
-        every { client.subjects() } returns listOf("foobar")
+        every { client.subjects() } returns listOf("foobar", "bar")
         every { remoteSchema.deepEquals(any()) } returns false
         every { client.getLatestSchema("foobar") } returns remoteSchema
+        every { client.getLatestSchema("bar") } returns remoteSchema
         every { client.version(subject) } returns null
+        every { client.version(subject2) } returns null
         every { client.testCompatibility(any()) } returns true
         every { client.compatibility("foobar") } returns subject.compatibility!!
+        every { client.compatibility("bar") } returns subject2.compatibility!!
 
         val result = diff.diff(state)
 
         assertEquals(emptyList<Subject>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Subject>(), result.deleted)
-        assertEquals(1, result.modified.size)
         assertEquals(
-            Diffing.Changes(subject, null, Diffing.Change(remoteSchema, subject.schema)),
-            result.modified.first()
+            listOf(
+                Diffing.Changes(subject, null, Diffing.Change(remoteSchema, subject.schema)),
+                Diffing.Changes(subject2, null, Diffing.Change(remoteSchema, subject.schema)),
+            ),
+            result.modified
         )
     }
 
@@ -178,5 +185,17 @@ class DiffingTest {
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Subject>(), result.deleted)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
+    }
+
+    class ResultTest {
+        @Test
+        fun `can be check if empty`() {
+            assert(Diffing.Result().isEmpty())
+            assertFalse(Diffing.Result(incompatible = listOf(mockk())).isEmpty())
+            assertFalse(Diffing.Result(added = listOf(mockk())).isEmpty())
+            assertFalse(Diffing.Result(modified = listOf(mockk())).isEmpty())
+            assertFalse(Diffing.Result(compatibility = Diffing.Change(Compatibility.NONE, Compatibility.FULL)).isEmpty())
+            assertFalse(Diffing.Result(deleted = listOf("foo")).isEmpty())
+        }
     }
 }
