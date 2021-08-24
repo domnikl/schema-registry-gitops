@@ -8,57 +8,68 @@ import io.confluent.kafka.schemaregistry.ParsedSchema
 
 class Diffing(private val client: SchemaRegistryClient) {
     fun diff(state: State, enableDeletes: Boolean = false): Result {
-        val globalCompatibility = client.globalCompatibility()
-
-        val compatibilityChange = if (globalCompatibility != state.compatibility && state.compatibility != null) {
-            Change(globalCompatibility, state.compatibility)
-        } else {
-            null
-        }
-
         val remoteSubjects = client.subjects()
 
         val (compatible, incompatible) = state.subjects.partition { client.testCompatibility(it) }
 
-        val deleted = if (enableDeletes) {
-            remoteSubjects.filterNot { state.subjects.map { x -> x.name }.contains(it) }
-        } else {
-            emptyList()
-        }
-
+        val deleted = gatherDeletes(enableDeletes, remoteSubjects, state)
         val added = compatible.filterNot { remoteSubjects.contains(it.name) }
         val modified = compatible.filter { !deleted.contains(it.name) && !added.contains(it) }
 
-        val changes = modified.mapNotNull {
-            val remoteCompatibility = client.compatibility(it.name)
-            val remoteSchema = client.getLatestSchema(it.name)
-
-            val changedCompatibility = if (remoteCompatibility != it.compatibility && it.compatibility != null) {
-                Change(remoteCompatibility, it.compatibility)
-            } else {
-                null
-            }
-
-            val changedSchema = if (!remoteSchema.deepEquals(it.schema) && client.version(it) == null) {
-                Change(remoteSchema, it.schema)
-            } else {
-                null
-            }
-
-            if (changedSchema == null && changedCompatibility == null) {
-                return@mapNotNull null
-            }
-
-            Changes(it, changedCompatibility, changedSchema)
-        }
-
         return Result(
-            compatibilityChange,
+            gatherCompatibilityChange(client.globalCompatibility(), state),
             incompatible,
             added,
-            changes,
+            gatherChanges(modified),
             deleted
         )
+    }
+
+    private fun gatherCompatibilityChange(globalCompatibility: Compatibility, state: State): Change<Compatibility>? {
+        if (globalCompatibility == state.compatibility || state.compatibility == null) {
+            return null
+        }
+
+        return Change(globalCompatibility, state.compatibility)
+    }
+
+    private fun gatherDeletes(enableDeletes: Boolean, remoteSubjects: List<String>, state: State): List<String> {
+        if (!enableDeletes) return emptyList()
+
+        val localSubjects = state.subjects.map { it.name }
+
+        return remoteSubjects.filterNot { localSubjects.contains(it) }
+    }
+
+    private fun gatherChanges(modified: List<Subject>) = modified.mapNotNull {
+        val changedCompatibility = gatherCompatibilityChange(it)
+        val changedSchema = gatherSchemaChange(it)
+
+        if (changedSchema == null && changedCompatibility == null) {
+            return@mapNotNull null
+        }
+
+        Changes(it, changedCompatibility, changedSchema)
+    }
+
+    private fun gatherCompatibilityChange(subject: Subject): Change<Compatibility>? {
+        val remoteCompatibility = client.compatibility(subject.name)
+
+        if (remoteCompatibility == subject.compatibility || subject.compatibility == null) {
+            return null
+        }
+
+        return Change(remoteCompatibility, subject.compatibility)
+    }
+
+    private fun gatherSchemaChange(subject: Subject): Change<ParsedSchema>? {
+        val remoteSchema = client.getLatestSchema(subject.name)
+
+        if (remoteSchema.deepEquals(subject.schema) || client.version(subject) != null) {
+            return null
+        }
+
+        return Change(remoteSchema, subject.schema)
     }
 
     data class Result(
