@@ -2,6 +2,7 @@
   "type": "record",
   "name": "HelloWorld",
   "namespace": "dev.domnikl.schema_registry_gitops",
+  "doc": "this is some docs to be replaced ...",
   "fields": [
     {
       "name": "greeting",

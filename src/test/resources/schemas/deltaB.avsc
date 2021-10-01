@@ -6,6 +6,10 @@
     {
       "name": "words",
       "type": "string"
+    },
+    {
+      "name": "foobar",
+      "type": "int"
     }
   ]
 }
