@@ -33,6 +33,7 @@ class Factory {
             null
         )
     }
+
     private val client by lazy { SchemaRegistryClient(cachedClient) }
 
     fun inject(configuration: Configuration) {
