@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.gradle.ext.ProjectSettings
 import org.jetbrains.gradle.ext.TaskTriggersConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
@@ -47,6 +48,12 @@ dependencies {
 }
 
 tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_11.majorVersion
+        }
+    }
+
     val versionTxt = register("versionTxt") {
         doLast {
             val outputDir = File("${sourceSets.main.get().output.resourcesDir}/version.txt")
