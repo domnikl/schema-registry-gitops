@@ -26,12 +26,14 @@ Manages schema registries through Infrastructure as Code
                              a Java Properties file for client configuration
                                (optional)
   -r, --registry=<baseUrl>   schema registry endpoint, overwrites 'schema.
-                               registry.url' from properties
+                               registry.url' from properties, can also be a
+                               list of urls separated by comma
   -v, --verbose              enable verbose logging
   -V, --version              Print version information and exit.
 Commands:
   help   Displays help information about the specified command
-  plan   validate and plan schema changes, can be used to see all pending changes
+  plan   validate and plan schema changes, can be used to see all pending
+           changes
   apply  applies the state to the given schema registry
   dump   prints the current state
 ```

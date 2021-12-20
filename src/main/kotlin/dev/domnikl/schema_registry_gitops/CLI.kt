@@ -29,7 +29,7 @@ class CLI : Callable<Int> {
 
     @CommandLine.Option(
         names = ["-r", "--registry"],
-        description = ["schema registry endpoint, overwrites 'schema.registry.url' from properties"],
+        description = ["schema registry endpoint, overwrites 'schema.registry.url' from properties, can also be a list of urls separated by comma"],
         scope = CommandLine.ScopeType.INHERIT
     )
     var baseUrl: String? = null

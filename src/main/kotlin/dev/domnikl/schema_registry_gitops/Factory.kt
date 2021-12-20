@@ -6,6 +6,7 @@ import dev.domnikl.schema_registry_gitops.state.Dumper
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.RestService
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import org.slf4j.LoggerFactory
@@ -26,7 +27,7 @@ class Factory {
 
     private val cachedClient by lazy {
         CachedSchemaRegistryClient(
-            listOf(config.baseUrl),
+            RestService(config.baseUrl),
             100,
             listOf(AvroSchemaProvider(), ProtobufSchemaProvider(), JsonSchemaProvider()),
             config.toMap(),
