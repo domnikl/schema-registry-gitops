@@ -25,11 +25,11 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("info.picocli:picocli:4.5.2")
+    implementation("info.picocli:picocli:4.6.2")
 
-    implementation("org.slf4j:slf4j-api:1.7.30")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("ch.qos.logback:logback-core:1.2.3")
+    implementation("org.slf4j:slf4j-api:1.7.32")
+    implementation("ch.qos.logback:logback-classic:1.2.8")
+    implementation("ch.qos.logback:logback-core:1.2.8")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
@@ -44,7 +44,7 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
