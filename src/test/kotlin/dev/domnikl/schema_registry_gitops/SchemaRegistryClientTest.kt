@@ -9,8 +9,8 @@ import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.Optional
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient as WrappedSchemaRegistryClient
 
@@ -66,7 +66,7 @@ class SchemaRegistryClientTest {
     fun `rethrows RestClientExceptionIfAnotherErrorOccurred`() {
         every { client.getCompatibility("foo") } throws RestClientException("", 404, 50001)
 
-        assertThrows(RestClientException::class.java) {
+        assertThrows<RestClientException> {
             wrapper.compatibility("foo")
         }
     }
@@ -140,7 +140,7 @@ class SchemaRegistryClientTest {
 
         every { client.testCompatibility("foo", schema) } throws RestClientException("", 422, 422)
 
-        assertThrows(ServerVersionMismatchException::class.java) {
+        assertThrows<ServerVersionMismatchException> {
             wrapper.testCompatibility(subject)
         }
     }
@@ -185,7 +185,7 @@ class SchemaRegistryClientTest {
 
         every { client.register("foo", schema) } throws RestClientException("", 422, 422)
 
-        assertThrows(ServerVersionMismatchException::class.java) {
+        assertThrows<ServerVersionMismatchException> {
             wrapper.create(subject)
         }
     }

@@ -11,8 +11,8 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 
 class ApplierTest {
@@ -27,7 +27,7 @@ class ApplierTest {
 
         val diff = Diffing.Result(incompatible = listOf(subject))
 
-        assertThrows(IllegalStateException::class.java) {
+        assertThrows<IllegalStateException> {
             stateApplier.apply(diff)
         }
     }

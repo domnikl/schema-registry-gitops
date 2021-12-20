@@ -31,9 +31,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("ch.qos.logback:logback-core:1.2.3")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
 
     implementation("io.confluent:kafka-schema-registry-client:6.0.1")
     implementation("io.confluent:kafka-protobuf-serializer:6.0.1")
@@ -42,7 +42,8 @@ dependencies {
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }

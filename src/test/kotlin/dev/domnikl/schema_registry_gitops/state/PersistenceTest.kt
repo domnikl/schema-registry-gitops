@@ -21,8 +21,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
@@ -38,14 +38,14 @@ class PersistenceTest {
 
     @Test
     fun `throws exception when trying to load empty file`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows<IllegalArgumentException> {
             loader.load(fromResources("schemas"), fromResources("empty.yml"))
         }
     }
 
     @Test
     fun `throws exception when trying to load non-existing file`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows<IllegalArgumentException> {
             loader.load(fromResources("schemas"), File("foo"))
         }
     }
@@ -135,21 +135,21 @@ class PersistenceTest {
 
     @Test
     fun `throws exception when neither schema nor file was given`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows<IllegalArgumentException> {
             loader.load(fromResources("schemas"), fromResources("neither_schema_nor_file.yml"))
         }
     }
 
     @Test
     fun `throws exception when referenced file does not exist`() {
-        assertThrows(FileNotFoundException::class.java) {
+        assertThrows<FileNotFoundException> {
             loader.load(fromResources("schemas"), fromResources("referenced_file_does_not_exist.yml"))
         }
     }
 
     @Test
     fun `throws exception when subject name is missing`() {
-        assertThrows(MissingKotlinParameterException::class.java) {
+        assertThrows<MissingKotlinParameterException> {
             loader.load(fromResources("schemas"), fromResources("subject_name_is_missing.yml"))
         }
     }
@@ -305,7 +305,7 @@ class PersistenceTest {
                 null
             )
 
-            assertThrows(IllegalArgumentException::class.java) {
+            assertThrows<IllegalArgumentException> {
                 subject.parseSchema(File("."), schemaRegistryClient)
             }
         }
@@ -320,7 +320,7 @@ class PersistenceTest {
                 null
             )
 
-            assertThrows(SchemaParseException::class.java) {
+            assertThrows<SchemaParseException> {
                 subject.parseSchema(File("."), schemaRegistryClient)
             }
         }

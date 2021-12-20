@@ -3,8 +3,8 @@ package dev.domnikl.schema_registry_gitops
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.Properties
 
 class ConfigurationTest {
@@ -26,7 +26,7 @@ class ConfigurationTest {
 
     @Test
     fun `throws exception when baseUrl has not been set`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows<IllegalArgumentException> {
             Configuration.from(Properties())
         }
     }
@@ -74,7 +74,7 @@ class ConfigurationTest {
         every { cli.propertiesFilePath } returns null
         every { cli.baseUrl } returns null
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows<IllegalArgumentException> {
             Configuration.from(cli)
         }
     }
