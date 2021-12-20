@@ -149,10 +149,7 @@ class SchemaRegistryClientTest {
     fun `can get latest schema`() {
         val schema = avroFromResources("schemas/key.avsc")
         val schemaMetadata = SchemaMetadata(42, 1, "AVRO", emptyList(), schema.toString())
-
-        val optionalSchema = mockk<Optional<ParsedSchema>>()
-
-        every { optionalSchema.get() } returns schema
+        val optionalSchema: Optional<ParsedSchema> = Optional.of(schema)
 
         every { client.parseSchema("AVRO", schema.toString(), emptyList()) } returns optionalSchema
         every { client.getLatestSchemaMetadata("foo") } returns schemaMetadata
