@@ -53,6 +53,16 @@ class SchemaRegistryClientTest {
     }
 
     @Test
+    fun `will return Compatibility None if not set explicitly`() {
+        every { client.getCompatibility("foo") } throws RestClientException("", 404, 40408)
+
+        assertEquals(
+            Compatibility.NONE,
+            wrapper.compatibility("foo")
+        )
+    }
+
+    @Test
     fun `can get compatibility if none is set`() {
         every { client.getCompatibility("foo") } throws RestClientException("", 404, 40403)
 

@@ -89,6 +89,7 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
                 ERROR_CODE_SUBJECT_NOT_FOUND -> null
                 ERROR_CODE_VERSION_NOT_FOUND -> null
                 ERROR_CODE_SCHEMA_NOT_FOUND -> null
+                ERROR_CODE_SUBJECT_LEVEL_COMPATIBILITY_NOT_CONFIGURED -> null
                 else -> throw e
             }
         }
@@ -98,6 +99,7 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         private const val ERROR_CODE_SUBJECT_NOT_FOUND = 40401
         private const val ERROR_CODE_VERSION_NOT_FOUND = 40402
         private const val ERROR_CODE_SCHEMA_NOT_FOUND = 40403
+        private const val ERROR_CODE_SUBJECT_LEVEL_COMPATIBILITY_NOT_CONFIGURED = 40408
         private const val ERROR_CODE_UNPROCESSABLE_ENTITY = 422
     }
 }
