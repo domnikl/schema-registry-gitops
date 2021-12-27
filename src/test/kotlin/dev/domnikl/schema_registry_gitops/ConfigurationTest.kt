@@ -78,4 +78,22 @@ class ConfigurationTest {
             Configuration.from(cli)
         }
     }
+
+    @Test
+    fun `configuration from env will overwrite properties file and CLI arguments`() {
+        val cli = mockk<CLI>()
+
+        every { cli.propertiesFilePath } returns fromResources("client.properties").path
+        every { cli.baseUrl } returns null
+
+        val configuration = Configuration.from(
+            cli,
+            mapOf(
+                "SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_URL" to "foobar",
+                "SCHEMA_FOO" to "should-be-ignored"
+            )
+        )
+
+        assertEquals(mapOf("schema.registry.url" to "foobar"), configuration.toMap())
+    }
 }

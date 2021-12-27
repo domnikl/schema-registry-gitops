@@ -120,6 +120,21 @@ schema.registry.ssl.keystore.password=<secret>
 schema.registry.ssl.key.password=<secret>
 ```
 
+## Environment variables
+
+Env variables prefixed with `SCHEMA_REGISTRY_GITOPS_` can be provided for configuration and will also be forwarded
+to configure the schema registry client being used. This example uses the same settings above.
+
+```sh
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_URL=https://localhost:8081 \
+SCHEMA_REGISTRY_GITOPS_SECURITY_PROTOCOL=SSL
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION=truststore.jks
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD=<secret>
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION=keystore.jks
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD=<secret>
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_KEY_PASSWORD=<secret>
+```
+
 ## Deleting subjects ⚠️
 
 Subjects no longer referenced in the State file but present in the registry will not be deleted by default. To enable full sync between the two, use either `-d` or `--enable-deletes` in `plan` and `apply` modes.

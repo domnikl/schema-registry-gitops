@@ -28,7 +28,7 @@ class Dump(private val factory: Factory) : Callable<Int> {
     }
 
     override fun call(): Int {
-        factory.inject(Configuration.from(cli))
+        factory.inject(Configuration.from(cli, System.getenv()))
 
         val state = factory.dumper.dump()
 

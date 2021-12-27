@@ -28,7 +28,7 @@ class Plan(private val factory: Factory, private val logger: Logger) : Callable<
     private var enableDeletes: Boolean = false
 
     override fun call(): Int {
-        factory.inject(Configuration.from(cli))
+        factory.inject(Configuration.from(cli, System.getenv()))
 
         try {
             val file = File(inputFile).absoluteFile

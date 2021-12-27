@@ -26,7 +26,7 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     private var enableDeletes: Boolean = false
 
     override fun call(): Int {
-        val configuration = Configuration.from(cli)
+        val configuration = Configuration.from(cli, System.getenv())
 
         factory.inject(configuration)
 
