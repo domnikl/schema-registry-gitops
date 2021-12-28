@@ -126,7 +126,7 @@ Env variables prefixed with `SCHEMA_REGISTRY_GITOPS_` can be provided for config
 to configure the schema registry client being used. This example uses the same settings above.
 
 ```sh
-SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_URL=https://localhost:8081 \
+SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_URL=https://localhost:8081
 SCHEMA_REGISTRY_GITOPS_SECURITY_PROTOCOL=SSL
 SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION=truststore.jks
 SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD=<secret>
