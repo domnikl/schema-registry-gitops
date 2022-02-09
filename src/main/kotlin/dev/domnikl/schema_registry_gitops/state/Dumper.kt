@@ -12,7 +12,7 @@ class Dumper(private val client: SchemaRegistryClient) {
                 subject,
                 client.compatibility(subject),
                 client.getLatestSchema(subject),
-                listOf<String>()
+                null
             )
         }
     )

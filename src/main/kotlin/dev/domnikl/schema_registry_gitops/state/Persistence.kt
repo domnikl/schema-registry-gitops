@@ -9,8 +9,10 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
+import dev.domnikl.schema_registry_gitops.SubjectReference
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import org.slf4j.Logger
 import java.io.File
 import java.io.OutputStream
@@ -42,7 +44,9 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     it.name,
                     it.compatibility?.let { c -> Compatibility.valueOf(c) },
                     it.parseSchema(basePath, schemaRegistryClient),
-                    it.references
+                    it.references?.map { yamlSubjectReference: YamlSubjectReference ->
+                        SubjectReference(yamlSubjectReference.name, yamlSubjectReference.subject, yamlSubjectReference.version)
+                    }
                 )
             } ?: emptyList()
         )
@@ -58,7 +62,9 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     it.schema.schemaType(),
                     it.schema.canonicalString(),
                     it.compatibility?.toString(),
-                    it.references
+                    it.references?.map { subjectReference: SubjectReference ->
+                        YamlSubjectReference(subjectReference.name, subjectReference.subject, subjectReference.version)
+                    }
                 )
             }
         )
@@ -67,13 +73,18 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
     }
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
-    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<String>?) {
+    data class YamlSubjectReference(val name: String, val subject: String, val version: Int)
+    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<YamlSubjectReference>?) {
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 
+            var schemaReferences = references?.map {
+                SchemaReference(it.name, it.subject, it.version)
+            }
+
             val optional = when {
-                file != null -> doParseSchema(schemaRegistryClient, t, File("$basePath/$file").readText())
-                schema != null -> doParseSchema(schemaRegistryClient, t, schema)
+                file != null -> doParseSchema(schemaRegistryClient, t, File("$basePath/$file").readText(), schemaReferences)
+                schema != null -> doParseSchema(schemaRegistryClient, t, schema, schemaReferences)
                 else -> throw IllegalArgumentException("Either schema or file must be set")
             }
 
@@ -84,8 +95,8 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
             return optional.get()
         }
 
-        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String): Optional<ParsedSchema>? {
-            return client.parseSchema(t, schemaString, emptyList())
+        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String, schemaReferences: List<SchemaReference>?): Optional<ParsedSchema>? {
+            return client.parseSchema(t, schemaString, schemaReferences ?: emptyList())
         }
     }
 }
