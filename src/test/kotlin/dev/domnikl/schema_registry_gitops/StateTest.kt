@@ -11,8 +11,8 @@ class StateTest {
             State(
                 null,
                 listOf(
-                    Subject("foo", null, mockk()),
-                    Subject("foo", null, mockk())
+                    Subject("foo", null, mockk(), null),
+                    Subject("foo", null, mockk(), null)
                 )
             )
         }

@@ -31,7 +31,7 @@ class PlanTest {
     fun `can validate YAML state file`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val input = fromResources("with_inline_schema.yml")
@@ -58,7 +58,7 @@ class PlanTest {
     fun `will log success when no changes were made`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val input = fromResources("with_inline_schema.yml")
@@ -82,7 +82,7 @@ class PlanTest {
     fun `will log deletes`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val input = fromResources("with_inline_schema.yml")
@@ -111,7 +111,7 @@ class PlanTest {
     fun `will log adds`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val input = fromResources("with_inline_schema.yml")
@@ -140,7 +140,7 @@ class PlanTest {
     fun `will log changes`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val schemaBefore = mockk<ParsedSchema>(relaxed = true)
@@ -182,7 +182,7 @@ class PlanTest {
     fun `can handle relative inputFile paths`() {
         val state = State(
             null,
-            listOf(Subject("foo", null, mockk()))
+            listOf(Subject("foo", null, mockk(), null))
         )
 
         val input = "with_inline_schema.yml"
@@ -202,8 +202,8 @@ class PlanTest {
         val state = State(
             null,
             listOf(
-                Subject("foo", null, mockk()),
-                Subject("bar", null, mockk())
+                Subject("foo", null, mockk(), null),
+                Subject("bar", null, mockk(), null)
             )
         )
 

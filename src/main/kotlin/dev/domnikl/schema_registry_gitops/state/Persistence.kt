@@ -42,6 +42,7 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     it.name,
                     it.compatibility?.let { c -> Compatibility.valueOf(c) },
                     it.parseSchema(basePath, schemaRegistryClient),
+                    it.references
                 )
             } ?: emptyList()
         )
@@ -56,7 +57,8 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     null,
                     it.schema.schemaType(),
                     it.schema.canonicalString(),
-                    it.compatibility?.toString()
+                    it.compatibility?.toString(),
+                    it.references
                 )
             }
         )
@@ -65,7 +67,7 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
     }
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
-    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?) {
+    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<String>?) {
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 

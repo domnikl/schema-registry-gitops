@@ -33,12 +33,14 @@ class DumperTest {
                 Subject(
                     "foo",
                     Compatibility.FULL_TRANSITIVE,
-                    schema
+                    schema,
+                    null
                 ),
                 Subject(
                     "bar",
                     Compatibility.BACKWARD,
-                    schema
+                    schema,
+                    null
                 )
             )
         )
@@ -64,7 +66,8 @@ class DumperTest {
                 Subject(
                     "bar",
                     Compatibility.NONE,
-                    schema
+                    schema,
+                    null
                 )
             )
         )

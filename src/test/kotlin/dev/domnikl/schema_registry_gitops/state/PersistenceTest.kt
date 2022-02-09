@@ -86,7 +86,7 @@ class PersistenceTest {
         val state = loader.load(fromResources("schemas"), fromResources("with_subjects.yml"))
 
         assertNull(state.compatibility)
-        assertEquals(listOf(Subject("foo", null, schema)), state.subjects)
+        assertEquals(listOf(Subject("foo", null, schema, null)), state.subjects)
     }
 
     @Test
@@ -117,7 +117,7 @@ class PersistenceTest {
 
         val state = loader.load(fromResources("schemas"), fromResources("with_inline_schema.yml"))
 
-        assertEquals(listOf(Subject("foo", Compatibility.BACKWARD, schema)), state.subjects)
+        assertEquals(listOf(Subject("foo", Compatibility.BACKWARD, schema, null)), state.subjects)
     }
 
     @Test
@@ -130,7 +130,7 @@ class PersistenceTest {
         val state = loader.load(fromResources("schemas"), fromResources("with_subjects_and_compatibility.yml"))
 
         assertEquals(Compatibility.FULL, state.compatibility)
-        assertEquals(listOf(Subject("foo", Compatibility.FORWARD, schema)), state.subjects)
+        assertEquals(listOf(Subject("foo", Compatibility.FORWARD, schema, null)), state.subjects)
     }
 
     @Test
@@ -170,8 +170,8 @@ class PersistenceTest {
         val currentState = State(
             Compatibility.BACKWARD_TRANSITIVE,
             listOf(
-                Subject("foobar-value", null, schema1),
-                Subject("foobar-key", Compatibility.FULL, schema2)
+                Subject("foobar-value", null, schema1, null),
+                Subject("foobar-key", Compatibility.FULL, schema2, null)
             )
         )
 
@@ -224,6 +224,7 @@ class PersistenceTest {
                       int32 an_id = 1;
                     }
                 """.trimIndent(),
+                null,
                 null
             )
 
@@ -247,6 +248,7 @@ class PersistenceTest {
                     }
 
                 """.trimIndent(),
+                null,
                 null
             )
 
@@ -261,6 +263,7 @@ class PersistenceTest {
                 "foo",
                 fromResources("schemas/key.avsc").name,
                 "AVRO",
+                null,
                 null,
                 null
             )
@@ -287,6 +290,7 @@ class PersistenceTest {
                     }
 
                 """.trimIndent(),
+                null,
                 null
             )
 
@@ -301,6 +305,7 @@ class PersistenceTest {
                 "foo",
                 null,
                 "JSON",
+                null,
                 null,
                 null
             )
@@ -317,6 +322,7 @@ class PersistenceTest {
                 null,
                 "JSON",
                 "foobar",
+                null,
                 null
             )
 
