@@ -1,0 +1,11 @@
+{
+      "type": "record",
+      "name": "HelloWorld",
+      "namespace": "dev.domnikl.schema_registry_gitops",
+      "fields": [
+            {
+                  "name": "greeting",
+                  "type": "dev.domnikl.schema_registry_gitops.foo"
+            }
+      ]
+}

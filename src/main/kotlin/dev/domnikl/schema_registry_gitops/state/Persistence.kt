@@ -9,7 +9,6 @@ import dev.domnikl.schema_registry_gitops.Compatibility
 import dev.domnikl.schema_registry_gitops.SchemaParseException
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
-import dev.domnikl.schema_registry_gitops.SubjectReference
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
@@ -45,7 +44,7 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     it.compatibility?.let { c -> Compatibility.valueOf(c) },
                     it.parseSchema(basePath, schemaRegistryClient),
                     it.references?.map { yamlSubjectReference: YamlSubjectReference ->
-                        SubjectReference(yamlSubjectReference.name, yamlSubjectReference.subject, yamlSubjectReference.version)
+                        SchemaReference(yamlSubjectReference.name, yamlSubjectReference.subject, yamlSubjectReference.version)
                     }
                 )
             } ?: emptyList()
@@ -62,7 +61,7 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
                     it.schema.schemaType(),
                     it.schema.canonicalString(),
                     it.compatibility?.toString(),
-                    it.references?.map { subjectReference: SubjectReference ->
+                    it.references?.map { subjectReference: SchemaReference ->
                         YamlSubjectReference(subjectReference.name, subjectReference.subject, subjectReference.version)
                     }
                 )

@@ -1,0 +1,7 @@
+subjects:
+  - name: bar
+    file: with_subjects_and_references.avsc
+    references:
+      - name: dev.domnikl.schema_registry_gitops.foo
+        subject: foo
+        version: 1
