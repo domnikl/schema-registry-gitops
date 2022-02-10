@@ -83,7 +83,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can update compatibility`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), listOf())
+        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
 
         every { client.updateCompatibility("foo", "FORWARD") } returns "NONE"
 
@@ -212,7 +212,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can get version for schema`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), listOf())
+        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
 
         every { client.getVersion("foo", subject.schema) } returns 21
 
@@ -221,7 +221,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `version returns null if it is not registered yet`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), listOf())
+        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
 
         every { client.getVersion("foo", subject.schema) } throws RestClientException("", 404, 40403)
 

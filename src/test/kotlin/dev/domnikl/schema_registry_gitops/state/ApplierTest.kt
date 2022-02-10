@@ -5,6 +5,7 @@ import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.avroFromResources
 import io.confluent.kafka.schemaregistry.ParsedSchema
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -61,6 +62,28 @@ class ApplierTest {
     fun `can create new subject`() {
         val schema = avroFromResources("schemas/key.avsc")
         val subject = Subject("foo", null, schema, null)
+
+        every { client.subjects() } returns emptyList()
+        every { client.create(subject) } returns 1
+
+        val diff = Diffing.Result(added = listOf(subject))
+
+        stateApplier.apply(diff)
+
+        verifyOrder {
+            client.create(subject)
+            logger.info("[SUBJECT] foo")
+            logger.info("   + registered (version 1)")
+            logger.info("")
+        }
+
+        verify(exactly = 0) { client.updateCompatibility(subject) }
+    }
+
+    @Test
+    fun `can create new subject with references`() {
+        val schema = avroFromResources("schemas/key.avsc")
+        val subject = Subject("foo", null, schema, listOf(SchemaReference("bar", "bar", 1)))
 
         every { client.subjects() } returns emptyList()
         every { client.create(subject) } returns 1
