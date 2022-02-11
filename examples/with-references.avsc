@@ -1,0 +1,11 @@
+{
+      "type": "record",
+      "name": "UserReference",
+      "namespace": "dev.domnikl.schema_registry_gitops",
+      "fields": [
+            {
+                  "name": "user",
+                  "type": "dev.domnikl.schema_registry_gitops.User"
+            }
+      ]
+}

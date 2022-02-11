@@ -15,3 +15,11 @@ subjects:
   - name: json-schema-value
     file: foo.json
     type: JSON
+
+  - name: with-references
+    file: with-references.avsc
+    type: AVRO
+    references:
+      - name: dev.domnikl.schema_registry_gitop.User
+        subject: User
+        version: 1
