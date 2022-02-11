@@ -5,21 +5,10 @@ subjects:
     file: User.avsc
     compatibility: BACKWARD
 
-  - name: without-compatiblity
-    file: without_compatibility.avsc
-
-  - name: foo-proto-value
-    file: foo.proto
-    type: PROTOBUF
-
-  - name: json-schema-value
-    file: foo.json
-    type: JSON
-
   - name: with-references
     file: with-references.avsc
     type: AVRO
     references:
       - name: dev.domnikl.schema_registry_gitop.User
-        subject: User
+        subject: User-value
         version: 1

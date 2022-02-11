@@ -83,7 +83,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can update compatibility`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
+        val subject = Subject("foo", Compatibility.FORWARD, mockk())
 
         every { client.updateCompatibility("foo", "FORWARD") } returns "NONE"
 
@@ -96,7 +96,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `can test compatibility`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", Compatibility.FORWARD, schema, null)
+        val subject = Subject("foo", Compatibility.FORWARD, schema)
 
         every { client.testCompatibility("foo", schema) } returns true
 
@@ -106,7 +106,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `test compatibility returns true if subject is new`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", null, schema, null)
+        val subject = Subject("foo", null, schema)
 
         every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40401)
 
@@ -116,7 +116,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `test compatibility returns true if version is new`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", null, schema, null)
+        val subject = Subject("foo", null, schema)
 
         every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40402)
 
@@ -126,7 +126,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `test compatibility returns true if schema is new`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", null, schema, null)
+        val subject = Subject("foo", null, schema)
 
         every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40403)
 
@@ -136,7 +136,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `test compatibility returns false if client returns false`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", null, schema, null)
+        val subject = Subject("foo", null, schema)
 
         every { client.testCompatibility("foo", schema) } returns false
 
@@ -146,7 +146,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `test compatibility throws exception if schema type is not supported`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", null, schema, null)
+        val subject = Subject("foo", null, schema)
 
         every { client.testCompatibility("foo", schema) } throws RestClientException("", 422, 422)
 
@@ -170,7 +170,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `can create subject`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", Compatibility.FORWARD, schema, null)
+        val subject = Subject("foo", Compatibility.FORWARD, schema)
 
         every { client.register("foo", schema) } returns 42
 
@@ -191,7 +191,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `create will throw exception when schemaType is used prior to server version 55`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", Compatibility.FORWARD, schema, null)
+        val subject = Subject("foo", Compatibility.FORWARD, schema)
 
         every { client.register("foo", schema) } throws RestClientException("", 422, 422)
 
@@ -203,7 +203,7 @@ class SchemaRegistryClientTest {
     @Test
     fun `can evolve schema for subject`() {
         val schema = mockk<ParsedSchema>()
-        val subject = Subject("foo", Compatibility.FORWARD, schema, null)
+        val subject = Subject("foo", Compatibility.FORWARD, schema)
 
         every { client.register("foo", schema) } returns 21
 
@@ -212,7 +212,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can get version for schema`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
+        val subject = Subject("foo", Compatibility.FORWARD, mockk())
 
         every { client.getVersion("foo", subject.schema) } returns 21
 
@@ -221,7 +221,7 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `version returns null if it is not registered yet`() {
-        val subject = Subject("foo", Compatibility.FORWARD, mockk(), null)
+        val subject = Subject("foo", Compatibility.FORWARD, mockk())
 
         every { client.getVersion("foo", subject.schema) } throws RestClientException("", 404, 40403)
 

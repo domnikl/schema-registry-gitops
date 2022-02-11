@@ -73,7 +73,7 @@ class Persistence(private val logger: Logger, private val schemaRegistryClient: 
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
     data class YamlSubjectReference(val name: String, val subject: String, val version: Int)
-    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<YamlSubjectReference>?) {
+    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<YamlSubjectReference> = listOf()) {
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 

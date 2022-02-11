@@ -16,8 +16,8 @@ class DiffingTest {
     private val diff = Diffing(client)
     private val schema = mockk<ParsedSchema>()
 
-    private val subject = Subject("foobar", Compatibility.FORWARD, schema, null)
-    private val subject2 = Subject("bar", Compatibility.BACKWARD, schema, null)
+    private val subject = Subject("foobar", Compatibility.FORWARD, schema)
+    private val subject2 = Subject("bar", Compatibility.BACKWARD, schema)
 
     @Test
     fun `can detect global compatibility change`() {
