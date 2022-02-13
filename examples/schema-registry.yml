@@ -20,6 +20,6 @@ subjects:
     file: with-references.avsc
     type: AVRO
     references:
-      - name: dev.domnikl.schema_registry_gitop.User
+      - name: dev.domnikl.schema_registry_gitops.User
         subject: User-value
         version: 1

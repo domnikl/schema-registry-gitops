@@ -58,14 +58,23 @@ The desired state is managed using this YAML schema:
 # sets global compatibility level (optional)
 compatibility: FULL_TRANSITIVE
 subjects:
-  # a subject that references a file for the schema definition
+  # a subject that links to a file for the schema definition
   - name: my-new-subject-referencing-a-schema-file
     # sets compatibility level for this subject (optional)
     compatibility: BACKWARD
-    # file references are always relative to the given (this) YAML file
+    # file paths are always relative to the given (this) YAML file
     file: my-actual-schema.avsc
     # AVRO is the default type and can safely be omitted (only available for Schema Registry >= 5.5)
     type: AVRO
+    # (optional) list of references for this subject
+    # please note that these must be present in the registry before they can be referenced here 
+    references:
+      # name including the namespace, should be the same as the `type` being used in AVRO
+      - name: dev.domnikl.schema-registry-gitops.User
+        # subject name this schema is registered with in the registry
+        subject: User-value
+        # version of the referenced schema
+        version: 1
 
   # another example: instead of referencing a file, it is also possible
   # to define the schema directly here, which is Protocol Buffers here (note explicit type here)
@@ -105,6 +114,13 @@ Supported `type` values are:
 
 _Please note that `PROTOBUF` and `JSON` are only supported for Schema Registry >= 5.5, versions prior to that only support `AVRO`._
 
+### references
+
+[References to other schemas](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#referenced-schemas) 
+are being configured here as an optional list of references. `name`, `subject` and `version` need to be configured for
+this to work. Also note that referenced schemas need to be present in the schema registry by the time that 
+`schema-registry-gitops` runs.
+
 ## Configuration .properties
 
 Configuration properties are being used to connect to the Schema Registry. The most common use case to use them
@@ -137,7 +153,8 @@ SCHEMA_REGISTRY_GITOPS_SCHEMA_REGISTRY_SSL_KEY_PASSWORD=<secret>
 
 ## Deleting subjects ⚠️
 
-Subjects no longer referenced in the State file but present in the registry will not be deleted by default. To enable full sync between the two, use either `-d` or `--enable-deletes` in `plan` and `apply` modes.
+Subjects no longer listed in the State file but present in the registry will not be deleted by default. To enable full
+sync between the two, use either `-d` or `--enable-deletes` in `plan` and `apply` modes.
 
 ## Development
 
