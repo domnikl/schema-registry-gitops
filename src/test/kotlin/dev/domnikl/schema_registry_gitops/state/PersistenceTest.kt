@@ -12,6 +12,7 @@ import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import io.confluent.kafka.schemaregistry.json.JsonSchema
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema
@@ -87,6 +88,19 @@ class PersistenceTest {
 
         assertNull(state.compatibility)
         assertEquals(listOf(Subject("foo", null, schema)), state.subjects)
+    }
+
+    @Test
+    fun `can load file with subjects and references`() {
+        val schemaString = stringFromResources("schemas/with_subjects_and_references.avsc")
+        val schema = mockk<ParsedSchema>()
+
+        every { schemaRegistryClient.parseSchema("AVRO", schemaString, listOf(SchemaReference("dev.domnikl.schema_registry_gitops.foo", "foo", 1))) } returns Optional.of(schema)
+
+        val state = loader.load(fromResources("schemas"), fromResources("with_subjects_and_references.yml"))
+
+        assertNull(state.compatibility)
+        assertEquals(listOf(Subject("bar", null, schema, listOf(SchemaReference("dev.domnikl.schema_registry_gitops.foo", "foo", 1)))), state.subjects)
     }
 
     @Test
