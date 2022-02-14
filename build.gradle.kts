@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.6.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "0.9"
@@ -17,7 +17,6 @@ version = "1.3.0"
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url = uri("https://packages.confluent.io/maven/") }
     maven { url = uri("https://jitpack.io") }
 }
