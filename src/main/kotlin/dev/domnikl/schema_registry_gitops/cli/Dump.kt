@@ -1,22 +1,23 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
-import dev.domnikl.schema_registry_gitops.Configuration
-import dev.domnikl.schema_registry_gitops.Factory
+import dev.domnikl.schema_registry_gitops.state.Dumper
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import picocli.CommandLine
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Callable
+import javax.inject.Inject
 
 @CommandLine.Command(
     name = "dump",
     description = ["prints the current state"]
 )
-class Dump(private val factory: Factory) : Callable<Int> {
-    @CommandLine.ParentCommand
-    private lateinit var cli: CLI
-
+class Dump @Inject constructor(
+    private val persistence: Persistence,
+    private val dumper: Dumper
+) : Callable<Int> {
     @CommandLine.Parameters(description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"], defaultValue = STDOUT_FILE)
     private lateinit var outputFile: String
 
@@ -28,11 +29,9 @@ class Dump(private val factory: Factory) : Callable<Int> {
     }
 
     override fun call(): Int {
-        factory.inject(Configuration.from(cli, System.getenv()))
+        val state = dumper.dump()
 
-        val state = factory.dumper.dump()
-
-        factory.persistence.save(state, outputStream)
+        persistence.save(state, outputStream)
 
         return 0
     }

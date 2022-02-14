@@ -2,20 +2,26 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Configuration
-import dev.domnikl.schema_registry_gitops.Factory
+import dev.domnikl.schema_registry_gitops.state.Applier
+import dev.domnikl.schema_registry_gitops.state.Diffing
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
+import javax.inject.Inject
 
 @CommandLine.Command(
     name = "apply",
     description = ["applies the state to the given schema registry"]
 )
-class Apply(private val factory: Factory, private val logger: Logger) : Callable<Int> {
-    @CommandLine.ParentCommand
-    private lateinit var cli: CLI
-
+class Apply @Inject constructor(
+    private val configuration: Configuration,
+    private val persistence: Persistence,
+    private val diffing: Diffing,
+    private val applier: Applier,
+    private val logger: Logger
+) : Callable<Int> {
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
@@ -26,16 +32,12 @@ class Apply(private val factory: Factory, private val logger: Logger) : Callable
     private var enableDeletes: Boolean = false
 
     override fun call(): Int {
-        val configuration = Configuration.from(cli, System.getenv())
-
-        factory.inject(configuration)
-
         return try {
             val file = File(inputFile).absoluteFile
-            val state = factory.persistence.load(file.parentFile, file)
-            val diff = factory.diffing.diff(state, enableDeletes)
+            val state = persistence.load(file.parentFile, file)
+            val diff = diffing.diff(state, enableDeletes)
 
-            factory.applier.apply(diff)
+            applier.apply(diff)
 
             logger.info("[SUCCESS] Applied state from $file to ${configuration.baseUrl}")
 

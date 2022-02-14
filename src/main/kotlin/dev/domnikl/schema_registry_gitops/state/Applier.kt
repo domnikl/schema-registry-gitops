@@ -6,8 +6,9 @@ import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.diff
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import org.slf4j.Logger
+import javax.inject.Inject
 
-class Applier(
+class Applier @Inject constructor(
     private val client: SchemaRegistryClient,
     private val logger: Logger
 ) {

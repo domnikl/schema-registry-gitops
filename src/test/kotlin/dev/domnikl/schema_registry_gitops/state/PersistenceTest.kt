@@ -35,7 +35,7 @@ import java.util.Optional
 class PersistenceTest {
     private val logger = mockk<Logger>(relaxed = true)
     private val schemaRegistryClient = mockk<CachedSchemaRegistryClient>()
-    private val loader = Persistence(logger, schemaRegistryClient)
+    private val loader = Persistence(schemaRegistryClient, logger)
 
     @Test
     fun `throws exception when trying to load empty file`() {

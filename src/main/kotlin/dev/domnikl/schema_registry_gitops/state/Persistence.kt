@@ -17,8 +17,12 @@ import java.io.File
 import java.io.OutputStream
 import java.nio.file.Files
 import java.util.Optional
+import javax.inject.Inject
 
-class Persistence(private val logger: Logger, private val schemaRegistryClient: CachedSchemaRegistryClient) {
+class Persistence @Inject constructor(
+    private val schemaRegistryClient: CachedSchemaRegistryClient,
+    private val logger: Logger
+) {
     private val yamlFactory = YAMLFactory()
         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)

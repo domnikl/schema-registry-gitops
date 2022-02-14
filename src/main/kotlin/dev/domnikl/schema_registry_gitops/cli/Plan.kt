@@ -1,23 +1,25 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
-import dev.domnikl.schema_registry_gitops.Configuration
-import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.diff
+import dev.domnikl.schema_registry_gitops.state.Diffing
+import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
 import picocli.CommandLine
 import java.io.File
 import java.util.concurrent.Callable
+import javax.inject.Inject
 
 @CommandLine.Command(
     name = "plan",
     description = ["validate and plan schema changes, can be used to see all pending changes"],
     mixinStandardHelpOptions = true
 )
-class Plan(private val factory: Factory, private val logger: Logger) : Callable<Int> {
-    @CommandLine.ParentCommand
-    private lateinit var cli: CLI
-
+class Plan @Inject constructor(
+    private val persistence: Persistence,
+    private val diffing: Diffing,
+    private val logger: Logger
+) : Callable<Int> {
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
@@ -28,12 +30,10 @@ class Plan(private val factory: Factory, private val logger: Logger) : Callable<
     private var enableDeletes: Boolean = false
 
     override fun call(): Int {
-        factory.inject(Configuration.from(cli, System.getenv()))
-
         try {
             val file = File(inputFile).absoluteFile
-            val state = factory.persistence.load(file.parentFile, file)
-            val result = factory.diffing.diff(state, enableDeletes)
+            val state = persistence.load(file.parentFile, file)
+            val result = diffing.diff(state, enableDeletes)
 
             if (!result.isEmpty()) {
                 logger.info("The following changes would be applied:")
