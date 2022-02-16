@@ -1,6 +1,6 @@
 package dev.domnikl.schema_registry_gitops.cli
 
-import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.DaggerAppComponent
 import dev.domnikl.schema_registry_gitops.diff
 import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
@@ -15,11 +15,28 @@ import javax.inject.Inject
     description = ["validate and plan schema changes, can be used to see all pending changes"],
     mixinStandardHelpOptions = true
 )
-class Plan @Inject constructor(
-    private val persistence: Persistence,
-    private val diffing: Diffing,
-    private val logger: Logger
-) : Callable<Int> {
+class Plan : Callable<Int> {
+    constructor() { // used by picocli
+        val appComponent = DaggerAppComponent.create()
+
+        this.persistence = appComponent.persistence()
+        this.diffing = appComponent.diffing()
+        this.logger = appComponent.logger()
+    }
+
+    @Inject constructor(
+        persistence: Persistence,
+        diffing: Diffing,
+        logger: Logger) {
+        this.persistence = persistence
+        this.diffing = diffing
+        this.logger = logger
+    }
+
+    private var persistence: Persistence
+    private var diffing: Diffing
+    private var logger: Logger
+
     @CommandLine.Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 

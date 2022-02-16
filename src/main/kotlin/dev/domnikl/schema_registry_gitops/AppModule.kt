@@ -59,17 +59,16 @@ class AppModule {
     )
 
     @Provides
-    fun commandLine(plan: Plan, apply: Apply, dump: Dump): CommandLine {
-        return CommandLine(createCli())
-            .addSubcommand(CommandLine.HelpCommand::class.java)
-            .addSubcommand(plan)
-            .addSubcommand(apply)
-            .addSubcommand(dump)
+    fun commandLine(cli: CLI): CommandLine {
+        return CommandLine(cli)
+            .addSubcommand(Plan::class.java)
+            .addSubcommand(Apply::class.java)
+            .addSubcommand(Dump::class.java)
     }
 
     @Provides
-    fun createConfiguration(): Configuration {
-        return Configuration.from(createCli(), System.getenv())
+    fun createConfiguration(cli: CLI): Configuration {
+        return Configuration.from(cli, System.getenv())
     }
 
     @Provides
@@ -85,14 +84,14 @@ class AppModule {
     fun createPersistence(client: CachedSchemaRegistryClient, logger: Logger) = Persistence(client, logger)
 
     @Provides
-    fun createLogger() = LoggerFactory.getLogger(AppModule::class.java)
+    fun createLogger(): Logger = LoggerFactory.getLogger(AppModule::class.java)
 
     @Provides
-    fun createCachedClient() = CachedSchemaRegistryClient(
-        RestService(createConfiguration().baseUrl),
+    fun createCachedClient(configuration: Configuration) = CachedSchemaRegistryClient(
+        RestService(configuration.baseUrl),
         100,
         listOf(AvroSchemaProvider(), ProtobufSchemaProvider(), JsonSchemaProvider()),
-        createConfiguration().toMap(),
+        configuration.toMap(),
         null
     )
 

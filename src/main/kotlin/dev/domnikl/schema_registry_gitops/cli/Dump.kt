@@ -1,6 +1,6 @@
 package dev.domnikl.schema_registry_gitops.cli
 
-import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.DaggerAppComponent
 import dev.domnikl.schema_registry_gitops.state.Dumper
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import picocli.CommandLine
@@ -14,10 +14,25 @@ import javax.inject.Inject
     name = "dump",
     description = ["prints the current state"]
 )
-class Dump @Inject constructor(
-    private val persistence: Persistence,
-    private val dumper: Dumper
-) : Callable<Int> {
+class Dump : Callable<Int> {
+    constructor() { // used by picocli
+        val appComponent = DaggerAppComponent.create()
+
+        this.persistence = appComponent.persistence()
+        this.dumper = appComponent.dumper()
+    }
+
+    @Inject constructor(
+        persistence: Persistence,
+        dumper: Dumper
+    ) {
+        this.persistence = persistence
+        this.dumper = dumper
+    }
+
+    private var persistence: Persistence
+    private var dumper: Dumper
+
     @CommandLine.Parameters(description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"], defaultValue = STDOUT_FILE)
     private lateinit var outputFile: String
 
