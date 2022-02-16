@@ -27,7 +27,8 @@ class Plan : Callable<Int> {
     @Inject constructor(
         persistence: Persistence,
         diffing: Diffing,
-        logger: Logger) {
+        logger: Logger
+    ) {
         this.persistence = persistence
         this.diffing = diffing
         this.logger = logger
