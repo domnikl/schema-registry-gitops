@@ -2,7 +2,6 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Compatibility
-import dev.domnikl.schema_registry_gitops.Factory
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.state.Diffing
@@ -17,15 +16,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.slf4j.Logger
+import picocli.CommandLine
 import java.io.File
 
 class PlanTest {
     @Rule @JvmField val exit: ExpectedSystemExit = ExpectedSystemExit.none()
 
-    private val diff = mockk<Diffing>()
+    private val diffing = mockk<Diffing>()
     private val persistence = mockk<Persistence>()
-    private val factory = mockk<Factory>(relaxed = true)
     private val logger = mockk<Logger>(relaxed = true)
+    private val plan = Plan(persistence, diffing, logger)
+    private val commandLine = CommandLine(CLI()).addSubcommand(plan)
 
     @Test
     fun `can validate YAML state file`() {
@@ -36,12 +37,10 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(compatibility = Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD))
+        every { diffing.diff(any()) } returns Diffing.Result(compatibility = Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD))
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
@@ -63,12 +62,10 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result()
+        every { diffing.diff(any()) } returns Diffing.Result()
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
@@ -87,12 +84,10 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any(), true) } returns Diffing.Result(deleted = listOf("foobar"))
+        every { diffing.diff(any(), true) } returns Diffing.Result(deleted = listOf("foobar"))
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--enable-deletes", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--enable-deletes", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
@@ -116,12 +111,10 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(added = state.subjects)
+        every { diffing.diff(any()) } returns Diffing.Result(added = state.subjects)
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
 
         assertEquals(0, exitCode)
 
@@ -148,10 +141,8 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(
+        every { diffing.diff(any()) } returns Diffing.Result(
             modified = listOf(
                 Diffing.Changes(
                     state.subjects.first(),
@@ -161,7 +152,7 @@ class PlanTest {
             )
         )
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
 
         verify {
             logger.info("The following changes would be applied:")
@@ -187,12 +178,10 @@ class PlanTest {
 
         val input = "with_inline_schema.yml"
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), any()) } returns state
-        every { diff.diff(any()) } returns Diffing.Result()
+        every { diffing.diff(any()) } returns Diffing.Result()
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "https://foo.bar", input)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input)
 
         assertEquals(0, exitCode)
     }
@@ -209,12 +198,10 @@ class PlanTest {
 
         val input = fromResources("with_inline_schema.yml")
 
-        every { factory.diffing } returns diff
-        every { factory.persistence } returns persistence
         every { persistence.load(any(), input) } returns state
-        every { diff.diff(any()) } returns Diffing.Result(incompatible = state.subjects)
+        every { diffing.diff(any()) } returns Diffing.Result(incompatible = state.subjects)
 
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "foo", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "foo", input.path)
 
         assertEquals(1, exitCode)
 
@@ -225,11 +212,19 @@ class PlanTest {
 
     @Test
     fun `can report other errors`() {
-        every { factory.diffing } returns diff
-        every { diff.diff(any()) } throws IllegalArgumentException("foobar")
+        val state = State(
+            null,
+            listOf(
+                Subject("foo", null, mockk()),
+                Subject("bar", null, mockk())
+            )
+        )
+
+        every { persistence.load(any(), any()) } returns state
+        every { diffing.diff(any()) } throws IllegalArgumentException("foobar")
 
         val input = fromResources("with_inline_schema.yml")
-        val exitCode = CLI.commandLine(factory, logger).execute("plan", "--registry", "foo", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "foo", input.path)
 
         assertEquals(2, exitCode)
 

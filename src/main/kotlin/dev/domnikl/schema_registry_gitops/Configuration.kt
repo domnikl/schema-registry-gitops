@@ -35,7 +35,7 @@ class Configuration(private val config: Map<String, String>) {
         private fun fromEnv(env: Map<String, String>): Properties {
             val withNormalizedKeys = env.mapKeys { (key, _) ->
                 if (key.startsWith(ENV_PREFIX)) {
-                    key.removePrefix(ENV_PREFIX).toLowerCase().replace('_', '.')
+                    key.removePrefix(ENV_PREFIX).lowercase().replace('_', '.')
                 } else {
                     null
                 }

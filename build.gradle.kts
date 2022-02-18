@@ -5,7 +5,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.6.10"
+    kotlin("kapt") version "1.6.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "0.9"
@@ -13,11 +14,10 @@ plugins {
 }
 
 group = "dev.domnikl"
-version = "1.3.0"
+version = "1.4.0"
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url = uri("https://packages.confluent.io/maven/") }
     maven { url = uri("https://jitpack.io") }
 }
@@ -27,9 +27,9 @@ dependencies {
 
     implementation("info.picocli:picocli:4.6.2")
 
-    implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("ch.qos.logback:logback-classic:1.2.9")
-    implementation("ch.qos.logback:logback-core:1.2.9")
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("ch.qos.logback:logback-classic:1.2.10")
+    implementation("ch.qos.logback:logback-core:1.2.10")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
@@ -42,9 +42,13 @@ dependencies {
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
+    implementation("com.google.dagger:dagger:2.40.5")
+    annotationProcessor("com.google.dagger:dagger-compiler:2.40.5")
+    kapt("com.google.dagger:dagger-compiler:2.40.5")
+
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 

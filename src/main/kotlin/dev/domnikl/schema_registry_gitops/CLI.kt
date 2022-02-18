@@ -1,11 +1,9 @@
 package dev.domnikl.schema_registry_gitops
 
-import dev.domnikl.schema_registry_gitops.cli.Apply
-import dev.domnikl.schema_registry_gitops.cli.Dump
-import dev.domnikl.schema_registry_gitops.cli.Plan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
+import picocli.CommandLine.IVersionProvider
 import java.io.InputStreamReader
 import java.util.concurrent.Callable
 import ch.qos.logback.classic.Logger as LogbackClassicLogger
@@ -13,10 +11,10 @@ import ch.qos.logback.classic.Logger as LogbackClassicLogger
 @CommandLine.Command(
     name = "schema-registry-gitops",
     mixinStandardHelpOptions = true,
-    versionProvider = CLI.Companion::class,
+    versionProvider = CLI::class,
     description = ["Manages schema registries through Infrastructure as Code"]
 )
-class CLI : Callable<Int> {
+class CLI : Callable<Int>, IVersionProvider {
     @CommandLine.Spec
     lateinit var spec: CommandLine.Model.CommandSpec
 
@@ -52,19 +50,9 @@ class CLI : Callable<Int> {
         return 0
     }
 
-    companion object : CommandLine.IVersionProvider {
-        fun commandLine(factory: Factory, logger: Logger = LoggerFactory.getLogger(CLI::class.java)): CommandLine {
-            return CommandLine(CLI())
-                .addSubcommand(CommandLine.HelpCommand::class.java)
-                .addSubcommand(Plan(factory, logger))
-                .addSubcommand(Apply(factory, logger))
-                .addSubcommand(Dump(factory))
-        }
+    override fun getVersion(): Array<String> {
+        val version = InputStreamReader(object {}::class.java.classLoader.getResourceAsStream("version.txt")!!).readText()
 
-        override fun getVersion(): Array<String> {
-            val version = InputStreamReader(object {}::class.java.classLoader.getResourceAsStream("version.txt")!!).readText()
-
-            return arrayOf("schema-registry-gitops $version")
-        }
+        return arrayOf("schema-registry-gitops $version")
     }
 }
