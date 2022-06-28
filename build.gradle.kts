@@ -35,9 +35,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 
-    implementation("io.confluent:kafka-schema-registry-client:6.0.1")
-    implementation("io.confluent:kafka-protobuf-serializer:6.0.1")
-    implementation("io.confluent:kafka-json-schema-serializer:6.0.1")
+    implementation("io.confluent:kafka-schema-registry-client:7.1.1")
+    implementation("io.confluent:kafka-protobuf-serializer:7.1.1")
+    implementation("io.confluent:kafka-json-schema-serializer:7.1.1")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.12.1")
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
