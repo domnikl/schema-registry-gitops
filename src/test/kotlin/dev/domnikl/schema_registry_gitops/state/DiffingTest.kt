@@ -5,6 +5,7 @@ import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.ParsedSchema
+import io.confluent.kafka.schemaregistry.avro.AvroSchema
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -14,8 +15,7 @@ import org.junit.Test
 class DiffingTest {
     private val client = mockk<SchemaRegistryClient>(relaxed = true)
     private val diff = Diffing(client)
-    private val schema = mockk<ParsedSchema>()
-
+    private val schema = AvroSchema("{\"type\": \"record\",\"name\": \"HelloWorld\",\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"this is some docs to be replaced ...\",\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}")
     private val subject = Subject("foobar", Compatibility.FORWARD, schema)
     private val subject2 = Subject("bar", Compatibility.BACKWARD, schema)
 
@@ -98,7 +98,7 @@ class DiffingTest {
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
-        every { remoteSchema.deepEquals(any()) } returns true
+        every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
         every { client.testCompatibility(any()) } returns true
         every { client.compatibility("foobar") } returns Compatibility.BACKWARD_TRANSITIVE
@@ -125,7 +125,7 @@ class DiffingTest {
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar", "bar")
-        every { remoteSchema.deepEquals(any()) } returns false
+        every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
         every { client.getLatestSchema("bar") } returns remoteSchema
         every { client.version(subject) } returns null
@@ -154,7 +154,7 @@ class DiffingTest {
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
-        every { remoteSchema.deepEquals(any()) } returns false
+        every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
         every { client.version(subject) } returns 5
         every { client.testCompatibility(any()) } returns true
@@ -174,7 +174,7 @@ class DiffingTest {
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
-        every { remoteSchema.deepEquals(any()) } returns true
+        every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
         every { client.testCompatibility(any()) } returns true
         every { client.compatibility("foobar") } returns subject.compatibility!!
@@ -185,6 +185,26 @@ class DiffingTest {
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Subject>(), result.deleted)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
+    }
+
+    @Test
+    fun `can detect doc changes`() {
+        val changedSchema = AvroSchema("{\"type\": \"record\",\"name\": \"HelloWorld\",\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"This is the new docs.\",\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}")
+
+        val subject = Subject("foobar", Compatibility.FORWARD, changedSchema)
+        val state = State(Compatibility.BACKWARD, listOf(subject))
+
+        every { client.subjects() } returns listOf("foobar")
+        every { client.getLatestSchema("foobar") } returns schema
+        every { client.testCompatibility(any()) } returns true
+        every { client.compatibility("foobar") } returns subject.compatibility!!
+
+        val result = diff.diff(state)
+
+        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Subject>(), result.added)
+        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(listOf(Diffing.Changes(subject, null, Diffing.Change(schema, changedSchema))), result.modified)
     }
 
     class ResultTest {

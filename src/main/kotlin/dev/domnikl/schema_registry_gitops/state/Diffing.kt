@@ -66,11 +66,11 @@ class Diffing @Inject constructor(private val client: SchemaRegistryClient) {
     private fun gatherSchemaChange(subject: Subject): Change<ParsedSchema>? {
         val remoteSchema = client.getLatestSchema(subject.name)
 
-        if (remoteSchema.deepEquals(subject.schema) || client.version(subject) != null) {
-            return null
+        if (remoteSchema.canonicalString() != subject.schema.canonicalString() || client.version(subject) == null) {
+            return Change(remoteSchema, subject.schema)
         }
 
-        return Change(remoteSchema, subject.schema)
+        return null
     }
 
     data class Result(
