@@ -3,9 +3,10 @@ package dev.domnikl.schema_registry_gitops
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
-import javax.inject.Inject
+import org.springframework.stereotype.Component
 
-class SchemaRegistryClient @Inject constructor(private val client: CachedSchemaRegistryClient) {
+@Component
+class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
     fun subjects(): List<String> {
         return client.allSubjects.toList()
     }

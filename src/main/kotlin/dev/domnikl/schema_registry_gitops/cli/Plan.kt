@@ -1,47 +1,28 @@
 package dev.domnikl.schema_registry_gitops.cli
 
-import dev.domnikl.schema_registry_gitops.DaggerAppComponent
 import dev.domnikl.schema_registry_gitops.diff
 import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
-import picocli.CommandLine
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import picocli.CommandLine.Command
+import picocli.CommandLine.Option
+import picocli.CommandLine.Parameters
 import java.io.File
 import java.util.concurrent.Callable
-import javax.inject.Inject
 
-@CommandLine.Command(
+@Component
+@Command(
     name = "plan",
     description = ["validate and plan schema changes, can be used to see all pending changes"],
     mixinStandardHelpOptions = true
 )
-class Plan : Callable<Int> {
-    constructor() { // used by picocli
-        val appComponent = DaggerAppComponent.create()
-
-        this.persistence = appComponent.persistence()
-        this.diffing = appComponent.diffing()
-        this.logger = appComponent.logger()
-    }
-
-    @Inject constructor(
-        persistence: Persistence,
-        diffing: Diffing,
-        logger: Logger
-    ) {
-        this.persistence = persistence
-        this.diffing = diffing
-        this.logger = logger
-    }
-
-    private var persistence: Persistence
-    private var diffing: Diffing
-    private var logger: Logger
-
-    @CommandLine.Parameters(description = ["path to input YAML file"])
+class Plan(private val persistence: Persistence, private val diffing: Diffing, private val logger: Logger) : Callable<Int> {
+    @Parameters(description = ["path to input YAML file"])
     private lateinit var inputFile: String
 
-    @CommandLine.Option(
+    @Option(
         names = ["-d", "--enable-deletes"],
         description = ["allow deleting subjects not listed in input YAML"]
     )

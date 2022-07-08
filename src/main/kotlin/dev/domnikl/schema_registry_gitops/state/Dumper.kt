@@ -3,9 +3,10 @@ package dev.domnikl.schema_registry_gitops.state
 import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
-import javax.inject.Inject
+import org.springframework.stereotype.Component
 
-class Dumper @Inject constructor(private val client: SchemaRegistryClient) {
+@Component
+class Dumper(private val client: SchemaRegistryClient) {
     fun dump() = State(
         client.globalCompatibility(),
         client.subjects().map { subject ->

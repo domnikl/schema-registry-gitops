@@ -4,9 +4,11 @@ import org.jetbrains.gradle.ext.TaskTriggersConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("org.springframework.boot") version "2.7.1"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
     java
-    kotlin("jvm") version "1.6.10"
-    kotlin("kapt") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.spring") version "1.6.21"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "0.9"
@@ -23,17 +25,21 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    implementation("info.picocli:picocli:4.6.2")
+    implementation("info.picocli:picocli:4.6.3")
+    implementation("info.picocli:picocli-spring-boot-starter:4.6.3")
 
     implementation("org.slf4j:slf4j-api:1.7.36")
-    implementation("ch.qos.logback:logback-classic:1.2.10")
-    implementation("ch.qos.logback:logback-core:1.2.10")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("ch.qos.logback:logback-core:1.2.11")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
     implementation("io.confluent:kafka-schema-registry-client:7.1.1")
     implementation("io.confluent:kafka-protobuf-serializer:7.1.1")
@@ -42,13 +48,9 @@ dependencies {
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
 
-    implementation("com.google.dagger:dagger:2.40.5")
-    annotationProcessor("com.google.dagger:dagger-compiler:2.40.5")
-    kapt("com.google.dagger:dagger-compiler:2.40.5")
-
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.12.2")
+    testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
