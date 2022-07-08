@@ -54,6 +54,10 @@ dependencies {
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
+springBoot {
+    this.mainClass.set("dev.domnikl.schema_registry_gitops.MainKt")
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
