@@ -5,7 +5,6 @@ import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters

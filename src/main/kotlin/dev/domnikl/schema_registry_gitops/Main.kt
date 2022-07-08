@@ -10,10 +10,12 @@ import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.Banner
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.ExitCodeGenerator
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.annotation.Bean
 import picocli.CommandLine
 import picocli.CommandLine.IFactory
@@ -34,7 +36,7 @@ class SchemaRegistryGitopsApplication(private val factory: IFactory, private val
     override fun getExitCode() = exitCode ?: 1
 
     @Bean
-    fun configuration() : Configuration {
+    fun configuration(): Configuration {
         return Configuration.from(cli, System.getenv())
     }
 
@@ -52,5 +54,9 @@ class SchemaRegistryGitopsApplication(private val factory: IFactory, private val
 }
 
 fun main(args: Array<String>) {
-    exitProcess(SpringApplication.exit(SpringApplication.run(SchemaRegistryGitopsApplication::class.java, *args)))
+    val app = SpringApplicationBuilder(SchemaRegistryGitopsApplication::class.java)
+        .bannerMode(Banner.Mode.OFF)
+        .lazyInitialization(true)
+
+    exitProcess(SpringApplication.exit(app.run(*args)))
 }
