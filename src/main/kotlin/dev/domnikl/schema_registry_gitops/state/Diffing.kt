@@ -5,9 +5,7 @@ import dev.domnikl.schema_registry_gitops.SchemaRegistryClient
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import io.confluent.kafka.schemaregistry.ParsedSchema
-import org.springframework.stereotype.Component
 
-@Component
 class Diffing(private val client: SchemaRegistryClient) {
     fun diff(state: State, enableDeletes: Boolean = false): Result {
         val remoteSubjects = client.subjects()

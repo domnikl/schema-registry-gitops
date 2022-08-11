@@ -4,8 +4,6 @@ import org.jetbrains.gradle.ext.TaskTriggersConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.7.1"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
     java
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
@@ -25,13 +23,10 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     implementation("info.picocli:picocli:4.6.3")
-    implementation("info.picocli:picocli-spring-boot-starter:4.6.3")
 
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("ch.qos.logback:logback-classic:1.2.11")
@@ -52,10 +47,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
-}
-
-springBoot {
-    this.mainClass.set("dev.domnikl.schema_registry_gitops.MainKt")
 }
 
 tasks {

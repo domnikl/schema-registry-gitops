@@ -1,5 +1,10 @@
 package dev.domnikl.schema_registry_gitops
 
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.RestService
+import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.Properties
@@ -13,6 +18,16 @@ class Configuration(private val config: Map<String, String>) {
 
     fun toMap() = config
 
+    fun client() = CachedSchemaRegistryClient(
+        RestService(baseUrl),
+        100,
+        listOf(AvroSchemaProvider(), ProtobufSchemaProvider(), JsonSchemaProvider()),
+        config,
+        null
+    )
+
+    fun schemaRegistryClient() = SchemaRegistryClient(client())
+
     companion object {
         private const val ENV_PREFIX = "SCHEMA_REGISTRY_GITOPS_"
         private const val SCHEMA_REGISTRY_URL = "schema.registry.url"
@@ -21,10 +36,10 @@ class Configuration(private val config: Map<String, String>) {
             properties.map { it.key.toString() to it.value.toString() }.toMap()
         )
 
-        fun from(cli: CLI, env: Map<String, String> = emptyMap()): Configuration {
+        fun from(cli: CLI, env: Map<String, String>? = null): Configuration {
             val properties = cli.propertiesFilePath?.let { load(it) } ?: Properties()
 
-            properties.putAll(fromEnv(env))
+            properties.putAll(fromEnv(env ?: System.getenv()))
 
             // CLI-provided baseUrl overwrites properties file and env var
             cli.baseUrl?.let { properties.put(SCHEMA_REGISTRY_URL, it) }

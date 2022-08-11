@@ -3,4 +3,4 @@
 /build/
 /dumped.yml
 /.test/
-/client.properties
+/examples/client.properties

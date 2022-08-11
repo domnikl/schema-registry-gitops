@@ -1,20 +1,30 @@
 package dev.domnikl.schema_registry_gitops.cli
 
+import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.state.Dumper
 import dev.domnikl.schema_registry_gitops.state.Persistence
-import org.springframework.stereotype.Component
+import org.slf4j.LoggerFactory
 import picocli.CommandLine
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Callable
 
-@Component
 @CommandLine.Command(
     name = "dump",
     description = ["prints the current state"]
 )
-class Dump(private val persistence: Persistence, private val dumper: Dumper) : Callable<Int> {
+class Dump(
+    private val configuration: Configuration? = null,
+    private val persistence: Persistence? = null,
+    private val dumper: Dumper? = null
+) : Callable<Int> {
+    private val logger = LoggerFactory.getLogger(Dump::class.java)
+
+    @CommandLine.ParentCommand
+    private lateinit var cli: CLI
+
     @CommandLine.Parameters(description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"], defaultValue = STDOUT_FILE)
     private lateinit var outputFile: String
 
@@ -26,6 +36,9 @@ class Dump(private val persistence: Persistence, private val dumper: Dumper) : C
     }
 
     override fun call(): Int {
+        val configuration = configuration ?: Configuration.from(cli)
+        val persistence = persistence ?: Persistence(configuration.client(), logger)
+        val dumper = dumper ?: Dumper(configuration.schemaRegistryClient())
         val state = dumper.dump()
 
         persistence.save(state, outputStream)

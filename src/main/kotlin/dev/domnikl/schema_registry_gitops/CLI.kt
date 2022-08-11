@@ -2,14 +2,12 @@ package dev.domnikl.schema_registry_gitops
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 import picocli.CommandLine
 import picocli.CommandLine.IVersionProvider
 import java.io.InputStreamReader
 import java.util.concurrent.Callable
 import ch.qos.logback.classic.Logger as LogbackClassicLogger
 
-@Component
 @CommandLine.Command(
     name = "schema-registry-gitops",
     mixinStandardHelpOptions = true,

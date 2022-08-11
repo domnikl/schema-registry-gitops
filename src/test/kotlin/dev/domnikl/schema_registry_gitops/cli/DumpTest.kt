@@ -1,6 +1,7 @@
 package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.state.Dumper
 import dev.domnikl.schema_registry_gitops.state.Persistence
@@ -14,9 +15,10 @@ import picocli.CommandLine
 import java.io.File
 
 class DumpTest {
+    private val configuration = mockk<Configuration>()
     private val persistence = mockk<Persistence>()
     private val dumper = mockk<Dumper>()
-    private val dump = Dump(persistence, dumper)
+    private val dump = Dump(configuration, persistence, dumper)
     private val commandLine = CommandLine(CLI()).addSubcommand(dump)
 
     @Test

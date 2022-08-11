@@ -2,6 +2,7 @@ package dev.domnikl.schema_registry_gitops.cli
 
 import dev.domnikl.schema_registry_gitops.CLI
 import dev.domnikl.schema_registry_gitops.Compatibility
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.State
 import dev.domnikl.schema_registry_gitops.Subject
 import dev.domnikl.schema_registry_gitops.state.Diffing
@@ -22,10 +23,11 @@ import java.io.File
 class PlanTest {
     @Rule @JvmField val exit: ExpectedSystemExit = ExpectedSystemExit.none()
 
+    private val configuration = mockk<Configuration>()
     private val diffing = mockk<Diffing>()
     private val persistence = mockk<Persistence>()
     private val logger = mockk<Logger>(relaxed = true)
-    private val plan = Plan(persistence, diffing, logger)
+    private val plan = Plan(configuration, persistence, diffing, logger)
     private val commandLine = CommandLine(CLI()).addSubcommand(plan)
 
     @Test

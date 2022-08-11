@@ -13,13 +13,11 @@ import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import org.slf4j.Logger
-import org.springframework.stereotype.Component
 import java.io.File
 import java.io.OutputStream
 import java.nio.file.Files
 import java.util.Optional
 
-@Component
 class Persistence(
     private val schemaRegistryClient: CachedSchemaRegistryClient,
     private val logger: Logger

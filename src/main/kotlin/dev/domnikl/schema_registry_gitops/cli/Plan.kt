@@ -1,25 +1,37 @@
 package dev.domnikl.schema_registry_gitops.cli
 
+import dev.domnikl.schema_registry_gitops.CLI
+import dev.domnikl.schema_registry_gitops.Configuration
 import dev.domnikl.schema_registry_gitops.diff
 import dev.domnikl.schema_registry_gitops.state.Diffing
 import dev.domnikl.schema_registry_gitops.state.Persistence
 import org.slf4j.Logger
-import org.springframework.stereotype.Component
+import org.slf4j.LoggerFactory
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
+import picocli.CommandLine.ParentCommand
 import java.io.File
 import java.util.concurrent.Callable
 
-@Component
 @Command(
     name = "plan",
     description = ["validate and plan schema changes, can be used to see all pending changes"],
     mixinStandardHelpOptions = true
 )
-class Plan(private val persistence: Persistence, private val diffing: Diffing, private val logger: Logger) : Callable<Int> {
+class Plan(
+    private val configuration: Configuration? = null,
+    private val persistence: Persistence? = null,
+    private val diffing: Diffing? = null,
+    logger: Logger? = null
+) : Callable<Int> {
+    private val logger = logger ?: LoggerFactory.getLogger(Plan::class.java)
+
+    @ParentCommand
+    private lateinit var cli: CLI
+
     @Parameters(description = ["path to input YAML file"])
-    private lateinit var inputFile: String
+    private lateinit var inputFile: File
 
     @Option(
         names = ["-d", "--enable-deletes"],
@@ -29,8 +41,11 @@ class Plan(private val persistence: Persistence, private val diffing: Diffing, p
 
     override fun call(): Int {
         try {
-            val file = File(inputFile).absoluteFile
-            val state = persistence.load(file.parentFile, file)
+            val configuration = configuration ?: Configuration.from(cli)
+            val persistence = persistence ?: Persistence(configuration.client(), logger)
+            val diffing = diffing ?: Diffing(configuration.schemaRegistryClient())
+
+            val state = persistence.load(inputFile.absoluteFile.parentFile, inputFile.absoluteFile)
             val result = diffing.diff(state, enableDeletes)
 
             if (!result.isEmpty()) {
