@@ -42,7 +42,7 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any()) } returns Diffing.Result(compatibility = Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD))
 
-        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         assertEquals(0, exitCode)
 
@@ -67,7 +67,7 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any()) } returns Diffing.Result()
 
-        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         assertEquals(0, exitCode)
 
@@ -89,7 +89,7 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any(), true) } returns Diffing.Result(deleted = listOf("foobar"))
 
-        val exitCode = commandLine.execute("plan", "--enable-deletes", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--enable-deletes", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         assertEquals(0, exitCode)
 
@@ -116,7 +116,7 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any()) } returns Diffing.Result(added = state.subjects)
 
-        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         assertEquals(0, exitCode)
 
@@ -154,7 +154,7 @@ class PlanTest {
             )
         )
 
-        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         verify {
             logger.info("The following changes would be applied:")
@@ -203,7 +203,7 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any()) } returns Diffing.Result(incompatible = state.subjects)
 
-        val exitCode = commandLine.execute("plan", "--registry", "foo", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "foo", *input.map { it.path }.toTypedArray())
 
         assertEquals(1, exitCode)
 
@@ -226,12 +226,12 @@ class PlanTest {
         every { diffing.diff(any()) } throws IllegalArgumentException("foobar")
 
         val input = fromResources("with_inline_schema.yml")
-        val exitCode = commandLine.execute("plan", "--registry", "foo", input.path)
+        val exitCode = commandLine.execute("plan", "--registry", "foo", *input.map { it.path }.toTypedArray())
 
         assertEquals(2, exitCode)
 
         verify { logger.error("java.lang.IllegalArgumentException: foobar") }
     }
 
-    private fun fromResources(name: String) = File(javaClass.classLoader.getResource(name)!!.toURI())
+    private fun fromResources(name: String) = listOf(File(javaClass.classLoader.getResource(name)!!.toURI()))
 }

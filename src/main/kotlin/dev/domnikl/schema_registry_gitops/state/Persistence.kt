@@ -14,6 +14,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import org.slf4j.Logger
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.OutputStream
 import java.nio.file.Files
 import java.util.Optional
@@ -31,27 +32,36 @@ class Persistence(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .registerKotlinModule()
 
-    fun load(basePath: File, file: File): State {
-        logger.debug("Loading state file ${file.absolutePath}, referenced schemas from ${basePath.absolutePath}")
+    fun load(basePath: File, files: List<File>): State {
+        require(files.isNotEmpty())
 
-        require(Files.exists(file.toPath()))
-        require(file.length() > 0)
+        val states = files.map { file ->
+            logger.debug("Loading state file ${file.absolutePath}, referenced schemas from ${basePath.absolutePath}")
 
-        val yaml = mapper.readValue(file, Yaml::class.java)
+            if (!Files.exists(file.toPath())) {
+                throw FileNotFoundException("Could not find ${file.toPath()}")
+            }
 
-        return State(
-            yaml.compatibility?.let { Compatibility.valueOf(it) },
-            yaml.subjects?.map {
-                Subject(
-                    it.name,
-                    it.compatibility?.let { c -> Compatibility.valueOf(c) },
-                    it.parseSchema(basePath, schemaRegistryClient),
-                    it.references.map { yamlSubjectReference: YamlSubjectReference ->
-                        SchemaReference(yamlSubjectReference.name, yamlSubjectReference.subject, yamlSubjectReference.version)
-                    }
-                )
-            } ?: emptyList()
-        )
+            require(file.length() > 0)
+
+            val yaml = mapper.readValue(file, Yaml::class.java)
+
+            State(
+                yaml.compatibility?.let { Compatibility.valueOf(it) },
+                yaml.subjects?.map {
+                    Subject(
+                        it.name,
+                        it.compatibility?.let { c -> Compatibility.valueOf(c) },
+                        it.parseSchema(basePath, schemaRegistryClient),
+                        it.references.map { yamlSubjectReference: YamlSubjectReference ->
+                            SchemaReference(yamlSubjectReference.name, yamlSubjectReference.subject, yamlSubjectReference.version)
+                        }
+                    )
+                } ?: emptyList()
+            )
+        }
+
+        return states.fold(states.first()) { a: State, b: State -> a.merge(b) }
     }
 
     fun save(state: State, outputStream: OutputStream) {

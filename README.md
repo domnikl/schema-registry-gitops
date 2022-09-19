@@ -31,11 +31,10 @@ Manages schema registries through Infrastructure as Code
   -v, --verbose              enable verbose logging
   -V, --version              Print version information and exit.
 Commands:
-  help   Displays help information about the specified command
-  plan   validate and plan schema changes, can be used to see all pending
-           changes
   apply  applies the state to the given schema registry
   dump   prints the current state
+  plan   validate and plan schema changes, can be used to see all pending
+           changes
 ```
 
 In order to get help for a specific command, try `schema-registry-gitops <command> -h`.
@@ -45,14 +44,14 @@ In order to get help for a specific command, try `schema-registry-gitops <comman
 `schema-registry-gitops` is available through [Docker Hub](https://hub.docker.com/repository/docker/domnikl/schema-registry-gitops), so running it in a container is as easy as:
 
 ```sh
-docker run -v "$(pwd)/examples":/data domnikl/schema-registry-gitops plan --properties /data/client.properties /data/schema-registry.yml
+docker run -v "$(pwd)/examples":/data domnikl/schema-registry-gitops plan --properties /data/client.properties /data/base.yml
 ```
 
 Please keep in mind that using a tagged release may be a good idea.
 
-## State file
+## State files
 
-The desired state is managed using this YAML schema:
+The desired state is managed using the following YAML schema:
 
 ```yaml
 # sets global compatibility level (optional)
@@ -87,6 +86,8 @@ subjects:
         }'
     type: PROTOBUF
 ```
+
+When using multiple files, the state is the merge result of those. Keep in mind that later references of the same subject names will overwrite earlier definitions.
 
 ### compatibility
 
@@ -165,7 +166,7 @@ Docker is used to build and test `schema-registry-gitops` for development.
 docker build -t domnikl/schema-registry-gitops .
 
 # run it in Docker
-docker run -v ./examples:/data domnikl/schema-registry-gitops plan --registry http://localhost:8081 /data/schema-registry.yml
+docker run -v ./examples:/data domnikl/schema-registry-gitops plan --registry http://localhost:8081 /data/base.yml /data/with_references.yml
 ```
 
 ## Acknowledgement
