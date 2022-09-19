@@ -27,8 +27,8 @@ class Apply(
     @CommandLine.ParentCommand
     private lateinit var cli: CLI
 
-    @CommandLine.Parameters(description = ["path to input YAML file"])
-    private lateinit var inputFile: File
+    @CommandLine.Parameters(description = ["path to input YAML files"])
+    private lateinit var inputFiles: List<File>
 
     @CommandLine.Option(
         names = ["-d", "--enable-deletes"],
@@ -43,12 +43,14 @@ class Apply(
             val diffing = diffing ?: Diffing(configuration.schemaRegistryClient())
             val applier = applier ?: Applier(configuration.schemaRegistryClient(), logger)
 
-            val state = persistence.load(inputFile.absoluteFile.parentFile, inputFile.absoluteFile)
+            val state = persistence.load(inputFiles.first().absoluteFile.parentFile, inputFiles.map { it.absoluteFile })
             val diff = diffing.diff(state, enableDeletes)
 
             applier.apply(diff)
 
-            logger.info("[SUCCESS] Applied state from $inputFile to ${configuration.baseUrl}")
+            inputFiles.forEach {
+                logger.info("[SUCCESS] Applied state from $it to ${configuration.baseUrl}")
+            }
 
             0
         } catch (e: Exception) {

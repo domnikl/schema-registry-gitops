@@ -30,8 +30,8 @@ class Plan(
     @ParentCommand
     private lateinit var cli: CLI
 
-    @Parameters(description = ["path to input YAML file"])
-    private lateinit var inputFile: File
+    @Parameters(description = ["path to input YAML files"])
+    private lateinit var inputFiles: List<File>
 
     @Option(
         names = ["-d", "--enable-deletes"],
@@ -45,7 +45,7 @@ class Plan(
             val persistence = persistence ?: Persistence(configuration.client(), logger)
             val diffing = diffing ?: Diffing(configuration.schemaRegistryClient())
 
-            val state = persistence.load(inputFile.absoluteFile.parentFile, inputFile.absoluteFile)
+            val state = persistence.load(inputFiles.first().absoluteFile.parentFile, inputFiles.map { it.absoluteFile })
             val result = diffing.diff(state, enableDeletes)
 
             if (!result.isEmpty()) {

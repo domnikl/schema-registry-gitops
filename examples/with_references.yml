@@ -1,0 +1,13 @@
+subjects:
+  - name: with-references
+    file: with-references.avsc
+    type: AVRO
+    references:
+      - name: dev.domnikl.schema_registry_gitops.User
+        subject: User-value
+        version: 1
+
+  - name: User-value
+    file: foo.json
+    type: JSON
+    compatibility: BACKWARD

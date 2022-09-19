@@ -38,25 +38,51 @@ class PersistenceTest {
     private val loader = Persistence(schemaRegistryClient, logger)
 
     @Test
+    fun `throws exception when trying to load without a file`() {
+        assertThrows<IllegalArgumentException> {
+            loader.load(fromResources("schemas"), emptyList())
+        }
+    }
+
+    @Test
     fun `throws exception when trying to load empty file`() {
         assertThrows<IllegalArgumentException> {
-            loader.load(fromResources("schemas"), fromResources("empty.yml"))
+            loader.load(fromResources("schemas"), listOf(fromResources("empty.yml")))
         }
     }
 
     @Test
     fun `throws exception when trying to load non-existing file`() {
-        assertThrows<IllegalArgumentException> {
-            loader.load(fromResources("schemas"), File("foo"))
+        assertThrows<FileNotFoundException> {
+            loader.load(fromResources("schemas"), listOf(File("foo")))
         }
     }
 
     @Test
     fun `can load file with only compatibility`() {
-        val state = loader.load(fromResources("schemas"), fromResources("only_compatibility.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("only_compatibility.yml")))
 
         assertEquals(Compatibility.FORWARD, state.compatibility)
         assertEquals(emptyList<Subject>(), state.subjects)
+    }
+
+    @Test
+    fun `can load multiple files`() {
+        val schemaString = stringFromResources("schemas/with_subjects.avsc")
+        val schema = mockk<ParsedSchema>()
+
+        every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()) } returns Optional.of(schema)
+
+        val state = loader.load(
+            fromResources("schemas"),
+            listOf(
+                fromResources("only_compatibility.yml"),
+                fromResources("with_subjects.yml")
+            )
+        )
+
+        assertEquals(Compatibility.FORWARD, state.compatibility)
+        assertEquals(listOf(Subject("foo", null, schema)), state.subjects)
     }
 
     @Test
@@ -64,14 +90,14 @@ class PersistenceTest {
         val basePath = fromResources("schemas")
         val file = fromResources("no_compatibility.yml")
 
-        loader.load(basePath, file)
+        loader.load(basePath, listOf(file))
 
         verify { logger.debug("Loading state file ${file.absolutePath}, referenced schemas from ${basePath.absolutePath}") }
     }
 
     @Test
     fun `can load file without subjects`() {
-        val state = loader.load(fromResources("schemas"), fromResources("no_compatibility.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("no_compatibility.yml")))
 
         assertNull(state.compatibility)
         assertEquals(emptyList<Subject>(), state.subjects)
@@ -84,7 +110,7 @@ class PersistenceTest {
 
         every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()) } returns Optional.of(schema)
 
-        val state = loader.load(fromResources("schemas"), fromResources("with_subjects.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("with_subjects.yml")))
 
         assertNull(state.compatibility)
         assertEquals(listOf(Subject("foo", null, schema)), state.subjects)
@@ -97,7 +123,7 @@ class PersistenceTest {
 
         every { schemaRegistryClient.parseSchema("AVRO", schemaString, listOf(SchemaReference("dev.domnikl.schema_registry_gitops.foo", "foo", 1))) } returns Optional.of(schema)
 
-        val state = loader.load(fromResources("schemas"), fromResources("with_subjects_and_references.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("with_subjects_and_references.yml")))
 
         assertNull(state.compatibility)
         assertEquals(listOf(Subject("bar", null, schema, listOf(SchemaReference("dev.domnikl.schema_registry_gitops.foo", "foo", 1)))), state.subjects)
@@ -129,7 +155,7 @@ class PersistenceTest {
             )
         } returns Optional.of(schema)
 
-        val state = loader.load(fromResources("schemas"), fromResources("with_inline_schema.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("with_inline_schema.yml")))
 
         assertEquals(listOf(Subject("foo", Compatibility.BACKWARD, schema)), state.subjects)
     }
@@ -141,7 +167,7 @@ class PersistenceTest {
 
         every { schemaRegistryClient.parseSchema("AVRO", schemaString, emptyList()) } returns Optional.of(schema)
 
-        val state = loader.load(fromResources("schemas"), fromResources("with_subjects_and_compatibility.yml"))
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("with_subjects_and_compatibility.yml")))
 
         assertEquals(Compatibility.FULL, state.compatibility)
         assertEquals(listOf(Subject("foo", Compatibility.FORWARD, schema)), state.subjects)
@@ -150,21 +176,21 @@ class PersistenceTest {
     @Test
     fun `throws exception when neither schema nor file was given`() {
         assertThrows<IllegalArgumentException> {
-            loader.load(fromResources("schemas"), fromResources("neither_schema_nor_file.yml"))
+            loader.load(fromResources("schemas"), listOf(fromResources("neither_schema_nor_file.yml")))
         }
     }
 
     @Test
     fun `throws exception when referenced file does not exist`() {
         assertThrows<FileNotFoundException> {
-            loader.load(fromResources("schemas"), fromResources("referenced_file_does_not_exist.yml"))
+            loader.load(fromResources("schemas"), listOf(fromResources("referenced_file_does_not_exist.yml")))
         }
     }
 
     @Test
     fun `throws exception when subject name is missing`() {
         assertThrows<MissingKotlinParameterException> {
-            loader.load(fromResources("schemas"), fromResources("subject_name_is_missing.yml"))
+            loader.load(fromResources("schemas"), listOf(fromResources("subject_name_is_missing.yml")))
         }
     }
 
@@ -191,7 +217,7 @@ class PersistenceTest {
 
         loader.save(currentState, outputStream)
 
-        assertEquals(currentState, loader.load(fromResources("schemas"), tempFile))
+        assertEquals(currentState, loader.load(fromResources("schemas"), listOf(tempFile)))
     }
 
     @Test
