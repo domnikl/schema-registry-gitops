@@ -29,7 +29,7 @@ dependencies {
     implementation("info.picocli:picocli:4.7.0")
 
     implementation("org.slf4j:slf4j-api:2.0.4")
-    implementation("ch.qos.logback:logback-classic:1.4.4")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("ch.qos.logback:logback-core:1.4.5")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0")
