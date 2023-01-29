@@ -32,7 +32,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("ch.qos.logback:logback-core:1.4.5")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
