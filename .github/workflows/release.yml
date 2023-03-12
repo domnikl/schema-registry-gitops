@@ -20,7 +20,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@8b6629002beb9d32d20dd428c2059b7e9d403f8d
+        uses: docker/metadata-action@2bdac1078b04c6152f215bdcb4fd32591b9ba7c6
         with:
           images: domnikl/schema-registry-gitops
 
