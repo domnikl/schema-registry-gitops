@@ -28,7 +28,7 @@ dependencies {
 
     implementation("info.picocli:picocli:4.7.1")
 
-    implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("ch.qos.logback:logback-core:1.4.5")
 
