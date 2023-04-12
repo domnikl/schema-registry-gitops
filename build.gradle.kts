@@ -38,7 +38,7 @@ dependencies {
 
     implementation("io.confluent:kafka-schema-registry-client:7.3.2")
     implementation("io.confluent:kafka-protobuf-serializer:7.3.2")
-    implementation("io.confluent:kafka-json-schema-serializer:7.3.2")
+    implementation("io.confluent:kafka-json-schema-serializer:7.3.3")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.14.2")
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.12")
