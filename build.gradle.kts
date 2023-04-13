@@ -73,7 +73,7 @@ tasks {
         dependsOn(versionTxt)
 
         manifest {
-            attributes["Main-Class"] = "dev.domnikl.schema_registry_gitops.MainKt"
+            attributes["Main-Class"] = "dev.domnikl.schemaregistrygitops.MainKt"
         }
     }
 }
