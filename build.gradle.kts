@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     implementation("info.picocli:picocli:4.7.2")
 
