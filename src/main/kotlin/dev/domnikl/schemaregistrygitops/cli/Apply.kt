@@ -5,6 +5,7 @@ import dev.domnikl.schemaregistrygitops.Configuration
 import dev.domnikl.schemaregistrygitops.state.Applier
 import dev.domnikl.schemaregistrygitops.state.Diffing
 import dev.domnikl.schemaregistrygitops.state.Persistence
+import dev.domnikl.schemaregistrygitops.state.Result
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
@@ -46,13 +47,15 @@ class Apply(
             val state = persistence.load(inputFiles.first().absoluteFile.parentFile, inputFiles.map { it.absoluteFile })
             val diff = diffing.diff(state, enableDeletes)
 
-            applier.apply(diff)
+            if (applier.apply(diff) == Result.SUCCESS) {
+                inputFiles.forEach {
+                    logger.info("[SUCCESS] Applied state from $it to ${configuration.baseUrl}")
+                }
 
-            inputFiles.forEach {
-                logger.info("[SUCCESS] Applied state from $it to ${configuration.baseUrl}")
+                0
+            } else {
+                1
             }
-
-            0
         } catch (e: Exception) {
             logger.error(e.toString())
 
