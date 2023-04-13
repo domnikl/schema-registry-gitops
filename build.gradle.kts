@@ -5,10 +5,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.7.22"
-    kotlin("plugin.spring") version "1.7.22"
+    kotlin("jvm") version "1.8.20"
+    kotlin("plugin.spring") version "1.8.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
     jacoco
 }
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     implementation("info.picocli:picocli:4.7.2")
 
@@ -36,9 +36,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
 
-    implementation("io.confluent:kafka-schema-registry-client:7.3.2")
-    implementation("io.confluent:kafka-protobuf-serializer:7.3.2")
-    implementation("io.confluent:kafka-json-schema-serializer:7.3.2")
+    implementation("io.confluent:kafka-schema-registry-client:7.3.3")
+    implementation("io.confluent:kafka-protobuf-serializer:7.3.3")
+    implementation("io.confluent:kafka-json-schema-serializer:7.3.3")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.14.2")
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.12")
@@ -52,7 +52,7 @@ dependencies {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_11.majorVersion
+            jvmTarget = JavaVersion.VERSION_17.majorVersion
         }
     }
 
