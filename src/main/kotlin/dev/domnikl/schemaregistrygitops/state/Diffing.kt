@@ -10,11 +10,16 @@ class Diffing(private val client: SchemaRegistryClient) {
     fun diff(state: State, enableDeletes: Boolean = false): Result {
         val remoteSubjects = client.subjects()
 
-        val (compatible, incompatible) = state.subjects.partition { client.testCompatibility(it) }
+        val checkResults = state.subjects.map {
+            CompatibilityTestResult(it, client.testCompatibility(it))
+        }
+
+        val (compatible, incompatible) = checkResults.partition { it.messages.isEmpty() }
 
         val deleted = gatherDeletes(enableDeletes, remoteSubjects, state)
-        val added = compatible.filterNot { remoteSubjects.contains(it.name) }
-        val modified = compatible.filter { !deleted.contains(it.name) && !added.contains(it) }
+        val compatibleSubjects = compatible.map { it.subject }
+        val added = compatibleSubjects.filterNot { remoteSubjects.contains(it.name) }
+        val modified = compatibleSubjects.filter { !deleted.contains(it.name) && !added.contains(it) }
 
         return Result(
             gatherCompatibilityChange(client.globalCompatibility(), state),
@@ -74,7 +79,7 @@ class Diffing(private val client: SchemaRegistryClient) {
 
     data class Result(
         val compatibility: Change<Compatibility>? = null,
-        val incompatible: List<Subject> = emptyList(),
+        val incompatible: List<CompatibilityTestResult> = emptyList(),
         val added: List<Subject> = emptyList(),
         val modified: List<Changes> = emptyList(),
         val deleted: List<String> = emptyList()
@@ -85,6 +90,11 @@ class Diffing(private val client: SchemaRegistryClient) {
             modified.isEmpty() &&
             deleted.isEmpty()
     }
+
+    data class CompatibilityTestResult(
+        val subject: Subject,
+        val messages: List<String>
+    )
 
     data class Changes(
         val subject: Subject,

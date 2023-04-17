@@ -203,14 +203,14 @@ class PlanTest {
         val input = fromResources("with_inline_schema.yml")
 
         every { persistence.load(any(), input) } returns state
-        every { diffing.diff(any()) } returns Diffing.Result(incompatible = state.subjects)
+        every { diffing.diff(any()) } returns Diffing.Result(incompatible = listOf(Diffing.CompatibilityTestResult(state.subjects[0], listOf("my message"))))
 
         val exitCode = commandLine.execute("plan", "--registry", "foo", *input.map { it.path }.toTypedArray())
 
         assertEquals(1, exitCode)
 
         verifyOrder {
-            logger.error("[ERROR] The following schemas are incompatible with an earlier version: 'foo', 'bar'")
+            logger.error("[ERROR] The following schema is incompatible with an earlier version: 'foo': 'my message'")
         }
     }
 

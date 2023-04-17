@@ -7,7 +7,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
@@ -98,57 +97,57 @@ class SchemaRegistryClientTest {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", Compatibility.FORWARD, schema)
 
-        every { client.testCompatibility("foo", schema) } returns true
+        every { client.testCompatibilityVerbose("foo", schema) } returns listOf("hello", "world")
 
-        assert(wrapper.testCompatibility(subject))
+        assertEquals(listOf("hello", "world"), wrapper.testCompatibility(subject))
     }
 
     @Test
-    fun `test compatibility returns true if subject is new`() {
+    fun `test compatibility returns empty list if subject is new`() {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40401)
+        every { client.testCompatibilityVerbose("foo", schema) } throws RestClientException("", 404, 40401)
 
-        assert(wrapper.testCompatibility(subject))
+        assertEquals(emptyList<String>(), wrapper.testCompatibility(subject))
     }
 
     @Test
-    fun `test compatibility returns true if version is new`() {
+    fun `test compatibility returns empty list if version is new`() {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40402)
+        every { client.testCompatibilityVerbose("foo", schema) } throws RestClientException("", 404, 40402)
 
-        assert(wrapper.testCompatibility(subject))
+        assertEquals(emptyList<String>(), wrapper.testCompatibility(subject))
     }
 
     @Test
-    fun `test compatibility returns true if schema is new`() {
+    fun `test compatibility returns empty list if schema is new`() {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        every { client.testCompatibility("foo", schema) } throws RestClientException("", 404, 40403)
+        every { client.testCompatibilityVerbose("foo", schema) } throws RestClientException("", 404, 40403)
 
-        assert(wrapper.testCompatibility(subject))
+        assertEquals(emptyList<String>(), wrapper.testCompatibility(subject))
     }
 
     @Test
-    fun `test compatibility returns false if client returns false`() {
+    fun `test compatibility returns messages if client returns them`() {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        every { client.testCompatibility("foo", schema) } returns false
+        every { client.testCompatibilityVerbose("foo", schema) } returns emptyList()
 
-        assertFalse(wrapper.testCompatibility(subject))
+        assertEquals(emptyList<String>(), wrapper.testCompatibility(subject))
     }
 
     @Test
-    fun `test compatibility throws exception if schema type is not supported`() {
+    fun `test compatibility verbose throws exception if schema type is not supported`() {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        every { client.testCompatibility("foo", schema) } throws RestClientException("", 422, 422)
+        every { client.testCompatibilityVerbose("foo", schema) } throws RestClientException("", 422, 422)
 
         assertThrows<ServerVersionMismatchException> {
             wrapper.testCompatibility(subject)

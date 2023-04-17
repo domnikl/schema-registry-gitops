@@ -28,9 +28,9 @@ class DiffingTest {
         val result = diff.diff(state)
 
         assertEquals(Diffing.Change(Compatibility.NONE, Compatibility.BACKWARD), result.compatibility)
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
     }
 
@@ -39,11 +39,11 @@ class DiffingTest {
         val state = State(Compatibility.BACKWARD, listOf(subject))
 
         every { client.subjects() } returns listOf("foobar")
-        every { client.testCompatibility(any()) } returns false
+        every { client.testCompatibility(any()) } returns listOf("incompatible!")
 
         val result = diff.diff(state)
 
-        assertEquals(listOf(subject), result.incompatible)
+        assertEquals(listOf(Diffing.CompatibilityTestResult(subject, listOf("incompatible!"))), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
         assertEquals(emptyList<String>(), result.deleted)
@@ -54,11 +54,11 @@ class DiffingTest {
         val state = State(Compatibility.BACKWARD, listOf(subject))
 
         every { client.subjects() } returns emptyList()
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(listOf(subject), result.added)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
         assertEquals(emptyList<String>(), result.deleted)
@@ -72,7 +72,7 @@ class DiffingTest {
 
         val result = diff.diff(state, true)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
         assertEquals(listOf("foobar"), result.deleted)
@@ -86,7 +86,7 @@ class DiffingTest {
 
         val result = diff.diff(state, false)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
         assertEquals(emptyList<String>(), result.deleted)
@@ -100,14 +100,14 @@ class DiffingTest {
         every { client.subjects() } returns listOf("foobar")
         every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
         every { client.compatibility("foobar") } returns Compatibility.BACKWARD_TRANSITIVE
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(1, result.modified.size)
         assertEquals(
             Diffing.Changes(
@@ -130,15 +130,15 @@ class DiffingTest {
         every { client.getLatestSchema("bar") } returns remoteSchema
         every { client.version(subject) } returns null
         every { client.version(subject2) } returns null
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
         every { client.compatibility("foobar") } returns subject.compatibility!!
         every { client.compatibility("bar") } returns subject2.compatibility!!
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(
             listOf(
                 Diffing.Changes(subject, null, Diffing.Change(remoteSchema, subject.schema)),
@@ -157,14 +157,14 @@ class DiffingTest {
         every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
         every { client.version(subject) } returns 5
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
         every { client.compatibility("foobar") } returns subject.compatibility!!
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
     }
 
@@ -176,14 +176,14 @@ class DiffingTest {
         every { client.subjects() } returns listOf("foobar")
         every { remoteSchema.canonicalString() } returns subject.schema.canonicalString()
         every { client.getLatestSchema("foobar") } returns remoteSchema
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
         every { client.compatibility("foobar") } returns subject.compatibility!!
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(emptyList<Diffing.Changes>(), result.modified)
     }
 
@@ -196,14 +196,14 @@ class DiffingTest {
 
         every { client.subjects() } returns listOf("foobar")
         every { client.getLatestSchema("foobar") } returns schema
-        every { client.testCompatibility(any()) } returns true
+        every { client.testCompatibility(any()) } returns emptyList()
         every { client.compatibility("foobar") } returns subject.compatibility!!
 
         val result = diff.diff(state)
 
-        assertEquals(emptyList<Subject>(), result.incompatible)
+        assertEquals(emptyList<Diffing.CompatibilityTestResult>(), result.incompatible)
         assertEquals(emptyList<Subject>(), result.added)
-        assertEquals(emptyList<Subject>(), result.deleted)
+        assertEquals(emptyList<String>(), result.deleted)
         assertEquals(listOf(Diffing.Changes(subject, null, Diffing.Change(schema, changedSchema))), result.modified)
     }
 

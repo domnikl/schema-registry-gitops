@@ -27,12 +27,12 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         return Compatibility.valueOf(client.updateCompatibility(subject.name, subject.compatibility.toString()))
     }
 
-    fun testCompatibility(subject: Subject): Boolean {
+    fun testCompatibility(subject: Subject): List<String> {
         return handleNotExisting {
             handleUnsupportedSchemaType {
-                client.testCompatibility(subject.name, subject.schema)
+                client.testCompatibilityVerbose(subject.name, subject.schema)
             }
-        } ?: true
+        }?.toList() ?: emptyList()
     }
 
     fun getLatestSchema(subject: String): ParsedSchema {

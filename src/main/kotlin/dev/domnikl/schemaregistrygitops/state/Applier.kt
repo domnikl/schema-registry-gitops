@@ -7,16 +7,26 @@ import dev.domnikl.schemaregistrygitops.diff
 import io.confluent.kafka.schemaregistry.ParsedSchema
 import org.slf4j.Logger
 
+enum class Result {
+    ERROR,
+    SUCCESS
+}
+
 class Applier(
     private val client: SchemaRegistryClient,
     private val logger: Logger
 ) {
-    fun apply(diff: Diffing.Result) {
+    fun apply(diff: Diffing.Result): Result {
         if (diff.incompatible.isNotEmpty()) {
-            throw IllegalStateException(
-                "[ERROR] Refusing to apply: the following schemas are incompatible with an earlier version: " +
-                    "'${diff.incompatible.joinToString("', '") { it.name }}'"
-            )
+            diff.incompatible.forEach {
+                logger.error(
+                    "[ERROR] The following schema is incompatible with an earlier version: '${ it.subject.name }': '" +
+                        it.messages.joinToString(",") +
+                        "'"
+                )
+            }
+
+            return Result.ERROR
         }
 
         diff.compatibility?.let {
@@ -42,6 +52,8 @@ class Applier(
                 evolve(change.subject, it)
             }
         }
+
+        return Result.SUCCESS
     }
 
     private fun delete(subject: String) {

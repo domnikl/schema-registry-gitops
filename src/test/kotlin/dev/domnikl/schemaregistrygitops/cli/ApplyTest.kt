@@ -7,6 +7,7 @@ import dev.domnikl.schemaregistrygitops.fromResources
 import dev.domnikl.schemaregistrygitops.state.Applier
 import dev.domnikl.schemaregistrygitops.state.Diffing
 import dev.domnikl.schemaregistrygitops.state.Persistence
+import dev.domnikl.schemaregistrygitops.state.Result
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -33,7 +34,7 @@ class ApplyTest {
 
         every { configuration.baseUrl } returns "https://foo.bar"
         every { persistence.load(any(), any()) } returns state
-        every { applier.apply(any()) } just runs
+        every { applier.apply(any()) } returns Result.SUCCESS
         every { logger.info(any()) } just runs
         every { diffing.diff(state, false) } returns diffingResult
 
@@ -48,7 +49,7 @@ class ApplyTest {
     @Test
     fun `can handle relative inputFile paths`() {
         every { persistence.load(any(), any()) } throws IllegalArgumentException("foobar")
-        every { applier.apply(any()) } just runs
+        every { applier.apply(any()) } returns Result.ERROR
         every { logger.error(any()) } just runs
 
         val input = "only_compatibility.yml"
@@ -62,7 +63,7 @@ class ApplyTest {
     @Test
     fun `logs errors it encounters`() {
         every { persistence.load(any(), any()) } throws IllegalArgumentException("foobar")
-        every { applier.apply(any()) } just runs
+        every { applier.apply(any()) } returns Result.ERROR
         every { logger.error(any()) } just runs
 
         val input = fromResources("only_compatibility.yml")

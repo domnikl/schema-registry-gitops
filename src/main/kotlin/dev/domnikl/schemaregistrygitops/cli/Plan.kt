@@ -94,10 +94,13 @@ class Plan(
             }
 
             if (result.incompatible.isNotEmpty()) {
-                logger.error(
-                    "[ERROR] The following schemas are incompatible with an earlier version: " +
-                        "'${result.incompatible.joinToString("', '") { it.name }}'"
-                )
+                result.incompatible.forEach {
+                    logger.error(
+                        "[ERROR] The following schema is incompatible with an earlier version: '${ it.subject.name }': '" +
+                            it.messages.joinToString(",") +
+                            "'"
+                    )
+                }
 
                 return 1
             }

@@ -12,8 +12,8 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 
 class ApplierTest {
@@ -26,11 +26,8 @@ class ApplierTest {
         val schema = mockk<ParsedSchema>()
         val subject = Subject("foo", null, schema)
 
-        val diff = Diffing.Result(incompatible = listOf(subject))
-
-        assertThrows<IllegalStateException> {
-            stateApplier.apply(diff)
-        }
+        val diff = Diffing.Result(incompatible = listOf(Diffing.CompatibilityTestResult(subject, listOf("error!"))))
+        assertEquals(Result.ERROR, stateApplier.apply(diff))
     }
 
     @Test
