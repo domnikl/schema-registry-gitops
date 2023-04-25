@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm") version "1.8.21"
-    kotlin("plugin.spring") version "1.8.20"
+    kotlin("plugin.spring") version "1.8.21"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
