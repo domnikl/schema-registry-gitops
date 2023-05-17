@@ -33,7 +33,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.4.7")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
 
     implementation("io.confluent:kafka-schema-registry-client:7.4.0")
