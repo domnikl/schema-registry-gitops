@@ -35,10 +35,18 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+    constraints {
+        implementation("com.google.code.gson:gson:2.8.9") {
+            because("CVE-2022-25647")
+        }
+        implementation("org.apache.commons:commons-compress:1.24.0") {
+            because("CVE-2023-42503")
+        }
+    }
 
-    implementation("io.confluent:kafka-schema-registry-client:7.4.0")
-    implementation("io.confluent:kafka-protobuf-serializer:7.4.0")
-    implementation("io.confluent:kafka-json-schema-serializer:7.4.0")
+    implementation("io.confluent:kafka-schema-registry-client:7.6.0")
+    implementation("io.confluent:kafka-protobuf-serializer:7.6.0")
+    implementation("io.confluent:kafka-json-schema-serializer:7.6.0")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.14.4")
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.12")
