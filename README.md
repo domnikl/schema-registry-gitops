@@ -1,3 +1,6 @@
+Forked to fix CVEs
+
+
 # schema-registry-gitops
 
 [![build](https://github.com/domnikl/schema-registry-gitops/workflows/build/badge.svg)](https://github.com/domnikl/schema-registry-gitops/actions)
