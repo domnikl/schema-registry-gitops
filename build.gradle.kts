@@ -39,7 +39,7 @@ dependencies {
         implementation("com.google.code.gson:gson:2.10.1") {
             because("CVE-2022-25647")
         }
-        implementation("org.apache.commons:commons-compress:1.24.0") {
+        implementation("org.apache.commons:commons-compress:1.26.0") {
             because("CVE-2023-42503")
         }
     }
