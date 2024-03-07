@@ -5,10 +5,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
     jacoco
 }
@@ -82,18 +82,6 @@ tasks {
 
         manifest {
             attributes["Main-Class"] = "dev.domnikl.schemaregistrygitops.MainKt"
-        }
-    }
-}
-
-idea {
-    project {
-        this as ExtensionAware
-        configure<ProjectSettings> {
-            this as ExtensionAware
-            configure<TaskTriggersConfig> {
-                afterSync(tasks.findByName("ktlintApplyToIdea"))
-            }
         }
     }
 }
