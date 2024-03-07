@@ -1,6 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.gradle.ext.ProjectSettings
-import org.jetbrains.gradle.ext.TaskTriggersConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -14,7 +12,7 @@ plugins {
 }
 
 group = "dev.domnikl"
-version = "1.9.0"
+version = "1.10.0"
 
 repositories {
     mavenCentral()
