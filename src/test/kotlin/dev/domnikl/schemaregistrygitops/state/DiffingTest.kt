@@ -15,7 +15,11 @@ import org.junit.Test
 class DiffingTest {
     private val client = mockk<SchemaRegistryClient>(relaxed = true)
     private val diff = Diffing(client)
-    private val schema = AvroSchema("{\"type\": \"record\",\"name\": \"HelloWorld\",\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"this is some docs to be replaced ...\",\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}")
+    private val schema = AvroSchema(
+        "{\"type\": \"record\",\"name\": \"HelloWorld\"," +
+            "\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"this is some docs to be replaced ...\"," +
+            "\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}"
+    )
     private val subject = Subject("foobar", Compatibility.FORWARD, schema)
     private val subject2 = Subject("bar", Compatibility.BACKWARD, schema)
 
@@ -189,7 +193,12 @@ class DiffingTest {
 
     @Test
     fun `can detect doc changes`() {
-        val changedSchema = AvroSchema("{\"type\": \"record\",\"name\": \"HelloWorld\",\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"This is the new docs.\",\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}")
+        val changedSchema =
+            AvroSchema(
+                "{\"type\": \"record\",\"name\": \"HelloWorld\"," +
+                    "\"namespace\": \"dev.domnikl.schema_registry_gitops\",\"doc\": \"This is the new docs.\"," +
+                    "\"fields\": [{\"name\": \"greeting\",\"type\": \"string\"}]}"
+            )
 
         val subject = Subject("foobar", Compatibility.FORWARD, changedSchema)
         val state = State(Compatibility.BACKWARD, listOf(subject))

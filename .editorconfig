@@ -1,0 +1,25 @@
+root = true
+
+# noinspection EditorConfigKeyCorrectness
+[*]
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 140
+trim_trailing_whitespace = true
+ktlint_standard_filename = disabled
+ktlint_standard_function-naming = disabled
+ktlint_code_style = intellij_idea
+ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 5
+ij_java_class_count_to_use_import_on_demand = 999
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
+ij_kotlin_line_break_after_multiline_when_entry = false
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+ij_kotlin_packages_to_use_import_on_demand = ""
+
+# YAML Files
+[*.{yml,yaml}]
+indent_size = 2

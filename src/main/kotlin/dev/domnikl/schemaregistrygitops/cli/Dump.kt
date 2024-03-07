@@ -25,7 +25,10 @@ class Dump(
     @CommandLine.ParentCommand
     private lateinit var cli: CLI
 
-    @CommandLine.Parameters(description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"], defaultValue = STDOUT_FILE)
+    @CommandLine.Parameters(
+        description = ["optional path to output YAML file, default is \"-\", which prints to STDOUT"],
+        defaultValue = STDOUT_FILE
+    )
     private lateinit var outputFile: String
 
     private val outputStream by lazy {

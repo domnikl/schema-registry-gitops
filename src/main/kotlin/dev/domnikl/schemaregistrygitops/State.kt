@@ -4,7 +4,9 @@ data class State(val compatibility: Compatibility?, val subjects: List<Subject>)
     init {
         val duplicates = subjects.duplicatesBy { it.name }
 
-        require(duplicates.isEmpty()) { "State in YAML configuration is invalid: duplicated subject(s) '${duplicates.joinToString("', '")}' found" }
+        require(duplicates.isEmpty()) {
+            "State in YAML configuration is invalid: duplicated subject(s) '${duplicates.joinToString("', '")}' found"
+        }
     }
 
     fun merge(other: State): State {

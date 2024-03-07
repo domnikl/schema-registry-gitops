@@ -91,7 +91,8 @@ class PlanTest {
         every { persistence.load(any(), input) } returns state
         every { diffing.diff(any(), true) } returns Diffing.Result(deleted = listOf("foobar"))
 
-        val exitCode = commandLine.execute("plan", "--enable-deletes", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
+        val exitCode =
+            commandLine.execute("plan", "--enable-deletes", "--registry", "https://foo.bar", *input.map { it.path }.toTypedArray())
 
         assertEquals(0, exitCode)
 
@@ -203,7 +204,14 @@ class PlanTest {
         val input = fromResources("with_inline_schema.yml")
 
         every { persistence.load(any(), input) } returns state
-        every { diffing.diff(any()) } returns Diffing.Result(incompatible = listOf(Diffing.CompatibilityTestResult(state.subjects[0], listOf("my message"))))
+        every { diffing.diff(any()) } returns Diffing.Result(
+            incompatible = listOf(
+                Diffing.CompatibilityTestResult(
+                    state.subjects[0],
+                    listOf("my message")
+                )
+            )
+        )
 
         val exitCode = commandLine.execute("plan", "--registry", "foo", *input.map { it.path }.toTypedArray())
 

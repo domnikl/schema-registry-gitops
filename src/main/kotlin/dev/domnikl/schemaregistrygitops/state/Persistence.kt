@@ -86,7 +86,14 @@ class Persistence(
 
     data class Yaml(val compatibility: String?, val subjects: List<YamlSubject>?)
     data class YamlSubjectReference(val name: String, val subject: String, val version: Int)
-    data class YamlSubject(val name: String, val file: String?, val type: String?, val schema: String?, val compatibility: String?, val references: List<YamlSubjectReference> = emptyList()) {
+    data class YamlSubject(
+        val name: String,
+        val file: String?,
+        val type: String?,
+        val schema: String?,
+        val compatibility: String?,
+        val references: List<YamlSubjectReference> = emptyList()
+    ) {
         fun parseSchema(basePath: File, schemaRegistryClient: CachedSchemaRegistryClient): ParsedSchema {
             val t = type ?: "AVRO"
 
@@ -107,7 +114,12 @@ class Persistence(
             return optional.get()
         }
 
-        private fun doParseSchema(client: CachedSchemaRegistryClient, t: String, schemaString: String, schemaReferences: List<SchemaReference>?): Optional<ParsedSchema>? {
+        private fun doParseSchema(
+            client: CachedSchemaRegistryClient,
+            t: String,
+            schemaString: String,
+            schemaReferences: List<SchemaReference>?
+        ): Optional<ParsedSchema>? {
             return client.parseSchema(t, schemaString, schemaReferences ?: emptyList())
         }
     }

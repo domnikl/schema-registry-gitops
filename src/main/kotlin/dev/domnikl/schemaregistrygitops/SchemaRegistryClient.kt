@@ -73,7 +73,8 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         } catch (e: RestClientException) {
             throw when (e.errorCode) {
                 ERROR_CODE_UNPROCESSABLE_ENTITY -> ServerVersionMismatchException(
-                    "Possible server version mismatch. Note that types other than 'AVRO' are not supported for server versions prior to 5.5",
+                    "Possible server version mismatch. " +
+                        "Note that types other than 'AVRO' are not supported for server versions prior to 5.5",
                     e
                 )
                 else -> e
