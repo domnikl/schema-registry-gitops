@@ -3,7 +3,7 @@ FROM amazoncorretto:17.0.10-alpine AS tester
 WORKDIR /home/cuser
 
 ADD ./gradle /home/cuser/gradle
-ADD ./gradlew ./gradle.properties ./build.gradle.kts ./settings.gradle.kts /home/cuser/
+ADD ./gradlew ./gradle.properties ./build.gradle.kts ./settings.gradle.kts ./.editorconfig /home/cuser/
 RUN ./gradlew --no-daemon build
 ADD ./src /home/cuser/src
 RUN ./gradlew --no-daemon check
