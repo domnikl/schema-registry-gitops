@@ -30,7 +30,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.3")
     implementation("ch.qos.logback:logback-core:1.5.3")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
     constraints {
