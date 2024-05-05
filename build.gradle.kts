@@ -31,7 +31,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.5.6")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
     constraints {
         implementation("com.google.code.gson:gson:2.10.1") {
