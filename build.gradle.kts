@@ -28,7 +28,7 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("ch.qos.logback:logback-classic:1.5.11")
-    implementation("ch.qos.logback:logback-core:1.5.10")
+    implementation("ch.qos.logback:logback-core:1.5.11")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
