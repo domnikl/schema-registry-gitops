@@ -30,9 +30,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.12")
     implementation("ch.qos.logback:logback-core:1.5.12")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.1")
     constraints {
         implementation("com.google.code.gson:gson:2.11.0") {
             because("CVE-2022-25647")
