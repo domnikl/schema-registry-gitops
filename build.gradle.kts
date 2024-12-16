@@ -49,7 +49,7 @@ dependencies {
 
     implementation("io.github.java-diff-utils:java-diff-utils:4.15")
 
-    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
