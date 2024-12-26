@@ -22,7 +22,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@906ecf0fc0a80f9110f79d9e6c04b1080f4a2621
         with:
-          images: domnikl/schema-registry-gitops
+          images: matray/schema-registry-gitops
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
