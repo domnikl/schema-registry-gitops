@@ -2,10 +2,10 @@ FROM amazoncorretto:17.0.13-alpine AS tester
 
 WORKDIR /home/cuser
 
-ADD ./gradle /home/cuser/gradle
-ADD ./gradlew ./gradle.properties ./build.gradle.kts ./settings.gradle.kts ./.editorconfig /home/cuser/
+COPY ./gradle /home/cuser/gradle
+COPY ./gradlew ./gradle.properties ./build.gradle.kts ./settings.gradle.kts ./.editorconfig /home/cuser/
 RUN ./gradlew --no-daemon build
-ADD ./src /home/cuser/src
+COPY ./src /home/cuser/src
 RUN ./gradlew --no-daemon check
 
 FROM tester AS builder
