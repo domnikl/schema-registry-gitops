@@ -56,6 +56,9 @@ The desired state is managed using the following YAML schema:
 ```yaml
 # sets global compatibility level (optional)
 compatibility: FULL_TRANSITIVE
+# sets normalize flag (optional)
+# setting to true enables clients to not have to pass the “normalize” query parameter to have normalization occur
+normalize: true
 subjects:
   # a subject that links to a file for the schema definition
   - name: my-new-subject-referencing-a-schema-file
@@ -66,7 +69,7 @@ subjects:
     # AVRO is the default type and can safely be omitted (only available for Schema Registry >= 5.5)
     type: AVRO
     # (optional) list of references for this subject
-    # please note that these must be present in the registry before they can be referenced here 
+    # please note that these must be present in the registry before they can be referenced here
     references:
       # name including the namespace, should be the same as the `type` being used in AVRO
       - name: dev.domnikl.schema-registry-gitops.User
@@ -80,7 +83,7 @@ subjects:
   - name: my-new-inline-schema-subject
     schema: 'syntax = "proto3";
         package com.acme;
-        
+
         message OtherRecord {
           int32 an_id = 1;
         }'
@@ -117,9 +120,9 @@ _Please note that `PROTOBUF` and `JSON` are only supported for Schema Registry >
 
 ### references
 
-[References to other schemas](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#referenced-schemas) 
+[References to other schemas](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#referenced-schemas)
 are being configured here as an optional list of references. `name`, `subject` and `version` need to be configured for
-this to work. Also note that referenced schemas need to be present in the schema registry by the time that 
+this to work. Also note that referenced schemas need to be present in the schema registry by the time that
 `schema-registry-gitops` runs.
 
 ## Configuration .properties
