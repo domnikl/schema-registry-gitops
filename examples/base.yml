@@ -1,5 +1,5 @@
 compatibility: FULL_TRANSITIVE
-
+normalize: true
 subjects:
   - name: User-value
     file: User.avsc

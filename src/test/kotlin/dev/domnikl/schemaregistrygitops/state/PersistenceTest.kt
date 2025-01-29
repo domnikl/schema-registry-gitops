@@ -63,6 +63,16 @@ class PersistenceTest {
         val state = loader.load(fromResources("schemas"), listOf(fromResources("only_compatibility.yml")))
 
         assertEquals(Compatibility.FORWARD, state.compatibility)
+        assertEquals(null, state.normalize)
+        assertEquals(emptyList<Subject>(), state.subjects)
+    }
+
+    @Test
+    fun `can load file with only normalize`() {
+        val state = loader.load(fromResources("schemas"), listOf(fromResources("only_normalize.yml")))
+
+        assertEquals(null, state.compatibility)
+        assertEquals(true, state.normalize)
         assertEquals(emptyList<Subject>(), state.subjects)
     }
 
@@ -226,6 +236,7 @@ class PersistenceTest {
 
         val currentState = State(
             Compatibility.BACKWARD_TRANSITIVE,
+            false,
             listOf(
                 Subject("foobar-value", null, schema1),
                 Subject("foobar-key", Compatibility.FULL, schema2)
@@ -243,6 +254,7 @@ class PersistenceTest {
 
         val currentState = State(
             null,
+            null,
             emptyList()
         )
 
@@ -251,6 +263,30 @@ class PersistenceTest {
         val expectedOutput =
             """
                 compatibility: NONE
+                normalize: false
+                subjects: []
+
+            """.trimIndent()
+
+        assertEquals(expectedOutput, outputStream.toString())
+    }
+
+    @Test
+    fun `can save state to a file with normalize set`() {
+        val outputStream = ByteArrayOutputStream()
+
+        val currentState = State(
+            null,
+            true,
+            emptyList()
+        )
+
+        loader.save(currentState, outputStream)
+
+        val expectedOutput =
+            """
+                compatibility: NONE
+                normalize: true
                 subjects: []
 
             """.trimIndent()

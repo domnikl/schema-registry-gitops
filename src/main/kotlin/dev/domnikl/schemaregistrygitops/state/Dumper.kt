@@ -7,6 +7,7 @@ import dev.domnikl.schemaregistrygitops.Subject
 class Dumper(private val client: SchemaRegistryClient) {
     fun dump() = State(
         client.globalCompatibility(),
+        client.normalize(),
         client.subjects().map { subject ->
             val schema = client.getLatestSchema(subject)
             Subject(

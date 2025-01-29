@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class DiffingTest {
@@ -25,7 +26,7 @@ class DiffingTest {
 
     @Test
     fun `can detect global compatibility change`() {
-        val state = State(Compatibility.BACKWARD, emptyList())
+        val state = State(Compatibility.BACKWARD, null, emptyList())
 
         every { client.globalCompatibility() } returns Compatibility.NONE
 
@@ -39,8 +40,30 @@ class DiffingTest {
     }
 
     @Test
+    fun `no diff on null normalize`() {
+        val state = State(null, null, emptyList())
+
+        every { client.normalize() } returns true
+
+        val result = diff.diff(state)
+
+        assertNull(result.normalize)
+    }
+
+    @Test
+    fun `can detect normalize change`() {
+        val state = State(null, true, emptyList())
+
+        every { client.normalize() } returns false
+
+        val result = diff.diff(state)
+
+        assertEquals(Diffing.Change(false, true), result.normalize)
+    }
+
+    @Test
     fun `can detect incompatible changes`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
 
         every { client.subjects() } returns listOf("foobar")
         every { client.testCompatibility(any()) } returns listOf("incompatible!")
@@ -55,7 +78,7 @@ class DiffingTest {
 
     @Test
     fun `can detect added subjects`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
 
         every { client.subjects() } returns emptyList()
         every { client.testCompatibility(any()) } returns emptyList()
@@ -70,7 +93,7 @@ class DiffingTest {
 
     @Test
     fun `can detect deleted subjects`() {
-        val state = State(Compatibility.BACKWARD, emptyList())
+        val state = State(Compatibility.BACKWARD, null, emptyList())
 
         every { client.subjects() } returns listOf("foobar")
 
@@ -84,7 +107,7 @@ class DiffingTest {
 
     @Test
     fun `will hide deletes if not enabled`() {
-        val state = State(Compatibility.BACKWARD, emptyList())
+        val state = State(Compatibility.BACKWARD, null, emptyList())
 
         every { client.subjects() } returns listOf("foobar")
 
@@ -98,7 +121,7 @@ class DiffingTest {
 
     @Test
     fun `can detect if compatibility has been modified for subjects`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
@@ -125,7 +148,7 @@ class DiffingTest {
 
     @Test
     fun `can detect that schema has been modified for subject`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject, subject2))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject, subject2))
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar", "bar")
@@ -154,7 +177,7 @@ class DiffingTest {
 
     @Test
     fun `can detect that schema already exists in an older version`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
@@ -174,7 +197,7 @@ class DiffingTest {
 
     @Test
     fun `can detect that nothing has changed`() {
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
         val remoteSchema = mockk<ParsedSchema>()
 
         every { client.subjects() } returns listOf("foobar")
@@ -201,7 +224,7 @@ class DiffingTest {
             )
 
         val subject = Subject("foobar", Compatibility.FORWARD, changedSchema)
-        val state = State(Compatibility.BACKWARD, listOf(subject))
+        val state = State(Compatibility.BACKWARD, null, listOf(subject))
 
         every { client.subjects() } returns listOf("foobar")
         every { client.getLatestSchema("foobar") } returns schema

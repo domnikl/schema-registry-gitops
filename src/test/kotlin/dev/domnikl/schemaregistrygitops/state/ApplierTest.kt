@@ -47,6 +47,22 @@ class ApplierTest {
     }
 
     @Test
+    fun `can apply normalize`() {
+        every { client.updateNormalize(true) } just runs
+
+        val diff = Diffing.Result(normalize = Diffing.Change(false, true))
+
+        stateApplier.apply(diff)
+
+        verifyOrder {
+            client.updateNormalize(true)
+            logger.info("[GLOBAL]")
+            logger.info("   ~ normalize false -> true")
+            logger.info("")
+        }
+    }
+
+    @Test
     fun `will not change global compatibility if matches state`() {
         val diff = Diffing.Result()
 

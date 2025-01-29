@@ -23,6 +23,7 @@ class Diffing(private val client: SchemaRegistryClient) {
 
         return Result(
             gatherCompatibilityChange(client.globalCompatibility(), state),
+            gatherNormalizeChange(client.normalize(), state),
             incompatible,
             added,
             gatherChanges(modified),
@@ -36,6 +37,13 @@ class Diffing(private val client: SchemaRegistryClient) {
         }
 
         return Change(globalCompatibility, state.compatibility)
+    }
+
+    private fun gatherNormalizeChange(normalize: Boolean, state: State): Change<Boolean>? {
+        if(normalize == state.normalize || state.normalize == null) {
+            return null
+        }
+        return Change(normalize, state.normalize)
     }
 
     private fun gatherDeletes(enableDeletes: Boolean, remoteSubjects: List<String>, state: State): List<String> {
@@ -79,6 +87,7 @@ class Diffing(private val client: SchemaRegistryClient) {
 
     data class Result(
         val compatibility: Change<Compatibility>? = null,
+        val normalize: Change<Boolean>? = null,
         val incompatible: List<CompatibilityTestResult> = emptyList(),
         val added: List<Subject> = emptyList(),
         val modified: List<Changes> = emptyList(),

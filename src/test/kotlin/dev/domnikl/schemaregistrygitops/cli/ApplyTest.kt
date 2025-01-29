@@ -73,4 +73,23 @@ class ApplyTest {
 
         verify { logger.error("java.lang.IllegalArgumentException: foobar") }
     }
+
+    @Test
+    fun `only normalize`() {
+        val state = mockk<State>()
+        val diffingResult = Diffing.Result(added = listOf(mockk()))
+
+        every { configuration.baseUrl } returns "https://foo.bar"
+        every { persistence.load(any(), any()) } returns state
+        every { applier.apply(any()) } returns Result.SUCCESS
+        every { logger.info(any()) } just runs
+        every { diffing.diff(state, false) } returns diffingResult
+
+        val input = fromResources("only_normalize.yml")
+        val exitCode = commandLine.execute("apply", "--registry", "https://foo.bar", input.path)
+
+        verify { logger.info("[SUCCESS] Applied state from ${input.path} to https://foo.bar") }
+
+        assertEquals(0, exitCode)
+    }
 }
