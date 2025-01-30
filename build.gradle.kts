@@ -7,7 +7,7 @@ plugins {
     kotlin("plugin.spring") version "2.1.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.9"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.10"
     jacoco
 }
 
