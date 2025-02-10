@@ -1,6 +1,6 @@
 package dev.domnikl.schemaregistrygitops.state
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import dev.domnikl.schemaregistrygitops.Compatibility
 import dev.domnikl.schemaregistrygitops.SchemaParseException
 import dev.domnikl.schemaregistrygitops.State
@@ -216,7 +216,7 @@ class PersistenceTest {
 
     @Test
     fun `throws exception when subject name is missing`() {
-        assertThrows<MissingKotlinParameterException> {
+        assertThrows<MismatchedInputException> {
             loader.load(fromResources("schemas"), listOf(fromResources("subject_name_is_missing.yml")))
         }
     }

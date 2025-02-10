@@ -40,7 +40,7 @@ class Diffing(private val client: SchemaRegistryClient) {
     }
 
     private fun gatherNormalizeChange(normalize: Boolean, state: State): Change<Boolean>? {
-        if(normalize == state.normalize || state.normalize == null) {
+        if (normalize == state.normalize || state.normalize == null) {
             return null
         }
         return Change(normalize, state.normalize)
