@@ -13,8 +13,18 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
         return Compatibility.valueOf(client.getCompatibility(""))
     }
 
+    fun normalize(): Boolean {
+        return client.getConfig("").isNormalize ?: false
+    }
+
     fun updateGlobalCompatibility(compatibility: Compatibility): Compatibility {
         return Compatibility.valueOf(client.updateCompatibility("", compatibility.toString()))
+    }
+
+    fun updateNormalize(normalize: Boolean) {
+        val config = client.getConfig("")
+        config.isNormalize = normalize
+        client.updateConfig("", config)
     }
 
     fun compatibility(subject: String): Compatibility {

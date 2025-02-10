@@ -37,6 +37,13 @@ class Applier(
             logger.info("")
         }
 
+        diff.normalize?.let {
+            updateNormalize(diff.normalize)
+            logger.info("[GLOBAL]")
+            logger.info("   ~ normalize ${diff.normalize.before} -> ${diff.normalize.after}")
+            logger.info("")
+        }
+
         diff.deleted.forEach { delete(it) }
         diff.added.forEach { register(it) }
 
@@ -92,5 +99,9 @@ class Applier(
 
     private fun updateGlobalCompatibility(change: Diffing.Change<Compatibility>) {
         client.updateGlobalCompatibility(change.after)
+    }
+
+    private fun updateNormalize(change: Diffing.Change<Boolean>) {
+        client.updateNormalize(change.after)
     }
 }

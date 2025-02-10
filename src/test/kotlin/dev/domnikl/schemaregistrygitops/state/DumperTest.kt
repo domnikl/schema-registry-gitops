@@ -21,6 +21,8 @@ class DumperTest {
         every { client.globalCompatibility() } returns Compatibility.FULL
         every { client.subjects() } returns listOf("foo", "bar")
 
+        every { client.normalize() } returns true
+
         every { client.compatibility("foo") } returns Compatibility.FULL_TRANSITIVE
         every { client.getLatestSchema("foo") } returns schema
 
@@ -29,6 +31,7 @@ class DumperTest {
 
         val expectedState = State(
             Compatibility.FULL,
+            true,
             listOf(
                 Subject(
                     "foo",
@@ -53,6 +56,7 @@ class DumperTest {
         val schema = AvroSchema("{\"name\":\"FooKey\",\"type\":\"string\"}")
 
         every { client.globalCompatibility() } returns Compatibility.FULL
+        every { client.normalize() } returns false
         every { client.subjects() } returns listOf("bar")
 
         every { client.compatibility("bar") } returns Compatibility.NONE
@@ -60,6 +64,7 @@ class DumperTest {
 
         val expectedState = State(
             Compatibility.FULL,
+            false,
             listOf(
                 Subject(
                     "bar",

@@ -36,6 +36,7 @@ class PlanTest {
     fun `can validate YAML state file`() {
         val state = State(
             null,
+            null,
             listOf(Subject("foo", null, mockk()))
         )
 
@@ -61,6 +62,7 @@ class PlanTest {
     fun `will log success when no changes were made`() {
         val state = State(
             null,
+            null,
             listOf(Subject("foo", null, mockk()))
         )
 
@@ -82,6 +84,7 @@ class PlanTest {
     @Test
     fun `will log deletes`() {
         val state = State(
+            null,
             null,
             listOf(Subject("foo", null, mockk()))
         )
@@ -111,6 +114,7 @@ class PlanTest {
     fun `will log adds`() {
         val state = State(
             null,
+            null,
             listOf(Subject("foo", null, mockk()))
         )
 
@@ -137,6 +141,7 @@ class PlanTest {
     @Test
     fun `will log changes`() {
         val state = State(
+            null,
             null,
             listOf(Subject("foo", null, mockk()))
         )
@@ -178,6 +183,7 @@ class PlanTest {
     fun `can handle relative inputFile paths`() {
         val state = State(
             null,
+            null,
             listOf(Subject("foo", null, mockk()))
         )
 
@@ -194,6 +200,7 @@ class PlanTest {
     @Test
     fun `can report validation fails`() {
         val state = State(
+            null,
             null,
             listOf(
                 Subject("foo", null, mockk()),
@@ -225,6 +232,7 @@ class PlanTest {
     @Test
     fun `can report other errors`() {
         val state = State(
+            null,
             null,
             listOf(
                 Subject("foo", null, mockk()),
