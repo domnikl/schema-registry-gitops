@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.domnikl"
-version = "1.10.0"
+version = "1.12.0"
 
 repositories {
     mavenCentral()
