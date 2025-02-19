@@ -24,7 +24,7 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
 
   schemaregistry:
-    image: confluentinc/cp-schema-registry:7.8.1
+    image: confluentinc/cp-schema-registry:7.9.0
     restart: always
     depends_on:
       - kafka
