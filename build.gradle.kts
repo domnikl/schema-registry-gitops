@@ -27,8 +27,8 @@ dependencies {
     implementation("info.picocli:picocli:4.7.6")
 
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("ch.qos.logback:logback-classic:1.5.17")
-    implementation("ch.qos.logback:logback-core:1.5.17")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-core:1.5.18")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
