@@ -34,7 +34,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
     constraints {
-        implementation("com.google.code.gson:gson:2.12.1") {
+        implementation("com.google.code.gson:gson:2.13.0") {
             because("CVE-2022-25647")
         }
         implementation("org.apache.commons:commons-compress:1.27.1") {
