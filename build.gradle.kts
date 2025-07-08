@@ -47,7 +47,7 @@ dependencies {
     implementation("io.confluent:kafka-json-schema-serializer:7.9.2")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.14.4")
 
-    implementation("io.github.java-diff-utils:java-diff-utils:4.15")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.16")
 
     testImplementation(platform("org.junit:junit-bom:5.13.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
