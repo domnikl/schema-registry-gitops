@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Log in to the container registry
         uses: docker/login-action@5b7b28b1cc417bbd34cd8c225a957c9ce9adf7f2
         with:
