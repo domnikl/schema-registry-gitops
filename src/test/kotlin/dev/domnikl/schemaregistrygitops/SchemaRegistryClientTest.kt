@@ -26,14 +26,14 @@ class SchemaRegistryClientTest {
 
     @Test
     fun `can get global compatibility`() {
-        every { client.getCompatibility("") } returns "BACKWARD"
+        every { client.getCompatibility(null) } returns "BACKWARD"
 
         assertEquals(Compatibility.BACKWARD, wrapper.globalCompatibility())
     }
 
     @Test
     fun `can update global compatibility`() {
-        every { client.updateCompatibility("", "FULL") } returns "FULL"
+        every { client.updateCompatibility(null, "FULL") } returns "FULL"
 
         assertEquals(
             Compatibility.FULL,

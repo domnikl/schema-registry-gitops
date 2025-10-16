@@ -10,21 +10,21 @@ class SchemaRegistryClient(private val client: CachedSchemaRegistryClient) {
     }
 
     fun globalCompatibility(): Compatibility {
-        return Compatibility.valueOf(client.getCompatibility(""))
+        return Compatibility.valueOf(client.getCompatibility(null))
     }
 
     fun normalize(): Boolean {
-        return client.getConfig("").isNormalize ?: false
+        return client.getConfig(null).isNormalize ?: false
     }
 
     fun updateGlobalCompatibility(compatibility: Compatibility): Compatibility {
-        return Compatibility.valueOf(client.updateCompatibility("", compatibility.toString()))
+        return Compatibility.valueOf(client.updateCompatibility(null, compatibility.toString()))
     }
 
     fun updateNormalize(normalize: Boolean) {
-        val config = client.getConfig("")
+        val config = client.getConfig(null)
         config.isNormalize = normalize
-        client.updateConfig("", config)
+        client.updateConfig(null, config)
     }
 
     fun compatibility(subject: String): Compatibility {
