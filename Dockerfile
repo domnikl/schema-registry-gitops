@@ -1,4 +1,4 @@
-FROM amazoncorretto:17.0.17-alpine AS tester
+FROM amazoncorretto:25.0.1-alpine AS tester
 
 WORKDIR /home/cuser
 
@@ -11,7 +11,7 @@ RUN ./gradlew --no-daemon check
 FROM tester AS builder
 RUN ./gradlew --no-daemon shadowJar
 
-FROM amazoncorretto:17.0.17-alpine AS distribution
+FROM amazoncorretto:25.0.1-alpine AS distribution
 COPY --from=builder /home/cuser/build/libs/schema-registry-gitops.jar /home/cuser/schema-registry-gitops.jar
 
 WORKDIR /home/cuser
