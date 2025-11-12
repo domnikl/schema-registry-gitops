@@ -51,7 +51,7 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("io.mockk:mockk:1.14.6")
     testImplementation("com.github.stefanbirkner:system-rules:1.19.0")
 }
 
