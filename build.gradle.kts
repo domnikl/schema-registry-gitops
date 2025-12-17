@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "2.1.21"
+    kotlin("plugin.spring") version "2.3.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.3"
